@@ -8,23 +8,33 @@
 // and Sanjay J. Patel
 
 var LC2 = (function(LC2) {
+	var BASE = 2;
+	var BITS = 16;
+	var REGISTERS = 16;
+	
 	var ProtoLC2 = {};
 
-	var Register = function(value) {
-		if(!value) var value = 0;
-		
-		this.set = function(new_value) {
-			value = new_value;
-		}
+	var Register = function(_val) {
+		if(!_val) var _val = 0;
 
-		this.get = function() {
-			return value;
-		}
+		this.__defineGetter__("value", function(){
+			return _val;
+		});
+		
+		this.__defineSetter__("value", function(val){
+			_val = val % Math.pow(BASE,BITS);
+		});
 	};
 
 	var initialize_registers = function(lc2_inst) {
-		for(var i = 0; i < 16; ++i) {
+		for(var i = 0; i < REGISTERS; ++i) {
 			lc2_inst.reg[i] = new Register(0);
+		}
+	};
+
+	var initialize_memory = function(lc2_inst) {
+		for(var i = 0; i < Math.pow(BASE,BITS); ++i) {
+			lc2_inst.mem[i] = new Register(0);
 		}
 	};
 
@@ -34,6 +44,7 @@ var LC2 = (function(LC2) {
 		this.reg = [];
 		this.pc = new Register(0);
 		initialize_registers(this);
+		initialize_memory(this);
 	};
 
 	// inheritance
