@@ -26,7 +26,7 @@ var LC2 = (function(LC2) {
 		});
 		
 		this.__defineSetter__("value", function(val){
-			_val = val % Math.pow(BASE,BITS);
+			_val = val & ones(BITS);
 		});
 
 		this.toString = function() {
