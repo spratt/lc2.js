@@ -24,6 +24,9 @@ var LC2 = (function(LC2) {
 	};
 	
 	var ones = function(n) {
+		// Generate the largest unsigned integer representable in n bits
+		assert(n <= 32);
+		assert(n >= 0);
 		var value = 0;
 		for(var i = 0; i < n; ++i) {
 			value = value | (1 << i);
@@ -40,6 +43,7 @@ var LC2 = (function(LC2) {
 	};
 	
 	var set_conditions = function(lc2_inst, value) {
+		// set the condition bits on the given lc2 whose last result was value
 		if(value < 0)
 			lc2_inst.conds = COND_NEG;
 		else if(value > 0)
@@ -74,11 +78,11 @@ var LC2 = (function(LC2) {
 			imm5_bit + "," + last + ")");
 		var val1 = this.reg[src_reg].value;
 		var val2;
-		if(imm5_bit === 0) {
+		if((imm5_bit & 1) === 0) {
 			val2 = this.reg[last].value;
-		} else if(imm5_bit === 1) {
+		} else {
 			val2 = toSignedInt(last,5);
-		}
+		} 
 		var result = val1 + val2;
 		this.log(val1 + " + " + val2 + " = " + result);
 		this.reg[dest_reg].value = result;
