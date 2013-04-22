@@ -17,26 +17,10 @@ var LC2 = (function(LC2) {
 	var COND_POS  = 1 << 1; // 2^1 = 2
 	var COND_ZERO = 1 << 2; // 2^2 = 4
 
-	// register class
-	var Register = function(_val) {
-		if(!_val) var _val = 0;
-
-		this.__defineGetter__("value", function(){
-			return _val;
-		});
-		
-		this.__defineSetter__("value", function(val){
-			_val = val & ones(BITS);
-		});
-
-		this.toString = function() {
-			return "reg[" + _val + "]";
-		};
-	};
-
 	// helpers
-	var log = function(o) {
-		console.log(o);
+	var assert = function(truth_value) {
+		if(!truth_value)
+			throw new Error("Assertion failed!");
 	};
 	
 	var ones = function(n) {
@@ -46,6 +30,14 @@ var LC2 = (function(LC2) {
 		}
 		return value;
 	}
+
+	var toSignedInt = function(n,bits) {
+		// Bitwise operators in Javascript coerce the number to a 32 bit integer
+		// so this removes the value of the upper 16 bits to coerce to 16 bits
+		assert(bits <= 32);
+		var shift = 32 - bits;
+		return (n << shift) >> shift;
+	};
 	
 	var set_conditions = function(lc2_inst, value) {
 		if(value < 0)
@@ -54,59 +46,62 @@ var LC2 = (function(LC2) {
 			lc2_inst.conds = COND_POS;
 		else
 			lc2_inst.conds = COND_ZERO;
-		log("conds set to " + lc2_inst.conds);
+		lc2_inst.log("conds set to " + lc2_inst.conds);
 	};
 
-	var add_reg_to_reg = function(lc2_inst,dest_reg,src_reg1,src_reg2) {
-		var val1 = lc2_inst.reg[src_reg1].value;
-		var val2 = lc2_inst.reg[src_reg2].value;
-		var result = val1 + val2;
-		log(val1 + " + " + val2 + " = " + result);
-		lc2_inst.reg[dest_reg].value = result;
-		set_conditions(lc2_inst,result);
-	};
+	// register class
+	var Register = function(_val) {
+		if(!_val) var _val = 0;
 
-	var add_reg_to_imm5 = function(lc2_inst,dest_reg,src_reg1,imm5) {
-		var val1 = lc2_inst.reg[src_reg1].value;
-		var val2 = imm5 & ones(5);
-		var result = val1 + val2;
-		log(val1 + " + " + val2 + " = " + result);
-		lc2_inst.reg[dest_reg].value = result;
-		set_conditions(lc2_inst,result);
+		this.__defineGetter__("value", function(){
+			return _val;
+		});
+		
+		this.__defineSetter__("value", function(val){
+			_val = toSignedInt(val,BITS);
+		});
+
+		this.toString = function() {
+			return "reg[" + _val + "]";
+		};
 	};
 
 	// methods
 	var ProtoLC2 = {};
 	
-	ProtoLC2.add = function(dest_reg,src_reg1,imm5_bit,last) {
-		log("add(" + dest_reg + "," + src_reg1 + "," +
+	ProtoLC2.add = function(dest_reg,src_reg,imm5_bit,last) {
+		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
-		if(imm5_bit === 0)
-			add_reg_to_reg(this,dest_reg,src_reg1,last);
-		else if(imm5_bit === 1)
-			add_reg_to_imm5(this,dest_reg,src_reg1,last);
+		var val1 = this.reg[src_reg].value;
+		var val2;
+		if(imm5_bit === 0) {
+			val2 = this.reg[last].value;
+		} else if(imm5_bit === 1) {
+			val2 = toSignedInt(last,5);
+		}
+		var result = val1 + val2;
+		this.log(val1 + " + " + val2 + " = " + result);
+		this.reg[dest_reg].value = result;
+		set_conditions(this,result);
 	};
+
+	ProtoLC2.log = function(o) { if(this.debug) console.log(o); };
 
 	// initialization
-	var initialize_registers = function(lc2_inst) {
-		for(var i = 0; i < REGISTERS; ++i) {
-			lc2_inst.reg[i] = new Register(0);
-		}
-	};
-
-	var initialize_memory = function(lc2_inst) {
-		for(var i = 0; i < Math.pow(BASE,BITS); ++i) {
-			lc2_inst.mem[i] = new Register(0);
-		}
-	};
-
 	var LC2 = function() {
+		this.debug = false;
 		this.conds = 0;
 		this.mem = [];
 		this.reg = [];
 		this.pc = new Register(0);
-		initialize_registers(this);
-		initialize_memory(this);
+		// initialize registers
+		for(var i = 0; i < REGISTERS; ++i) {
+			this.reg[i] = new Register(0);
+		}
+		// initialize memory
+		for(var i = 0; i < Math.pow(BASE,BITS); ++i) {
+			this.mem[i] = new Register(0);
+		}
 	};
 
 	// inheritance
