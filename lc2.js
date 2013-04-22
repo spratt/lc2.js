@@ -5,7 +5,10 @@
 //
 // The LC-2 processor is described in the book "Introduction to
 // Computing Systems: from Bits & Gates to C & Beyond" by Yale N. Patt,
-// and Sanjay J. Patel
+// and Sanjay J. Patel.
+//
+// An online reference for the LC-2 processor is available at:
+// http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf
 
 var LC2 = (function(LC2) {
 	// constants
