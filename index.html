@@ -7,6 +7,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title>lc2.js</title>
+    <link rel="stylesheet" type="text/css" 
+          href="http://spratt.github.com/EasyCSS/minimalist.css" />
   </head>
   <body>
     <h1>lc2.js</h1>
@@ -18,13 +20,12 @@
       LC-2 processor</a> in javascript.
     </p>
     <p>
-      To use: open
-      up your browser console, and type:
-    </p>
+      To use: open up your browser console, and type:
     
-    <code>
-      var lc2 = new LC2;
-    </code>
+      <pre>
+        var lc2 = new LC2;
+      </pre>
+    </p>
     
     <h2>Classes</h2>
     <dl>
@@ -65,7 +66,7 @@
     
     <h2>Methods</h2>
     <dl>
-      <dt><code>add(dest_reg,src_reg,imm5_bit,last)</code></dt>
+      <dt><code>lc2.add(dest_reg,src_reg,imm5_bit,last)</code></dt>
       <dd>
         <p>
           Add the value of the source register <code>src_reg</code> to
