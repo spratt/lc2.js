@@ -11,7 +11,7 @@ var LC2 = (function(LC2) {
 	// constants
 	var BASE = 2;
 	var BITS = 16;
-	var REGISTERS = 16;
+	var REGISTERS = 8;
 
 	var COND_NEG  = 1 << 0; // 2^0 = 1
 	var COND_POS  = 1 << 1; // 2^1 = 2
