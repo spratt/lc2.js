@@ -1,14 +1,8 @@
-// lc2.js - an implementation of the LC-2 processor in Javascript
+// lc2.js - a simulator of the LC-2 processor in Javascript
 //
-// Written by: Simon Pratt
-// Licensed under: The ISC License
-//
-// The LC-2 processor is described in the book "Introduction to
-// Computing Systems: from Bits & Gates to C & Beyond" by Yale N. Patt,
-// and Sanjay J. Patel.
-//
-// An online reference for the LC-2 processor is available at:
-// http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf
+// Author:  Simon Pratt
+// License: ISC
+// Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2) {
 	// constants
