@@ -50,18 +50,50 @@ var LC2 = (function(LC2) {
 		lc2_inst.log("conds set to " + lc2_inst.conds);
 	};
 
-	// register class
+	// classes
 	var Register = function(_id,_val) {
 		assert(_id);
 		if(!_val) var _val = 0;
 
-		this.__defineGetter__("value", function(){
+		this.__defineGetter__("value", function() {
 			return _val;
 		});
 		
-		this.__defineSetter__("value", function(val){
+		this.__defineSetter__("value", function(val) {
 			// use the least signficant bits, and only as many as the CPU has
 			_val = toSignedInt(val,BITS);
+		});
+
+		this.toString = function() {
+			return "" + _id + "[" + _val + "]";
+		};
+	};
+
+	var Memory = function(_id,_hval,_lval) {
+		assert(_id);
+		assert(BITS === 16); // this breaks if not 16 bit
+		if(!_hval) var _hval = 0;
+		if(!_lval) var _lval = 0;
+		var _val = (_hval << BITS) + toSignedInt(_lval,BITS);
+
+		this.__defineGetter__("value", function() {
+			return _val;
+		});
+
+		this.__defineGetter__("hvalue", function() {
+			return _val & ones(BITS);
+		});
+
+		this.__defineGetter__("lvalue", function() {
+			return (_val & (ones(BITS) << BITS)) >> BITS;
+		});
+		
+		this.__defineSetter__("lvalue", function(val) {
+			_val = (_val & (ones(BITS) << BITS)) + toSignedInt(val,BITS);
+		});
+		
+		this.__defineSetter__("hvalue", function(val) {
+			_val = (toSignedInt(val,BITS) << BITS) + (_val & ones(BITS));
 		});
 
 		this.toString = function() {
@@ -107,8 +139,8 @@ var LC2 = (function(LC2) {
 			this.reg[i] = new Register("reg"+i,0);
 		}
 		// initialize memory
-		for(var i = 0; i < Math.pow(BASE,BITS); ++i) {
-			this.mem[i] = new Register("mem@"+i,0);
+		for(var i = 0; i < Math.pow(BASE,BITS); i += 2) {
+			this.mem[i/2] = new Memory("mem@"+i,0,0);
 		}
 	};
 
