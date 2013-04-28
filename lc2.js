@@ -33,7 +33,7 @@ var LC2 = (function(LC2) {
 
 	var toSignedInt = function(n,bits) {
 		// Bitwise operators in Javascript coerce the number to a 32 bit integer
-		// so this removes the value of the upper 16 bits to coerce to 16 bits
+		// so this removes the value of the upper 32-n bits to coerce to n bits
 		assert(bits <= 32);
 		var shift = 32 - bits;
 		return (n << shift) >> shift;
@@ -51,7 +51,8 @@ var LC2 = (function(LC2) {
 	};
 
 	// register class
-	var Register = function(_val) {
+	var Register = function(_id,_val) {
+		assert(_id);
 		if(!_val) var _val = 0;
 
 		this.__defineGetter__("value", function(){
@@ -59,11 +60,12 @@ var LC2 = (function(LC2) {
 		});
 		
 		this.__defineSetter__("value", function(val){
+			// use the least signficant bits, and only as many as the CPU has
 			_val = toSignedInt(val,BITS);
 		});
 
 		this.toString = function() {
-			return "reg[" + _val + "]";
+			return "" + _id + "[" + _val + "]";
 		};
 	};
 
@@ -75,13 +77,18 @@ var LC2 = (function(LC2) {
 			imm5_bit + "," + last + ")");
 		var val1 = this.reg[src_reg].value;
 		var val2;
+		// check the least significant bit of imm5_bit
 		if((imm5_bit & 1) === 0) {
+			this.log(this.reg[dest_reg] + " = " + this.reg[src_reg] + " + " +
+					 this.reg[last]);
 			val2 = this.reg[last].value;
 		} else {
+			this.log(this.reg[dest_reg] + " = " + this.reg[src_reg] + " + " +
+					 toSignedInt(last,5));
 			val2 = toSignedInt(last,5);
 		} 
 		var result = val1 + val2;
-		this.log(val1 + " + " + val2 + " = " + result);
+		this.log(result + " = " + val1 + " + " + val2);
 		this.reg[dest_reg].value = result;
 		set_conditions(this,result);
 	};
@@ -94,14 +101,14 @@ var LC2 = (function(LC2) {
 		this.conds = 0;
 		this.mem = [];
 		this.reg = [];
-		this.pc = new Register(0);
+		this.pc = new Register("pc",0);
 		// initialize registers
 		for(var i = 0; i < REGISTERS; ++i) {
-			this.reg[i] = new Register(0);
+			this.reg[i] = new Register("reg"+i,0);
 		}
 		// initialize memory
 		for(var i = 0; i < Math.pow(BASE,BITS); ++i) {
-			this.mem[i] = new Register(0);
+			this.mem[i] = new Register("mem@"+i,0);
 		}
 	};
 
