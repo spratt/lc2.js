@@ -73,21 +73,21 @@
           <pre>
             var lc2 = new LC2;
             
-            lc2.memory.mar = 3000;
-            lc2.memory.mdr = 1;
-            lc2.memory.interrogate(1);  // write 1 to memory location 3000
+            lc2.mem.mar = 3000;
+            lc2.mem.mdr = 1;
+            lc2.mem.interrogate(1);  // write 1 to memory location 3000
             
-            lc2.memory.mar = 3001;
-            lc2.memory.mdr = 2;
-            lc2.memory.interrogate(1);  // write 2 to memory location 3001
+            lc2.mem.mar = 3001;
+            lc2.mem.mdr = 2;
+            lc2.mem.interrogate(1);  // write 2 to memory location 3001
             
-            lc2.memory.mar = 3000;
-            lc2.memory.interrogate();
-            console.log(lc2.memory.mdr); // 1
+            lc2.mem.mar = 3000;
+            lc2.mem.interrogate();
+            console.log(lc2.mem.mdr); // 1
             
-            lc2.memory.mar = 3001;
-            lc2.memory.interrogate();
-            console.log(lc2.memory.mdr); // 2
+            lc2.mem.mar = 3001;
+            lc2.mem.interrogate();
+            console.log(lc2.mem.mdr); // 2
           </pre>
         </p>
       </dd>
