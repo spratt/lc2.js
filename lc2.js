@@ -8,6 +8,8 @@ var LC2 = (function(LC2) {
 	// constants
 	var BASE = 2;
 	var BITS = 16;
+	var PAGE_BITS = 7;
+	var PAGE_LOCS = BITS - PAGE_BITS;
 	var REGISTERS = 8;
 
 	var COND_NEG  = 1 << 0; // 2^0 = 1
@@ -50,6 +52,11 @@ var LC2 = (function(LC2) {
 		lc2_inst.log("conds set to " + lc2_inst.conds);
 	};
 
+	var toBinaryString = function(num) {
+		if(typeof(num) !== "number") return;
+		return (num >> 0).toString(2);
+	};
+
 	// classes
 	var Register = function(_id,_val) {
 		assert(_id);
@@ -81,24 +88,92 @@ var LC2 = (function(LC2) {
 		});
 
 		this.__defineGetter__("hvalue", function() {
-			return _val & ones(BITS);
+			return (_val & (ones(BITS) << BITS)) >> BITS;
 		});
 
 		this.__defineGetter__("lvalue", function() {
-			return (_val & (ones(BITS) << BITS)) >> BITS;
+			return _val & ones(BITS);
 		});
 		
 		this.__defineSetter__("lvalue", function(val) {
-			_val = (_val & (ones(BITS) << BITS)) + toSignedInt(val,BITS);
+			_val = (_val & (ones(BITS) << BITS)) | toSignedInt(val,BITS);
 		});
 		
 		this.__defineSetter__("hvalue", function(val) {
-			_val = (toSignedInt(val,BITS) << BITS) + (_val & ones(BITS));
+			_val = (toSignedInt(val,BITS) << BITS) | (_val & ones(BITS));
 		});
 
 		this.toString = function() {
 			return "" + _id + "[" + _val + "]";
 		};
+	};
+
+	var MemoryUnit = function(lc2_inst) {
+		var mar = new Register("mar",0);
+		var mdr = new Register("mdr",0);
+		var pages = [];
+
+		this.log = function() {};
+		if(lc2_inst && typeof(lc2_inst.log) === 'function') {
+			this.log = function(o) {
+				lc2_inst.log(o);
+			};
+		}
+		
+		// initialize memory
+		for(var page = 0; page < Math.pow(BASE,PAGE_BITS); ++page) {
+			var this_page = []
+			for(var i = 0; i < Math.pow(BASE,PAGE_LOCS); i += 2) {
+				var full_addr = (page << PAGE_LOCS) | i;
+				this_page[i/2] = new Memory("mem@" + full_addr,0,0);
+			}
+			pages[page] = this_page;
+		}
+
+		
+		this.__defineGetter__("mar", function() {
+			return mar.value;
+		});
+
+		this.__defineSetter__("mar", function(val) {
+			mar.value = val;
+		});
+
+		this.__defineGetter__("mdr", function() {
+			return mdr.value;
+		});
+
+		this.__defineSetter__("mdr", function(val) {
+			mdr.value = val;
+		});
+
+		this.interrogate = function(write_bit) {
+			// translate 16 bit location to 32 bit location
+			var page = mar.value >> (BITS - PAGE_BITS);
+			var addr = (mar.value & ones(PAGE_LOCS)) >> 1;
+			var lval = mar.value & 1;
+
+			this.log('interrogate(' + write_bit + ')');
+			this.log('mar:          ' + mar.value +
+						 ' = ' + toBinaryString(mar.value));
+			this.log('mdr:          ' + mdr.value);
+			this.log('page:         ' + page +
+						 ' = ' + toBinaryString(page));
+			this.log('addr:         ' + addr +
+						 ' = ' + toBinaryString(addr));
+			this.log('lval:         ' + lval);
+			this.log('pages.length: ' + pages.length);
+			this.log('page.length:  ' + pages[page].length);
+
+			if(write_bit && (write_bit & 1)) { // write
+				if(lval) pages[page][addr].lvalue = mdr.value;
+				else     pages[page][addr].hvalue = mdr.value;
+			} else {                           // read
+				if(lval) mdr.value = pages[page][addr].lvalue;
+				else     mdr.value = pages[page][addr].hvalue;
+			}
+		};
+		
 	};
 
 	// methods
@@ -131,20 +206,14 @@ var LC2 = (function(LC2) {
 	var LC2 = function() {
 		this.debug = false;
 		this.conds = 0;
-		this.mem = [];
 		this.reg = [];
 		this.pc = new Register("pc",0);
 		this.ir = new Register("ir",0);
-		this.mar = new Register("mar",0);
-		this.mdr = new Register("mdr",0);
 		// initialize registers
 		for(var i = 0; i < REGISTERS; ++i) {
 			this.reg[i] = new Register("reg"+i,0);
 		}
-		// initialize memory
-		for(var i = 0; i < Math.pow(BASE,BITS); i += 2) {
-			this.mem[i/2] = new Memory("mem@"+i,0,0);
-		}
+		this.mem = new MemoryUnit(this);
 	};
 
 	// inheritance
