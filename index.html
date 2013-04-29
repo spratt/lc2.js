@@ -9,10 +9,17 @@
     <title>lc2.js</title>
     <link rel="stylesheet" type="text/css" 
           href="http://spratt.github.io/EasyCSS/minimalist.css" />
+    <style type="text/css">
+      body {
+        margin: 0 auto;   /* centre horizontally  */
+        max-width: 40em;  /* readable line width  */
+        line-height: 1.5; /* compact line spacing */
+      }
+    </style>
   </head>
   <body>
     <h1>lc2.js</h1>
-    <h2>By Simon Pratt</h2>
+    <h3>By Simon Pratt</h3>
     
     <p>
       A simulator
@@ -34,26 +41,55 @@
     
     <h2>Classes</h2>
     <dl>
-      <dt>Register</dt>
+      <dt><code>Register</code></dt>
       <dd>
         A 16 bit register.  To assign a value to a
         register <code>reg</code>, evaluate: <code>reg.value = 42</code>.
         To read a value from the same register
         evaluate: <code>reg.value</code>.
       </dd>
-      <dt>MemoryUnit</dt>
+      <dt><code>MemoryUnit</code></dt>
       <dd>
-        Controls access to the LC-2 memory.  To retrieve the value at
-        memory location 3000 from the memory unit of an LC2
-        instance <code>lc2</code>, first set the memory address
-        register (MAR): <code>lc2.mem.mar = 3000</code>, then
-        interrogate the memory
-        unit: <code>lc2.mem.interrogate()</code>, then read from the
-        memory data register (MDR): <code>lc2.mem.mdr</code>.  To
-        write a value to memory location 3000 on the same memory unit,
-        first set the MAR: <code>lc2.mem.mar = 3000</code>, then set
-        the MDR: <code>lc2.mem.mdr = 42</code>, then interrogate with
-        the write bit set: <code>lc2.mem.interrogate(1)</code>.
+        Controls access to the LC-2 memory.  
+        
+        <p>
+          To retrieve the value at memory location 3000 from the memory
+          unit of an LC2 instance <code>lc2</code>, first set the memory
+          address register (MAR): <code>lc2.mem.mar = 3000</code>, then
+          interrogate the memory unit: <code>lc2.mem.interrogate()</code>, 
+          then read from the memory data register (MDR): 
+          <code>lc2.mem.mdr</code>.
+        </p>
+        
+        <p>
+          To write a value to memory location 3000 on the same memory
+          unit, first set the MAR: <code>lc2.mem.mar = 3000</code>, then
+          set the MDR: <code>lc2.mem.mdr = 42</code>, then interrogate
+          with the write bit set: <code>lc2.mem.interrogate(1)</code>.
+        </p>
+        
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            lc2.memory.mar = 3000;
+            lc2.memory.mdr = 1;
+            lc2.memory.interrogate(1);  // write 1 to memory location 3000
+            
+            lc2.memory.mar = 3001;
+            lc2.memory.mdr = 2;
+            lc2.memory.interrogate(1);  // write 2 to memory location 3001
+            
+            lc2.memory.mar = 3000;
+            lc2.memory.interrogate();
+            console.log(lc2.memory.mdr); // 1
+            
+            lc2.memory.mar = 3001;
+            lc2.memory.interrogate();
+            console.log(lc2.memory.mdr); // 2
+          </pre>
+        </p>
       </dd>
     </dl>
     
@@ -113,7 +149,7 @@
           to the source register.
         </p>
         <p>
-          Examples:
+          Example:
           <pre>
             var lc2 = new LC2;
             lc2.add(0,0,1,10); // reg[0] = reg[0] + 10     = 0  + 10 = 10
