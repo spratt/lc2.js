@@ -17,7 +17,7 @@
     <p>
       A simulator
       of <a href="http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf">the
-      LC-2 processor</a> in javascript.
+      LC-2</a> in javascript.
     </p>
     <p>
       <a href="https://github.com/spratt/lc2.js">Source code</a>
@@ -41,13 +41,25 @@
         To read a value from the same register
         evaluate: <code>reg.value</code>.
       </dd>
+      <dt>Memory</dt>
+      <dd>
+        A 32 bit memory location.  To assign a value to a memory
+        location <code>mem</code>, evaluate: <code>mem.value =
+        42</code>.  To read a value from the same memory location
+        evaluate: <code>mem.value</code>.  Since the LC-2 is 16 bit,
+        each memory location is effectively two sequential 16 bit
+        memory locations.  To access the first memory location,
+        evaluate: <code>mem.hvalue</code>.  To access the second,
+        evaluate: <code>mem.lvalue</code>.
+      </dd>
     </dl>
     
     <h2>Attributes</h2>
     <dl>
       <dt><code>lc2.debug</code></dt>
       <dd>
-        Type: boolean.  Default: false.  If true, log debug information to console.
+        Type: boolean.  Default: false.  If true, log debug
+        information to console.
       </dd>
       <dt><code>lc2.conds</code></dt>
       <dd>
@@ -57,7 +69,7 @@
       </dd>
       <dt><code>lc2.mem</code></dt>
       <dd>
-        Type: array of 2^16 Registers, each initialized to 0.
+        Type: array of 2^8 Memory, each initialized to 0.
       </dd>
       <dt><code>lc2.reg</code></dt>
       <dd>
@@ -65,7 +77,30 @@
       </dd>
       <dt><code>lc2.pc</code></dt>
       <dd>
-        Type: register.  Default: 0.  This is the program counter for the LC-2 cpu.
+        Type: register.  Default: 0.  This is the program counter for
+        the LC-2 control unit.  This register stores the memory
+        address of the next instruction to be evaluated.
+      </dd>
+      <dt><code>lc2.ir</code></dt>
+      <dd>
+        Type: register.  Default: 0.  This is the instruction register
+        for the LC-2 control unit.  Once fetched, this register stores
+        the value of the instruction being evaluated.
+      </dd>
+      <dt><code>lc2.mar</code></dt>
+      <dd>
+        Type: register.  Default: 0.  This is the memory address
+        register (MAR) for the LC-2 memory unit.  This is used by the
+        LC-2 to read from and write to memory.  The address of the
+        memory location to be read or written is stored in this
+        register.
+      </dd>
+      <dt><code>lc2.mdr</code></dt>
+      <dd>
+        Type: register.  Default: 0.  This is the memory data register
+        (MDR) for the LC-2 memory unit.  This is used by the LC-2 to
+        read from and write to memory.  The data read from or to be
+        written to memory is stored in this register.
       </dd>
     </dl>
     
