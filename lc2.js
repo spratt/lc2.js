@@ -134,6 +134,9 @@ var LC2 = (function(LC2) {
 		this.mem = [];
 		this.reg = [];
 		this.pc = new Register("pc",0);
+		this.ir = new Register("ir",0);
+		this.mar = new Register("mar",0);
+		this.mdr = new Register("mdr",0);
 		// initialize registers
 		for(var i = 0; i < REGISTERS; ++i) {
 			this.reg[i] = new Register("reg"+i,0);
