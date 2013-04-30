@@ -4,11 +4,6 @@
 // License: ISC
 // Website: http://spratt.github.io/lc2.js/
 
-// Design decisions:
-// Setters and getters have been used to protect private attributes during the
-// development process.  They have been used in such a way that they should
-// be easy to replace with simple attributes once development is finished.
-
 var LC2 = (function(LC2, undefined) {
 	// constants
 	var BASE = 2;
