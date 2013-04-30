@@ -114,12 +114,12 @@ var LC2 = (function(LC2, undefined) {
 			};
 		}
 		
-		// initialize memory
+		// fake initialize memory
 		for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
 			var this_page = []
 			for(var i = 0; i < Math.pow(BASE, PAGE_LOCS); i += 2) {
 				var full_addr = (page << PAGE_LOCS) | i;
-				this_page[i/2] = new Memory("mem@" + full_addr, 0, 0);
+				this_page[i/2] = null;
 			}
 			pages[page] = this_page;
 		}
@@ -150,6 +150,11 @@ var LC2 = (function(LC2, undefined) {
 			this.log('lval:         ' + lval);
 			this.log('pages.length: ' + pages.length);
 			this.log('page.length:  ' + pages[page].length);
+
+			// just in time memory initialization
+			if(pages[page][addr] === null) {
+				pages[page][addr] = new Memory("mem@" + mar.val, 0, 0);
+			}
 
 			if(write_bit && (write_bit & 1)) { // write
 				if(lval) pages[page][addr].lvalue = mdr.val;
