@@ -27,9 +27,15 @@ var LC2 = (function(LC2, undefined) {
 		return value;
 	}
 
+	var toUnsignedInt = function(n, bits) {
+		// this trashes the sign bit which is fine for unsigned integers
+		return n & ones(bits);
+	};
+
 	var toSignedInt = function(n, bits) {
 		// Bitwise operators in Javascript coerce the number to a 32 bit integer
 		// so this removes the value of the upper 32-n bits to coerce to n bits
+		// while maintaining the sign bit
 		var shift = 32 - bits;
 		return (n << shift) >> shift;
 	};
@@ -51,8 +57,16 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	// classes
-	var Register = function(_id, _val) {
+	var Register = function(ob) {
+		if(typeof(ob) === "string")
+			var _id = ob;
+		else if(typeof(ob) === "object") {
+			var _id = ob.id_string,
+			_val = ob.initial_value,
+			_unsigned = !!ob.unsigned;
+		}
 		if(!_val) var _val = 0;
+		if(!_id)  var _id  = "reg";
 
 		this.__defineGetter__("val", function() {
 			return _val;
@@ -60,7 +74,10 @@ var LC2 = (function(LC2, undefined) {
 		
 		this.__defineSetter__("val", function(val) {
 			// use the least signficant bits, and only as many as the CPU has
-			_val = toSignedInt(val, BITS);
+			if(_unsigned)
+				_val = toUnsignedInt(val, BITS);
+			else
+				_val = toSignedInt(val, BITS);
 		});
 
 		this.toString = function() {
@@ -99,8 +116,8 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	var MemoryUnit = function(lc2_inst) {
-		var mar = new Register("mar", 0);
-		var mdr = new Register("mdr", 0);
+		var mar = new Register("mar");
+		var mdr = new Register("mdr");
 		var pages = [];
 
 		this.log = function() {};
@@ -254,8 +271,8 @@ var LC2 = (function(LC2, undefined) {
 	var LC2 = function() {
 		this.debug = false;
 		var conds = 0;
-		var pc = new Register("pc", 0);
-		var ir = new Register("ir", 0);
+		var pc = new Register("pc");
+		var ir = new Register({id_string: "ir", unsigned: true});
 		var mem = new MemoryUnit(this);
 		var reg = [];
 
@@ -280,7 +297,7 @@ var LC2 = (function(LC2, undefined) {
 		
 		// initialize registers
 		for(var i = 0; i < REGISTERS; ++i) {
-			reg[i] = new Register("r" + i, 0);
+			reg[i] = new Register("r" + i);
 		}
 
 		this.__defineGetter__("r", function() {
