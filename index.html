@@ -229,6 +229,36 @@
           </pre>
         </p>
       </dd>
+      <dt><code>lc2.run_cycle()</code></dt>
+      <dd>
+        <p>
+        
+          Fetches the memory at address pointed to
+          by <code>lc2.pc.val</code> which is loaded
+          into <code>lc2.ir.val</code> then <code>lc2.pc.val</code> is
+          incremented.  The instruction is then decoded and the 
+          
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            // load an instruction into memory
+            lc2.mem.mar.val = 3000;
+            lc2.mem.mdr.val = parseInt('0001001010100101',2); // add(1,2,1,5)
+            lc2.mem.interrogate(1);
+            
+            // point at the right instruction
+            lc2.pc.val = 3000;
+            lc2.run_cycle();
+            
+            console.log(lc2.r[1].val); // 5
+            console.log(lc2.conds);    // 2     (positive)
+            console.log(lc2.pc.val);   // 3001
+          </pre>
+        </p>
+      </dd>
     </dl>
   </body>
   <script src="lc2.js"></script>

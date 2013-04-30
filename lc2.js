@@ -8,6 +8,7 @@ var LC2 = (function(LC2, undefined) {
 	// constants
 	var BASE = 2;
 	var BITS = 16;
+	var OPCODE_BITS = 4;
 	var PAGE_BITS = 7;
 	var PAGE_LOCS = BITS - PAGE_BITS;
 	var REGISTERS = 8;
@@ -137,7 +138,8 @@ var LC2 = (function(LC2, undefined) {
 			this.log('interrogate(' + write_bit + ')');
 			this.log('mar:          ' + mar.val +
 						 ' = ' + toBinaryString(mar.val));
-			this.log('mdr:          ' + mdr.val);
+			this.log('mdr:          ' + mdr.val +
+						 ' = ' + toBinaryString(mdr.val));
 			this.log('page:         ' + page +
 						 ' = ' + toBinaryString(page));
 			this.log('addr:         ' + addr +
@@ -214,6 +216,36 @@ var LC2 = (function(LC2, undefined) {
 		this.log(result + " = ~" + val1);
 		this.r[dest_reg].val = result;
 		set_conditions(this, result);
+	};
+
+	ProtoLC2.run_cycle = function() {
+		this.log("run_cycle()");
+		this.log("pc: " + this.pc.val);
+		
+		// fetch
+		this.mem.mar.val = this.pc.val;
+		this.mem.interrogate();
+		this.ir.val = this.mem.mdr.val;
+		this.pc.val = this.pc.val + 1;
+		
+		// decode
+		var ir = this.ir.val;
+		var code = ir >> (BITS - OPCODE_BITS);
+		switch(code) {
+		case 1:  // 0001: add
+			this.add((ir >> 9) & ones(3), (ir >> 6) & ones(3),
+					 (ir >> 5) & 1, ir & ones(5));
+			break;
+		case 5:  // 0101: and
+			this.and((ir >> 9) & ones(3), (ir >> 6) & ones(3),
+					 (ir >> 5) & 1, ir & ones(5));
+			break;
+		case 9:  // 1001: not
+			this.not((ir >> 9) & ones(3), (ir >> 6) & ones(3));
+			break;
+		default: // Not yet implemented
+			this.log("Opcode " + code + " not yet implemented");
+		}
 	};
 
 	ProtoLC2.log = function(o) { if(this.debug) console.log(o); };
