@@ -24,7 +24,8 @@
     <p>
       A simulator
       of <a href="http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf">the
-      LC-2</a> in javascript.  Check out the <a href="tests.html">unit tests</a>.
+      LC-2</a> in javascript.  Check out the <a href="tests.html">unit
+      tests</a>.
     </p>
     <p>
       <a href="https://github.com/spratt/lc2.js">Source code</a>
@@ -252,12 +253,11 @@
       <dt><code>lc2.run_cycle()</code></dt>
       <dd>
         <p>
-        
           Fetches the memory at address pointed to
           by <code>lc2.pc.val</code> which is loaded
           into <code>lc2.ir.val</code> then <code>lc2.pc.val</code> is
-          incremented.  The instruction is then decoded and the 
-          
+          incremented.  The instruction is then decoded and the
+          appropriate method is run on the given operands.
         </p>
         <p>
           Example:

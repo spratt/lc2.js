@@ -83,7 +83,11 @@ test("test and method", function() {
 	lc2.add(1,1,1,3);              // r3[0]  = r3[0]  + 3     = 3
 	lc2.and(2,0,0,1);              // r2[0]  = r0[5]  & r1[3] = 1
 
-	equal( lc2.r[2].val, 5 & 3 );
+	equal( lc2.r[2].val, 5 & 3 );  // 1
+
+	lc2.and(2,2,1,0);              // r2[1]  = r2[1]  & 0     = 0
+
+	equal( lc2.r[2].val, 0 );      // 0
 });
 
 test("test not method", function() {
@@ -105,47 +109,65 @@ test("test lea method", function() {
 
 test("test run_cycle method", function() {
 	var lc2 = new LC2;
+	lc2.pc.val = 3000;
 
 	// load an add instruction into memory
 	lc2.mem.mar.val = 3000;
 	lc2.mem.mdr.val = parseInt('0001001010100101',2); // add(1,2,1,5)
 	lc2.mem.interrogate(1);
-
-	// point at the right instruction
-	lc2.pc.val = 3000;
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, 5    );
 	equal( lc2.conds,    2    ); // positive
 	equal( lc2.pc.val,   3001 );
 
-	// load an and instruction into memory
+	// load another add instruction into memory
 	lc2.mem.mar.val = 3001;
+	lc2.mem.mdr.val = parseInt('0001111001000001',2); // add(7,1,0,1)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[7].val, 10   );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   3002 );
+
+	// load an and instruction into memory
+	lc2.mem.mar.val = 3002;
 	lc2.mem.mdr.val = parseInt('0101001001100000',2); // and(1,1,1,0)
 	lc2.mem.interrogate(1);
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, 0    );
 	equal( lc2.conds,    4    ); // zero
-	equal( lc2.pc.val,   3002 );
+	equal( lc2.pc.val,   3003 );
+
+	// load another and instruction into memory
+	lc2.mem.mar.val = 3003;
+	lc2.mem.mdr.val = parseInt('0101111001000111',2); // and(7,1,0,7)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[1].val, 0    );
+	equal( lc2.conds,    4    ); // zero
+	equal( lc2.pc.val,   3004 );
 
 	// load a not instruction into memory
-	lc2.mem.mar.val = 3002;
+	lc2.mem.mar.val = 3004;
 	lc2.mem.mdr.val = parseInt('1001001001111111',2); // not(1,1);
 	lc2.mem.interrogate(1);
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, -1   );
 	equal( lc2.conds,    1    ); // negative
-	equal( lc2.pc.val,   3003 );
+	equal( lc2.pc.val,   3005 );
 
 	// load a lea instruction into memory
-	lc2.mem.mar.val = 3003;
+	lc2.mem.mar.val = 3005;
 	lc2.mem.mdr.val = parseInt('1110101101010101',2); // lea(5,parseInt('101010101',2))
 	lc2.mem.interrogate(1);
 	lc2.run_cycle();
 
 	equal( lc2.r[5].val, parseInt('0000101101010101',2) ); // 0000101|101010101
 	equal( lc2.conds,    2    ); // positive
-	equal( lc2.pc.val,   3004 );
+	equal( lc2.pc.val,   3006 );
 });
