@@ -4,7 +4,7 @@
 // License: ISC
 // Website: http://spratt.github.io/lc2.js/
 
-var LC2 = (function(LC2) {
+var LC2 = (function(LC2, undefined) {
 	// constants
 	var BASE = 2;
 	var BITS = 16;
@@ -182,21 +182,21 @@ var LC2 = (function(LC2) {
 	ProtoLC2.add = function(dest_reg,src_reg,imm5_bit,last) {
 		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
-		var val1 = this.reg[src_reg].value;
+		var val1 = this.r[src_reg].value;
 		var val2;
 		// check the least significant bit of imm5_bit
 		if((imm5_bit & 1) === 0) {
-			this.log(this.reg[dest_reg] + " = " + this.reg[src_reg] + " + " +
-					 this.reg[last]);
-			val2 = this.reg[last].value;
+			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
+					 this.r[last]);
+			val2 = this.r[last].value;
 		} else {
-			this.log(this.reg[dest_reg] + " = " + this.reg[src_reg] + " + " +
+			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
 					 toSignedInt(last,5));
 			val2 = toSignedInt(last,5);
 		} 
 		var result = val1 + val2;
 		this.log(result + " = " + val1 + " + " + val2);
-		this.reg[dest_reg].value = result;
+		this.r[dest_reg].value = result;
 		set_conditions(this,result);
 	};
 
@@ -205,15 +205,46 @@ var LC2 = (function(LC2) {
 	// initialization
 	var LC2 = function() {
 		this.debug = false;
-		this.conds = 0;
-		this.reg = [];
-		this.pc = new Register("pc",0);
-		this.ir = new Register("ir",0);
+		var conds = 0;
+		var pc = new Register("pc",0);
+		var ir = new Register("ir",0);
+		var mem = new MemoryUnit(this);
+		var reg = [];
+
+		this.__defineGetter__("conds",function() {
+			return conds;
+		});
+		this.__defineSetter__("conds",function(val) {
+			conds = val & ones(3);
+		});
+
+		this.__defineGetter__("pc",function() {
+			return pc.value;
+		});
+		this.__defineSetter__("pc",function(val) {
+			pc.value = val;
+		});
+
+		this.__defineGetter__("ir",function() {
+			return ir.value;
+		});
+		this.__defineSetter__("ir",function(val) {
+			ir.value = val;
+		});
+
+		this.__defineGetter__("mem",function() {
+			return mem;
+		});
+		
 		// initialize registers
 		for(var i = 0; i < REGISTERS; ++i) {
-			this.reg[i] = new Register("reg"+i,0);
+			reg[i] = new Register("r"+i,0);
 		}
-		this.mem = new MemoryUnit(this);
+
+		this.__defineGetter__("r",function() {
+			// copy to prevent access to original array
+			return reg.slice(0); 
+		});
 	};
 
 	// inheritance
