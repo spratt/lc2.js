@@ -235,6 +235,17 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
+	ProtoLC2.lea = function(dest_reg, imm) {
+		this.log("lea(" + dest_reg + "," + imm + ")");
+		this.log("pc: " + this.pc.val);
+		var val1 = imm & ones(9);
+		var page = this.pc.val & (ones(7) << 9);
+		var result = page | val1;
+		this.log(result + " = " + page + " | " + val1);
+		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -259,6 +270,9 @@ var LC2 = (function(LC2, undefined) {
 			break;
 		case 9:  // 1001: not
 			this.not((ir >> 9) & ones(3), (ir >> 6) & ones(3));
+			break;
+		case 14: // 1110: lea
+			this.lea((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		default: // Not yet implemented
 			this.log("Opcode " + code + " not yet implemented");

@@ -94,6 +94,15 @@ test("test not method", function() {
 	equal( lc2.r[1].val, -1 ); // -1
 });
 
+test("test lea method", function() {
+	var lc2 = new LC2;
+
+	lc2.pc.val = parseInt('4018',16);
+	lc2.lea(5,parseInt('1FD',16));
+
+	equal( lc2.r[5].val, parseInt('41FD',16) ); // example from the book
+});
+
 test("test run_cycle method", function() {
 	var lc2 = new LC2;
 
@@ -107,7 +116,7 @@ test("test run_cycle method", function() {
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, 5    );
-	equal( lc2.conds,    2    ); // (positive)
+	equal( lc2.conds,    2    ); // positive
 	equal( lc2.pc.val,   3001 );
 
 	// load an and instruction into memory
@@ -117,7 +126,7 @@ test("test run_cycle method", function() {
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, 0    );
-	equal( lc2.conds,    4    ); // (zero)
+	equal( lc2.conds,    4    ); // zero
 	equal( lc2.pc.val,   3002 );
 
 	// load a not instruction into memory
@@ -127,6 +136,16 @@ test("test run_cycle method", function() {
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, -1   );
-	equal( lc2.conds,    1    ); // (negative)
+	equal( lc2.conds,    1    ); // negative
 	equal( lc2.pc.val,   3003 );
+
+	// load a lea instruction into memory
+	lc2.mem.mar.val = 3003;
+	lc2.mem.mdr.val = parseInt('1110101101010101',2); // lea(5,parseInt('101010101',2))
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[5].val, parseInt('0000101101010101',2) ); // 0000101|101010101
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   3004 );
 });
