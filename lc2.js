@@ -22,15 +22,8 @@ var LC2 = (function(LC2, undefined) {
 	var COND_ZERO = 1 << 2; // 2^2 = 4
 
 	// helpers
-	var assert = function(truth_value) {
-		if(!truth_value)
-			throw new Error("Assertion failed!");
-	};
-	
 	var ones = function(n) {
 		// Generate the largest unsigned integer representable in n bits
-		assert(n <= 32);
-		assert(n >= 0);
 		var value = 0;
 		for(var i = 0; i < n; ++i) {
 			value = value | (1 << i);
@@ -41,7 +34,6 @@ var LC2 = (function(LC2, undefined) {
 	var toSignedInt = function(n, bits) {
 		// Bitwise operators in Javascript coerce the number to a 32 bit integer
 		// so this removes the value of the upper 32-n bits to coerce to n bits
-		assert(bits <= 32);
 		var shift = 32 - bits;
 		return (n << shift) >> shift;
 	};
@@ -64,7 +56,6 @@ var LC2 = (function(LC2, undefined) {
 
 	// classes
 	var Register = function(_id, _val) {
-		assert(_id);
 		if(!_val) var _val = 0;
 
 		this.__defineGetter__("val", function() {
@@ -82,8 +73,6 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	var Memory = function(_id, _hval, _lval) {
-		assert(_id);
-		assert(BITS === 16); // this breaks if not 16 bit
 		if(!_hval) var _hval = 0;
 		if(!_lval) var _lval = 0;
 		var _val = (_hval << BITS) + toSignedInt(_lval, BITS);
@@ -177,12 +166,6 @@ var LC2 = (function(LC2, undefined) {
 	var ProtoLC2 = {};
 	
 	ProtoLC2.add = function(dest_reg, src_reg, imm5_bit, last) {
-		assert(dest_reg >= 0);
-		assert(dest_reg <= 7);
-		assert(src_reg >= 0);
-		assert(src_reg <= 7);
-		assert((imm5_bit & 1) || last >= 0);
-		assert((imm5_bit & 1) || last <= 7);
 		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
 		var val1 = this.r[src_reg].val;
@@ -204,12 +187,6 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.and = function(dest_reg, src_reg, imm5_bit, last) {
-		assert(dest_reg >= 0);
-		assert(dest_reg <= 7);
-		assert(src_reg >= 0);
-		assert(src_reg <= 7);
-		assert((imm5_bit & 1) || last >= 0);
-		assert((imm5_bit & 1) || last <= 7);
 		this.log("and(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
 		var val1 = this.r[src_reg].val;
@@ -231,10 +208,6 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.not = function(dest_reg, src_reg) {
-		assert(dest_reg >= 0);
-		assert(dest_reg <= 7);
-		assert(src_reg >= 0);
-		assert(src_reg <= 7);
 		this.log("not(" + dest_reg + "," + src_reg + ")");
 		var val1 = this.r[src_reg].val;
 		var result = ~val1;
