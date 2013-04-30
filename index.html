@@ -176,7 +176,7 @@
             lc2.add(1,1,1,11);             // r1[11] = r1[11] + 11     = 22
             lc2.add(2,0,0,1);              // r2[0]  = r0[20] + r1[22] = 42
             
-            console.log(lc2.r[2].val); // 42
+            console.log(lc2.r[2].val);     // 42
           </pre>
         </p>
       </dd>
@@ -202,11 +202,30 @@
           <pre>
             var lc2 = new LC2;
             
-            lc2.add(0,0,1,5);              // r0[0]  = r0[0]  + 5     = 5
-            lc2.add(1,1,1,3);              // r3[0]  = r3[0]  + 3     = 3
-            lc2.and(2,0,0,1);              // r2[0]  = r0[5]  & r1[3] = 1
+            lc2.add(0,0,1,5);              // r0[0] = r0[0]  + 5     = 5
+            lc2.add(1,1,1,3);              // r3[0] = r3[0]  + 3     = 3
+            lc2.and(2,0,0,1);              // r2[0] = r0[5]  & r1[3] = 1
             
-            console.log(lc2.r[2].val); // 1
+            console.log(lc2.r[2].val);     // 1
+          </pre>
+        </p>
+      </dd>
+      <dt><code>lc2.not(dest_reg,src_reg)</code></dt>
+      <dd>
+        <p>
+          Bitwise NOT the value of the source
+          register <code>src_reg</code> and store the result in the
+          destination register <code>dest_reg</code>.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            lc2.add(0,0,1,5);          // r0[0] = r0[0]  + 5     = 5
+            lc2.not(1,0);              // r1[0] = ~r1[5]         = -6
+            
+            console.log(lc2.r[1].val); // -6
           </pre>
         </p>
       </dd>

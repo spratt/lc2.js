@@ -218,6 +218,15 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
+	ProtoLC2.not = function(dest_reg, src_reg) {
+		this.log("not(" + dest_reg + "," + src_reg + ")");
+		var val1 = this.r[src_reg].val;
+		var result = ~val1;
+		this.log(result + " = ~" + val1);
+		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
 	ProtoLC2.log = function(o) { if(this.debug) console.log(o); };
 
 	// initialization
