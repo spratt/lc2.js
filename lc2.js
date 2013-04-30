@@ -38,7 +38,7 @@ var LC2 = (function(LC2, undefined) {
 		return value;
 	}
 
-	var toSignedInt = function(n,bits) {
+	var toSignedInt = function(n, bits) {
 		// Bitwise operators in Javascript coerce the number to a 32 bit integer
 		// so this removes the value of the upper 32-n bits to coerce to n bits
 		assert(bits <= 32);
@@ -63,7 +63,7 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	// classes
-	var Register = function(_id,_val) {
+	var Register = function(_id, _val) {
 		assert(_id);
 		if(!_val) var _val = 0;
 
@@ -73,7 +73,7 @@ var LC2 = (function(LC2, undefined) {
 		
 		this.__defineSetter__("val", function(val) {
 			// use the least signficant bits, and only as many as the CPU has
-			_val = toSignedInt(val,BITS);
+			_val = toSignedInt(val, BITS);
 		});
 
 		this.toString = function() {
@@ -81,12 +81,12 @@ var LC2 = (function(LC2, undefined) {
 		};
 	};
 
-	var Memory = function(_id,_hval,_lval) {
+	var Memory = function(_id, _hval, _lval) {
 		assert(_id);
 		assert(BITS === 16); // this breaks if not 16 bit
 		if(!_hval) var _hval = 0;
 		if(!_lval) var _lval = 0;
-		var _val = (_hval << BITS) + toSignedInt(_lval,BITS);
+		var _val = (_hval << BITS) + toSignedInt(_lval, BITS);
 
 		this.__defineGetter__("value", function() {
 			return _val;
@@ -101,11 +101,11 @@ var LC2 = (function(LC2, undefined) {
 		});
 		
 		this.__defineSetter__("lvalue", function(val) {
-			_val = (_val & (ones(BITS) << BITS)) | toSignedInt(val,BITS);
+			_val = (_val & (ones(BITS) << BITS)) | toSignedInt(val, BITS);
 		});
 		
 		this.__defineSetter__("hvalue", function(val) {
-			_val = (toSignedInt(val,BITS) << BITS) | (_val & ones(BITS));
+			_val = (toSignedInt(val, BITS) << BITS) | (_val & ones(BITS));
 		});
 
 		this.toString = function() {
@@ -114,8 +114,8 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	var MemoryUnit = function(lc2_inst) {
-		var mar = new Register("mar",0);
-		var mdr = new Register("mdr",0);
+		var mar = new Register("mar", 0);
+		var mdr = new Register("mdr", 0);
 		var pages = [];
 
 		this.log = function() {};
@@ -126,11 +126,11 @@ var LC2 = (function(LC2, undefined) {
 		}
 		
 		// initialize memory
-		for(var page = 0; page < Math.pow(BASE,PAGE_BITS); ++page) {
+		for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
 			var this_page = []
-			for(var i = 0; i < Math.pow(BASE,PAGE_LOCS); i += 2) {
+			for(var i = 0; i < Math.pow(BASE, PAGE_LOCS); i += 2) {
 				var full_addr = (page << PAGE_LOCS) | i;
-				this_page[i/2] = new Memory("mem@" + full_addr,0,0);
+				this_page[i/2] = new Memory("mem@" + full_addr, 0, 0);
 			}
 			pages[page] = this_page;
 		}
@@ -176,7 +176,7 @@ var LC2 = (function(LC2, undefined) {
 	// methods
 	var ProtoLC2 = {};
 	
-	ProtoLC2.add = function(dest_reg,src_reg,imm5_bit,last) {
+	ProtoLC2.add = function(dest_reg, src_reg, imm5_bit, last) {
 		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
 		var val1 = this.r[src_reg].val;
@@ -188,13 +188,13 @@ var LC2 = (function(LC2, undefined) {
 			val2 = this.r[last].val;
 		} else {
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
-					 toSignedInt(last,5));
-			val2 = toSignedInt(last,5);
+					 toSignedInt(last, 5));
+			val2 = toSignedInt(last, 5);
 		} 
 		var result = val1 + val2;
 		this.log(result + " = " + val1 + " + " + val2);
 		this.r[dest_reg].val = result;
-		set_conditions(this,result);
+		set_conditions(this, result);
 	};
 
 	ProtoLC2.log = function(o) { if(this.debug) console.log(o); };
@@ -203,36 +203,36 @@ var LC2 = (function(LC2, undefined) {
 	var LC2 = function() {
 		this.debug = false;
 		var conds = 0;
-		var pc = new Register("pc",0);
-		var ir = new Register("ir",0);
+		var pc = new Register("pc", 0);
+		var ir = new Register("ir", 0);
 		var mem = new MemoryUnit(this);
 		var reg = [];
 
-		this.__defineGetter__("conds",function() {
+		this.__defineGetter__("conds", function() {
 			return conds;
 		});
-		this.__defineSetter__("conds",function(val) {
+		this.__defineSetter__("conds", function(val) {
 			conds = val & ones(3);
 		});
 
-		this.__defineGetter__("pc",function() {
+		this.__defineGetter__("pc", function() {
 			return pc;
 		});
 
-		this.__defineGetter__("ir",function() {
+		this.__defineGetter__("ir", function() {
 			return ir;
 		});
 
-		this.__defineGetter__("mem",function() {
+		this.__defineGetter__("mem", function() {
 			return mem;
 		});
 		
 		// initialize registers
 		for(var i = 0; i < REGISTERS; ++i) {
-			reg[i] = new Register("r"+i,0);
+			reg[i] = new Register("r" + i, 0);
 		}
 
-		this.__defineGetter__("r",function() {
+		this.__defineGetter__("r", function() {
 			// copy to prevent access to original array
 			return reg.slice(0); 
 		});
