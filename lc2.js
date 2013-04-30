@@ -4,6 +4,11 @@
 // License: ISC
 // Website: http://spratt.github.io/lc2.js/
 
+// Design decisions:
+// Setters and getters have been used to protect private attributes during the
+// development process.  They have been used in such a way that they should
+// be easy to replace with simple attributes once development is finished.
+
 var LC2 = (function(LC2, undefined) {
 	// constants
 	var BASE = 2;
@@ -62,11 +67,11 @@ var LC2 = (function(LC2, undefined) {
 		assert(_id);
 		if(!_val) var _val = 0;
 
-		this.__defineGetter__("value", function() {
+		this.__defineGetter__("val", function() {
 			return _val;
 		});
 		
-		this.__defineSetter__("value", function(val) {
+		this.__defineSetter__("val", function(val) {
 			// use the least signficant bits, and only as many as the CPU has
 			_val = toSignedInt(val,BITS);
 		});
@@ -132,31 +137,23 @@ var LC2 = (function(LC2, undefined) {
 
 		
 		this.__defineGetter__("mar", function() {
-			return mar.value;
-		});
-
-		this.__defineSetter__("mar", function(val) {
-			mar.value = val;
+			return mar;
 		});
 
 		this.__defineGetter__("mdr", function() {
-			return mdr.value;
-		});
-
-		this.__defineSetter__("mdr", function(val) {
-			mdr.value = val;
+			return mdr;
 		});
 
 		this.interrogate = function(write_bit) {
 			// translate 16 bit location to 32 bit location
-			var page = mar.value >> (BITS - PAGE_BITS);
-			var addr = (mar.value & ones(PAGE_LOCS)) >> 1;
-			var lval = mar.value & 1;
+			var page = mar.val >> (BITS - PAGE_BITS);
+			var addr = (mar.val & ones(PAGE_LOCS)) >> 1;
+			var lval = mar.val & 1;
 
 			this.log('interrogate(' + write_bit + ')');
-			this.log('mar:          ' + mar.value +
-						 ' = ' + toBinaryString(mar.value));
-			this.log('mdr:          ' + mdr.value);
+			this.log('mar:          ' + mar.val +
+						 ' = ' + toBinaryString(mar.val));
+			this.log('mdr:          ' + mdr.val);
 			this.log('page:         ' + page +
 						 ' = ' + toBinaryString(page));
 			this.log('addr:         ' + addr +
@@ -166,11 +163,11 @@ var LC2 = (function(LC2, undefined) {
 			this.log('page.length:  ' + pages[page].length);
 
 			if(write_bit && (write_bit & 1)) { // write
-				if(lval) pages[page][addr].lvalue = mdr.value;
-				else     pages[page][addr].hvalue = mdr.value;
+				if(lval) pages[page][addr].lvalue = mdr.val;
+				else     pages[page][addr].hvalue = mdr.val;
 			} else {                           // read
-				if(lval) mdr.value = pages[page][addr].lvalue;
-				else     mdr.value = pages[page][addr].hvalue;
+				if(lval) mdr.val = pages[page][addr].lvalue;
+				else     mdr.val = pages[page][addr].hvalue;
 			}
 		};
 		
@@ -182,13 +179,13 @@ var LC2 = (function(LC2, undefined) {
 	ProtoLC2.add = function(dest_reg,src_reg,imm5_bit,last) {
 		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
-		var val1 = this.r[src_reg].value;
+		var val1 = this.r[src_reg].val;
 		var val2;
 		// check the least significant bit of imm5_bit
 		if((imm5_bit & 1) === 0) {
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
 					 this.r[last]);
-			val2 = this.r[last].value;
+			val2 = this.r[last].val;
 		} else {
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
 					 toSignedInt(last,5));
@@ -196,7 +193,7 @@ var LC2 = (function(LC2, undefined) {
 		} 
 		var result = val1 + val2;
 		this.log(result + " = " + val1 + " + " + val2);
-		this.r[dest_reg].value = result;
+		this.r[dest_reg].val = result;
 		set_conditions(this,result);
 	};
 
@@ -219,17 +216,11 @@ var LC2 = (function(LC2, undefined) {
 		});
 
 		this.__defineGetter__("pc",function() {
-			return pc.value;
-		});
-		this.__defineSetter__("pc",function(val) {
-			pc.value = val;
+			return pc;
 		});
 
 		this.__defineGetter__("ir",function() {
-			return ir.value;
-		});
-		this.__defineSetter__("ir",function(val) {
-			ir.value = val;
+			return ir;
 		});
 
 		this.__defineGetter__("mem",function() {
