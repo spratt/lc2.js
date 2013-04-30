@@ -177,6 +177,12 @@ var LC2 = (function(LC2, undefined) {
 	var ProtoLC2 = {};
 	
 	ProtoLC2.add = function(dest_reg, src_reg, imm5_bit, last) {
+		assert(dest_reg >= 0);
+		assert(dest_reg <= 7);
+		assert(src_reg >= 0);
+		assert(src_reg <= 7);
+		assert((imm5_bit & 1) || last >= 0);
+		assert((imm5_bit & 1) || last <= 7);
 		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
 		var val1 = this.r[src_reg].val;
@@ -198,6 +204,12 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.and = function(dest_reg, src_reg, imm5_bit, last) {
+		assert(dest_reg >= 0);
+		assert(dest_reg <= 7);
+		assert(src_reg >= 0);
+		assert(src_reg <= 7);
+		assert((imm5_bit & 1) || last >= 0);
+		assert((imm5_bit & 1) || last <= 7);
 		this.log("and(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
 		var val1 = this.r[src_reg].val;
@@ -219,6 +231,10 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.not = function(dest_reg, src_reg) {
+		assert(dest_reg >= 0);
+		assert(dest_reg <= 7);
+		assert(src_reg >= 0);
+		assert(src_reg <= 7);
 		this.log("not(" + dest_reg + "," + src_reg + ")");
 		var val1 = this.r[src_reg].val;
 		var result = ~val1;

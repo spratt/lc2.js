@@ -95,7 +95,7 @@
           <pre>
             var lc2 = new LC2;
             
-            lc2.r[0].val = 42;
+            lc2.r[0].val = 42;         // set the value of r0 to 42
             
             console.log(lc2.r[0].val); // 42
           </pre>
@@ -128,11 +128,11 @@
             
             lc2.mem.mar.val = 3000;
             lc2.mem.mdr.val = 8;
-            lc2.mem.interrogate(1);  // write 8 to memory location 3000
+            lc2.mem.interrogate(1);       // write 8 to memory location 3000
             
             lc2.mem.mar.val = 3001;
             lc2.mem.mdr.val = 42;
-            lc2.mem.interrogate(1);  // write 42 to memory location 3001
+            lc2.mem.interrogate(1);       // write 42 to memory location 3001
             
             lc2.mem.mar.val = 3000;
             lc2.mem.interrogate();
