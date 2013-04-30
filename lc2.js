@@ -197,6 +197,27 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
+	ProtoLC2.and = function(dest_reg, src_reg, imm5_bit, last) {
+		this.log("and(" + dest_reg + "," + src_reg + "," +
+			imm5_bit + "," + last + ")");
+		var val1 = this.r[src_reg].val;
+		var val2;
+		// check the least significant bit of imm5_bit
+		if((imm5_bit & 1) === 0) {
+			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " & " +
+					 this.r[last]);
+			val2 = this.r[last].val;
+		} else {
+			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " & " +
+					 toSignedInt(last, 5));
+			val2 = toSignedInt(last, 5);
+		} 
+		var result = val1 & val2;
+		this.log(result + " = " + val1 + " & " + val2);
+		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
 	ProtoLC2.log = function(o) { if(this.debug) console.log(o); };
 
 	// initialization
