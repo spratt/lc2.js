@@ -124,7 +124,6 @@ test("test run_cycle method", function() {
 	lc2.mem.mar.val = 3002;
 	lc2.mem.mdr.val = parseInt('1001001001111111',2); // not(1,1);
 	lc2.mem.interrogate(1);
-	lc2.debug = true;
 	lc2.run_cycle();
 
 	equal( lc2.r[1].val, -1   );
