@@ -305,7 +305,7 @@ var LC2 = (function(LC2, undefined) {
 		this.pc.val = this.pc.val + 1;
 		
 		// decode
-		var ir = this.ir.val & ones(16);
+		var ir = this.ir.val & ones(BITS);
 		var code = ir >> (BITS - OPCODE_BITS);
 		switch(code) {
 		case 1:  // 0001: add
