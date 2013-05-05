@@ -125,6 +125,19 @@ test("test ld method", function() {
 	equal( lc2.r[5].val, 42 );
 });
 
+test("test st method", function() {
+	var lc2 = new LC2;
+
+	lc2.r[5].val = 42;
+	lc2.pc.val = parseInt('4018',16);
+	lc2.st(5,parseInt('1FD',16));
+
+	// retrieve the value from memory
+	lc2.mem.mar.val = parseInt('41FD',16);
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+});
+
 test("test run_cycle method on add instructions", function() {
 	var lc2 = new LC2;
 	lc2.pc.val = 3000;
@@ -207,7 +220,6 @@ test("test run_cycle method on a lea instruction", function() {
 
 test("test run_cycle method on a ld instruction", function() {
 	var lc2 = new LC2;
-	lc2.debug = true;
 	lc2.pc.val = parseInt('3000',16);
 
 	// load a value to retrieve from memory
@@ -228,6 +240,31 @@ test("test run_cycle method on a ld instruction", function() {
 	lc2.run_cycle();
 
 	equal( lc2.r[2].val, 42 );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   1 + parseInt('3000',16) );
+});
+
+test("test run_cycle method on an st instruction", function() {
+	var lc2 = new LC2;
+	lc2.pc.val = parseInt('3000',16);
+
+	// put a known value into register 2
+	lc2.r[2].val = 42;
+
+	// load a lea instruction into memory
+	lc2.mem.mar.val = parseInt('3000',16);
+	// st(2,parseInt('110101111',2))
+	// st(2,parseInt('1AF',16);
+	// should load from memory location 31AF
+	lc2.mem.mdr.val = parseInt('0011010110101111',2); 
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	// retrieve value from memory
+	lc2.mem.mar.val = parseInt('31AF',16);
+	lc2.mem.interrogate();
+
+	equal( lc2.mem.mdr.val, 42 );
 	equal( lc2.conds,    2    ); // positive
 	equal( lc2.pc.val,   1 + parseInt('3000',16) );
 });

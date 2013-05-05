@@ -275,6 +275,32 @@
           </pre>
         </p>
       </dd>
+      <dt><code>lc2.st(src_reg,dir)</code></dt>
+      <dd>
+        <p>
+          STore (ST) the direct address of bitwise ORing the upper 7
+          bits of the value of the pc register with the 9 bits bits
+          of <code>dir</code>, retrieves the value of the source
+          register <code>src_reg</code> and stores the result in the
+          memory at the calculated address.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+
+            lc2.r[5].val = 42;
+            
+            lc2.pc.val = parseInt('3000',16);
+            lc2.ld(5,parseInt('1fd',16));
+            
+            lc2.mem.mar.val = parseInt('31FD',16);
+            lc2.mem.interrogate();
+            
+            console.log(lc2.mem.mdr.val); // 42
+          </pre>
+        </p>
+      </dd>
       <dt><code>lc2.run_cycle()</code></dt>
       <dd>
         <p>
