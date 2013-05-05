@@ -294,6 +294,27 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
+	ProtoLC2.ldi = function(dest_reg, dir) {
+		dest_reg = dest_reg & ones(3);
+		dir = dir & ones(9);
+		
+		this.log("ldi(" + dest_reg + "," + dir + ")");
+		this.log("pc: " + this.pc.val);
+		
+		var page = this.pc.val & (ones(7) << 9);
+		
+		var addr = page | dir;
+		this.log(addr + " = " + page + " | " + dir);
+		this.mem.mar.val = addr;
+		this.mem.interrogate();
+		this.mem.mar.val = this.mem.mdr.val;
+		this.mem.interrogate();
+		
+		var result = this.mem.mdr.val;
+		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -324,6 +345,9 @@ var LC2 = (function(LC2, undefined) {
 			break;
 		case 9:  // 1001: not
 			this.not((ir >> 9) & ones(3), (ir >> 6) & ones(3));
+			break;
+		case 10: // 1010: ldi
+			this.ldi((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		case 14: // 1110: lea
 			this.lea((ir >> 9) & ones(3), ir & ones(9));

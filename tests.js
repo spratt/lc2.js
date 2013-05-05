@@ -76,6 +76,29 @@ test("test add method", function() {
 	equal( lc2.r[2].val, 42 );
 });
 
+test("test run_cycle method on add instructions", function() {
+	var lc2 = new LC2;
+	lc2.pc.val = 3000;
+
+	lc2.mem.mar.val = 3000;
+	lc2.mem.mdr.val = parseInt('0001001010100101',2); // add(1,2,1,5)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[1].val, 5    );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   3001 );
+
+	lc2.mem.mar.val = 3001;
+	lc2.mem.mdr.val = parseInt('0001111001000001',2); // add(7,1,0,1)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[7].val, 10   );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   3002 );
+});
+
 test("test and method", function() {
 	var lc2 = new LC2;
 
@@ -90,12 +113,49 @@ test("test and method", function() {
 	equal( lc2.r[2].val, 0 );      // 0
 });
 
+test("test run_cycle method on and instructions", function() {
+	var lc2 = new LC2;
+	lc2.pc.val = 3002;
+
+	lc2.mem.mar.val = 3002;
+	lc2.mem.mdr.val = parseInt('0101001001100000',2); // and(1,1,1,0)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[1].val, 0    );
+	equal( lc2.conds,    4    ); // zero
+	equal( lc2.pc.val,   3003 );
+
+	lc2.mem.mar.val = 3003;
+	lc2.mem.mdr.val = parseInt('0101111001000111',2); // and(7,1,0,7)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[1].val, 0    );
+	equal( lc2.conds,    4    ); // zero
+	equal( lc2.pc.val,   3004 );
+});
+
 test("test not method", function() {
 	var lc2 = new LC2;
 
 	lc2.not(1,0);              // r1[0] = ~r1[0] = -1
 
 	equal( lc2.r[1].val, -1 ); // -1
+});
+
+test("test run_cycle method on not instruction", function() {
+	var lc2 = new LC2;
+	lc2.pc.val = 3004;
+
+	lc2.mem.mar.val = 3004;
+	lc2.mem.mdr.val = parseInt('1001001001111111',2); // not(1,1);
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[1].val, -1   );
+	equal( lc2.conds,    1    ); // negative
+	equal( lc2.pc.val,   3005 );
 });
 
 test("test lea method", function() {
@@ -105,6 +165,20 @@ test("test lea method", function() {
 	lc2.lea(5,parseInt('1FD',16));
 
 	equal( lc2.r[5].val, parseInt('41FD',16) ); // example from the book
+});
+
+test("test run_cycle method on lea instruction", function() {
+	var lc2 = new LC2;
+	lc2.pc.val = 3005;
+
+	lc2.mem.mar.val = 3005;
+	lc2.mem.mdr.val = parseInt('1110101101010101',2); // lea(5,parseInt('101010101',2))
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[5].val, parseInt('0000101101010101',2) ); // 0000101|101010101
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   3006 );
 });
 
 test("test ld method", function() {
@@ -125,100 +199,7 @@ test("test ld method", function() {
 	equal( lc2.r[5].val, 42 );
 });
 
-test("test st method", function() {
-	var lc2 = new LC2;
-
-	lc2.r[5].val = 42;
-	lc2.pc.val = parseInt('4018',16);
-	lc2.st(5,parseInt('1FD',16));
-
-	// retrieve the value from memory
-	lc2.mem.mar.val = parseInt('41FD',16);
-	lc2.mem.interrogate();
-	equal( lc2.mem.mdr.val, 42 );
-});
-
-test("test run_cycle method on add instructions", function() {
-	var lc2 = new LC2;
-	lc2.pc.val = 3000;
-
-	// load an add instruction into memory
-	lc2.mem.mar.val = 3000;
-	lc2.mem.mdr.val = parseInt('0001001010100101',2); // add(1,2,1,5)
-	lc2.mem.interrogate(1);
-	lc2.run_cycle();
-
-	equal( lc2.r[1].val, 5    );
-	equal( lc2.conds,    2    ); // positive
-	equal( lc2.pc.val,   3001 );
-
-	// load another add instruction into memory
-	lc2.mem.mar.val = 3001;
-	lc2.mem.mdr.val = parseInt('0001111001000001',2); // add(7,1,0,1)
-	lc2.mem.interrogate(1);
-	lc2.run_cycle();
-
-	equal( lc2.r[7].val, 10   );
-	equal( lc2.conds,    2    ); // positive
-	equal( lc2.pc.val,   3002 );
-});
-
-test("test run_cycle method on and instructions", function() {
-	var lc2 = new LC2;
-	lc2.pc.val = 3002;
-
-	// load an and instruction into memory
-	lc2.mem.mar.val = 3002;
-	lc2.mem.mdr.val = parseInt('0101001001100000',2); // and(1,1,1,0)
-	lc2.mem.interrogate(1);
-	lc2.run_cycle();
-
-	equal( lc2.r[1].val, 0    );
-	equal( lc2.conds,    4    ); // zero
-	equal( lc2.pc.val,   3003 );
-
-	// load another and instruction into memory
-	lc2.mem.mar.val = 3003;
-	lc2.mem.mdr.val = parseInt('0101111001000111',2); // and(7,1,0,7)
-	lc2.mem.interrogate(1);
-	lc2.run_cycle();
-
-	equal( lc2.r[1].val, 0    );
-	equal( lc2.conds,    4    ); // zero
-	equal( lc2.pc.val,   3004 );
-});
-
-test("test run_cycle method on a not instruction", function() {
-	var lc2 = new LC2;
-	lc2.pc.val = 3004;
-
-	// load a not instruction into memory
-	lc2.mem.mar.val = 3004;
-	lc2.mem.mdr.val = parseInt('1001001001111111',2); // not(1,1);
-	lc2.mem.interrogate(1);
-	lc2.run_cycle();
-
-	equal( lc2.r[1].val, -1   );
-	equal( lc2.conds,    1    ); // negative
-	equal( lc2.pc.val,   3005 );
-});
-
-test("test run_cycle method on a lea instruction", function() {
-	var lc2 = new LC2;
-	lc2.pc.val = 3005;
-
-	// load a lea instruction into memory
-	lc2.mem.mar.val = 3005;
-	lc2.mem.mdr.val = parseInt('1110101101010101',2); // lea(5,parseInt('101010101',2))
-	lc2.mem.interrogate(1);
-	lc2.run_cycle();
-
-	equal( lc2.r[5].val, parseInt('0000101101010101',2) ); // 0000101|101010101
-	equal( lc2.conds,    2    ); // positive
-	equal( lc2.pc.val,   3006 );
-});
-
-test("test run_cycle method on a ld instruction", function() {
+test("test run_cycle method on ld instruction", function() {
 	var lc2 = new LC2;
 	lc2.pc.val = parseInt('3000',16);
 
@@ -230,7 +211,6 @@ test("test run_cycle method on a ld instruction", function() {
 	lc2.mem.interrogate();
 	equal( lc2.mem.mdr.val, 42 );
 
-	// load a lea instruction into memory
 	lc2.mem.mar.val = parseInt('3000',16);
 	// ld(2,parseInt('110101111',2))
 	// ld(2,parseInt('1AF',16);
@@ -244,14 +224,27 @@ test("test run_cycle method on a ld instruction", function() {
 	equal( lc2.pc.val,   1 + parseInt('3000',16) );
 });
 
-test("test run_cycle method on an st instruction", function() {
+test("test st method", function() {
+	var lc2 = new LC2;
+
+	lc2.r[5].val = 42;
+	lc2.pc.val = parseInt('4018',16);
+	lc2.st(5,parseInt('1FD',16));
+
+	// retrieve the value from memory
+	lc2.mem.mar.val = parseInt('41FD',16);
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+});
+
+test("test run_cycle method on st instruction", function() {
 	var lc2 = new LC2;
 	lc2.pc.val = parseInt('3000',16);
 
 	// put a known value into register 2
 	lc2.r[2].val = 42;
 
-	// load a lea instruction into memory
+	// load an st instruction into memory
 	lc2.mem.mar.val = parseInt('3000',16);
 	// st(2,parseInt('110101111',2))
 	// st(2,parseInt('1AF',16);
@@ -267,4 +260,59 @@ test("test run_cycle method on an st instruction", function() {
 	equal( lc2.mem.mdr.val, 42 );
 	equal( lc2.conds,    2    ); // positive
 	equal( lc2.pc.val,   1 + parseInt('3000',16) );
+});
+
+test("test ldi method", function() {
+	var lc2 = new LC2;
+
+	// put known values into memory
+	lc2.mem.mar.val = parseInt('4BCC',16);
+	lc2.mem.mdr.val = parseInt('2110',16);
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, parseInt('2110',16) );
+	lc2.mem.mar.val = parseInt('2110',16);
+	lc2.mem.mdr.val = 42;
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+
+	// run test
+	lc2.pc.val = parseInt('4A1B',16);
+	lc2.ldi(3,parseInt('1CC',16));
+
+	equal( lc2.r[3].val, 42 );
+});
+
+test("test run_cycle method on ldi instruction", function() {
+	var lc2 = new LC2;
+
+	// load a value to retrieve from memory
+	lc2.mem.mar.val = parseInt('4BCC',16);
+	lc2.mem.mdr.val = parseInt('2110',16);
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, parseInt('2110',16) );
+	lc2.mem.mar.val = parseInt('2110',16);
+	lc2.mem.mdr.val = 42;
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+
+	lc2.pc.val = parseInt('4A1B',16);
+	lc2.mem.mar.val = parseInt('4A1B',16);
+	// ld(2,parseInt('111001100',2))
+	// ld(2,parseInt('1CC',16);
+	// should load from memory location 4BCC
+	lc2.mem.mdr.val = parseInt('1010011111001100',2); 
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+
+	equal( lc2.r[3].val, 42 );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   1 + parseInt('4A1B',16) );
 });
