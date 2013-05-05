@@ -57,16 +57,9 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	// classes
-	var Register = function(ob) {
-		if(typeof(ob) === "string")
-			var _id = ob;
-		else if(typeof(ob) === "object") {
-			var _id = ob.id_string,
-			_val = ob.initial_value,
-			_unsigned = !!ob.unsigned;
-		}
-		if(!_val) var _val = 0;
+	var Register = function(_id, _val) {
 		if(!_id)  var _id  = "reg";
+		if(!_val) var _val = 0;
 
 		this.__defineGetter__("val", function() {
 			return _val;
@@ -74,10 +67,7 @@ var LC2 = (function(LC2, undefined) {
 		
 		this.__defineSetter__("val", function(val) {
 			// use the least signficant bits, and only as many as the CPU has
-			if(_unsigned)
-				_val = toUnsignedInt(val, BITS);
-			else
-				_val = toSignedInt(val, BITS);
+			_val = toSignedInt(val, BITS);
 		});
 
 		this.toString = function() {
@@ -315,7 +305,7 @@ var LC2 = (function(LC2, undefined) {
 		this.pc.val = this.pc.val + 1;
 		
 		// decode
-		var ir = this.ir.val;
+		var ir = this.ir.val & ones(16);
 		var code = ir >> (BITS - OPCODE_BITS);
 		switch(code) {
 		case 1:  // 0001: add
@@ -350,7 +340,7 @@ var LC2 = (function(LC2, undefined) {
 		this.debug = false;
 		var conds = 0;
 		var pc = new Register("pc");
-		var ir = new Register({id_string: "ir", unsigned: true});
+		var ir = new Register("ir");
 		var mem = new MemoryUnit(this);
 		var reg = [];
 
