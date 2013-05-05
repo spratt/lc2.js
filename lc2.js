@@ -185,20 +185,26 @@ var LC2 = (function(LC2, undefined) {
 	var ProtoLC2 = {};
 	
 	ProtoLC2.add = function(dest_reg, src_reg, imm5_bit, last) {
+		dest_reg = dest_reg & ones(3);
+		src_reg = src_reg & ones(3);
+		imm5_bit = imm5_bit & 1;
+		last = last & ones(5);
+		
 		this.log("add(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
+		
 		var val1 = this.r[src_reg].val;
-		var val2;
-		// check the least significant bit of imm5_bit
-		if((imm5_bit & 1) === 0) {
+		if(imm5_bit === 0) {
+			last = last & ones(3);
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
 					 this.r[last]);
-			val2 = this.r[last].val;
+			var val2 = this.r[last].val;
 		} else {
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " + " +
 					 toSignedInt(last, 5));
-			val2 = toSignedInt(last, 5);
-		} 
+			var val2 = toSignedInt(last, 5);
+		}
+		
 		var result = val1 + val2;
 		this.log(result + " = " + val1 + " + " + val2);
 		this.r[dest_reg].val = result;
@@ -206,20 +212,26 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.and = function(dest_reg, src_reg, imm5_bit, last) {
+		dest_reg = dest_reg & ones(3);
+		src_reg = src_reg & ones(3);
+		imm5_bit = imm5_bit & 1;
+		last = last & ones(5);
+		
 		this.log("and(" + dest_reg + "," + src_reg + "," +
 			imm5_bit + "," + last + ")");
+
 		var val1 = this.r[src_reg].val;
-		var val2;
-		// check the least significant bit of imm5_bit
-		if((imm5_bit & 1) === 0) {
+		if(imm5_bit === 0) {
+			last = last & ones(3);
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " & " +
 					 this.r[last]);
-			val2 = this.r[last].val;
+			var val2 = this.r[last].val;
 		} else {
 			this.log(this.r[dest_reg] + " = " + this.r[src_reg] + " & " +
 					 toSignedInt(last, 5));
-			val2 = toSignedInt(last, 5);
-		} 
+			var val2 = toSignedInt(last, 5);
+		}
+		
 		var result = val1 & val2;
 		this.log(result + " = " + val1 + " & " + val2);
 		this.r[dest_reg].val = result;
@@ -227,8 +239,13 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.not = function(dest_reg, src_reg) {
+		dest_reg = dest_reg & ones(3);
+		src_reg = src_reg & ones(3);
+		
 		this.log("not(" + dest_reg + "," + src_reg + ")");
+		
 		var val1 = this.r[src_reg].val;
+		
 		var result = ~val1;
 		this.log(result + " = ~" + val1);
 		this.r[dest_reg].val = result;
@@ -236,12 +253,35 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	ProtoLC2.lea = function(dest_reg, imm) {
+		dest_reg = dest_reg & ones(3);
+		imm = imm & ones(9);
+		
 		this.log("lea(" + dest_reg + "," + imm + ")");
 		this.log("pc: " + this.pc.val);
-		var val1 = imm & ones(9);
+		
 		var page = this.pc.val & (ones(7) << 9);
-		var result = page | val1;
-		this.log(result + " = " + page + " | " + val1);
+		
+		var result = page | imm;
+		this.log(result + " = " + page + " | " + imm);
+		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
+	ProtoLC2.ld = function(dest_reg, dir) {
+		dest_reg = dest_reg & ones(3);
+		dir = dir & ones(9);
+		
+		this.log("lea(" + dest_reg + "," + dir + ")");
+		this.log("pc: " + this.pc.val);
+		
+		var page = this.pc.val & (ones(7) << 9);
+		
+		var addr = page | dir;
+		this.log(addr + " = " + page + " | " + dir);
+		this.mem.mar.val = addr;
+		this.mem.interrogate();
+		
+		var result = this.mem.mdr.val;
 		this.r[dest_reg].val = result;
 		set_conditions(this, result);
 	};
@@ -263,6 +303,9 @@ var LC2 = (function(LC2, undefined) {
 		case 1:  // 0001: add
 			this.add((ir >> 9) & ones(3), (ir >> 6) & ones(3),
 					 (ir >> 5) & 1, ir & ones(5));
+			break;
+		case 2:  // 0010: ld
+			this.ld((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		case 5:  // 0101: and
 			this.and((ir >> 9) & ones(3), (ir >> 6) & ones(3),

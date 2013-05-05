@@ -234,7 +234,7 @@
       <dd>
         <p>
           Loads the Effective Address (LEA) of bitwise ORing the upper
-          7 bits of the value of the pc register with the 8 immediate
+          7 bits of the value of the pc register with the 9 immediate
           bits of <code>imm</code> and stores the result in the
           destination register <code>dest_reg</code>.
         </p>
@@ -247,6 +247,31 @@
             lc2.lea(5,parseInt('1fd',16));
             
             console.log(lc2.r[5].val.toString(16)); // 41fd
+          </pre>
+        </p>
+      </dd>
+      <dt><code>lc2.ld(dest_reg,dir)</code></dt>
+      <dd>
+        <p>
+          Loads the Direct address (LD) of bitwise ORing the upper 7
+          bits of the value of the pc register with the 9 bits bits
+          of <code>dir</code>, retrieves the value of the memory at
+          that address and stores the result in the destination
+          register <code>dest_reg</code>.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            lc2.mem.mar.val = parseInt('31FD',16);
+            lc2.mem.mdr.val = 42;
+            lc2.mem.interrogate(1);
+            
+            lc2.pc.val = parseInt('3000',16);
+            lc2.ld(5,parseInt('1fd',16));
+            
+            console.log(lc2.r[5].val); // 42
           </pre>
         </p>
       </dd>
