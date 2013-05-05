@@ -294,17 +294,17 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
-	ProtoLC2.ldi = function(dest_reg, dir) {
+	ProtoLC2.ldi = function(dest_reg, indir) {
 		dest_reg = dest_reg & ones(3);
-		dir = dir & ones(9);
+		indir = indir & ones(9);
 		
-		this.log("ldi(" + dest_reg + "," + dir + ")");
+		this.log("ldi(" + dest_reg + "," + indir + ")");
 		this.log("pc: " + this.pc.val);
 		
 		var page = this.pc.val & (ones(7) << 9);
 		
-		var addr = page | dir;
-		this.log(addr + " = " + page + " | " + dir);
+		var addr = page | indir;
+		this.log(addr + " = " + page + " | " + indir);
 		this.mem.mar.val = addr;
 		this.mem.interrogate();
 		this.mem.mar.val = this.mem.mdr.val;
@@ -312,6 +312,26 @@ var LC2 = (function(LC2, undefined) {
 		
 		var result = this.mem.mdr.val;
 		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
+	ProtoLC2.sti = function(src_reg, indir) {
+		src_reg = src_reg & ones(3);
+		indir = indir & ones(9);
+		
+		this.log("sti(" + src_reg + "," + indir + ")");
+		this.log("pc: " + this.pc.val);
+		
+		var page = this.pc.val & (ones(7) << 9);
+		var result = this.r[src_reg].val;
+		
+		var addr = page | indir;
+		this.log(addr + " = " + page + " | " + indir);
+		this.mem.mar.val = addr;
+		this.mem.interrogate();
+		this.mem.mar.val = this.mem.mdr.val;
+		this.mem.mdr.val = result;
+		this.mem.interrogate(1);
 		set_conditions(this, result);
 	};
 
@@ -348,6 +368,9 @@ var LC2 = (function(LC2, undefined) {
 			break;
 		case 10: // 1010: ldi
 			this.ldi((ir >> 9) & ones(3), ir & ones(9));
+			break;
+		case 11: // 1011: sti
+			this.sti((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		case 14: // 1110: lea
 			this.lea((ir >> 9) & ones(3), ir & ones(9));
