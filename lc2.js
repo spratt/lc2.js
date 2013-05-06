@@ -115,7 +115,7 @@ var LC2 = (function(LC2, undefined) {
 			// just in time memory initialization
 			if(pages[page] === null) {
 				this.log('first time addressing the given page, allocating');
-				pages[page] = new Int16Array(Math.pow(2,PAGE_LOCS));
+				pages[page] = new Int16Array(Math.pow(BASE,PAGE_LOCS));
 			}
 
 			this.log('page.length:  ' + pages[page].length);
