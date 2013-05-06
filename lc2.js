@@ -351,6 +351,19 @@ var LC2 = (function(LC2, undefined) {
 		this.pc.val = addr;
 	};
 
+	ProtoLC2.trap = function(vector) {
+		vector = vector & ones(8);
+
+		this.log("trap(" + vector + ")");
+		this.r[7].val = this.pc.val;
+		this.pc.val = vector;
+	};
+
+	ProtoLC2.ret = function() {
+		this.log("ret()");
+		this.pc.val = this.r[7].val;
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -408,13 +421,13 @@ var LC2 = (function(LC2, undefined) {
 			this.log("Opcode " + code + " (jsrr) not yet implemented");
 			break;
 		case 13: // 1101: ret
-			this.log("Opcode " + code + " (ret) not yet implemented");
+			this.ret();
 			break;
 		case 14: // 1110: lea
 			this.lea((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		case 15: // 1111: trap
-			this.log("Opcode " + code + " (trap) not yet implemented");
+			this.trap(ir & ones(8));
 			break;
 		default: // Must be invalid
 			this.log("Opcode " + code + " invalid");

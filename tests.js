@@ -521,3 +521,45 @@ test("test run_cycle method on br instruction", function() {
 	lc2.run_cycle();
 	equal( lc2.pc.val, 5 + parseInt('3000',16) );
 });
+
+test("test trap method", function() {
+	var lc2 = new LC2;
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.trap(parseInt('25',16));
+	equal( lc2.pc.val, parseInt('25',16) );
+	equal( lc2.r[7].val, parseInt('3000',16) );
+});
+
+test("test run_cycle method on trap instruction", function() {
+	var lc2 = new LC2;
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.mem.mar.val = parseInt('3000',16);
+	lc2.mem.mdr.val = parseInt('1111000000000000',2) + parseInt('25',16);
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+	equal( lc2.pc.val, parseInt('25',16) );
+	equal( lc2.r[7].val, parseInt('3001',16) );
+});
+
+test("test ret method", function() {
+	var lc2 = new LC2;
+
+	lc2.pc.val = parseInt('25',16);
+	lc2.r[7].val = parseInt('3000',16);
+	lc2.ret();
+	equal( lc2.pc.val, parseInt('3000',16) );
+});
+
+test("test run_cycle method on ret instruction", function() {
+	var lc2 = new LC2;
+
+	lc2.pc.val = parseInt('25',16);
+	lc2.r[7].val = parseInt('3001',16);
+	lc2.mem.mar.val = parseInt('25',16);
+	lc2.mem.mdr.val = parseInt('1101000000000000');
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+	equal( lc2.pc.val, parseInt('3001',16) );
+});
