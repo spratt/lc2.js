@@ -353,6 +353,53 @@
           </pre>
         </p>
       </dd>
+      <dt><code>lc2.ldr(dest_reg,base_reg,offset)</code></dt>
+      <dd>
+        <p>
+          LoaDs the base Register (LDR) plus offset.  Add the value of
+          the register with number <code>base_reg</code> to the
+          literal value of the 6 bits of <code>offset</code>, which
+          gives a memory location whose value is loaded
+          into <code>dest_reg</code>.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+
+            lc2.r[2].val = parseInt('2345',16);
+            lc2.mem.mar.val = parseInt('2362',16);
+            lc2.mem.mdr.val = 42;
+            lc2.mem.interrogate(1);
+
+            lc2.ldr(1,2,parseInt('1D',16));
+            console.log(lc2.r[1].val); // 42
+          </pre>
+        </p>
+      </dd>
+      <dt><code>lc2.str(src_reg,base_reg,offset)</code></dt>
+      <dd>
+        <p>
+          STores the base Register (LDR) plus offset.  Add the value
+          of the register with number <code>base_reg</code> to the
+          literal value of the 6 bits of <code>offset</code>, which
+          gives a memory location whose value is set to the value
+          of <code>src_reg</code>.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+
+            lc2.r[1].val = 42;
+            lc2.r[2].val = parseInt('2345',16);
+            lc2.str(1,2,parseInt('1D',16));
+            lc2.mem.mar.val = parseInt('2362',16);
+            lc2.mem.interrogate();
+            console.log(lc2.mem.mdr.val); // 42
+          </pre>
+        </p>
+      </dd>
       <dt><code>lc2.run_cycle()</code></dt>
       <dd>
         <p>

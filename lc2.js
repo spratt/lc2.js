@@ -335,6 +335,43 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
+	ProtoLC2.ldr = function(dest_reg, base_reg, offset) {
+		dest_reg = dest_reg & ones(3);
+		base_reg = base_reg & ones(3);
+		offset = offset & ones(9);
+		
+		this.log("ldr(" + dest_reg + "," + base_reg + "," + offset + ")");
+
+		var base = this.r[base_reg].val;
+		var addr = base + offset;
+		this.log(addr + " = " + base + " + " + offset);
+		this.mem.mar.val = addr;
+		this.mem.interrogate();
+		
+		var result = this.mem.mdr.val;
+		this.r[dest_reg].val = result;
+		set_conditions(this, result);
+	};
+
+	ProtoLC2.str = function(src_reg, base_reg, offset) {
+		src_reg = src_reg & ones(3);
+		base_reg = base_reg & ones(3);
+		offset = offset & ones(9);
+		
+		this.log("str(" + src_reg + "," + base_reg + "," + offset + ")");
+		this.log("pc: " + this.pc.val);
+
+		var base = this.r[base_reg].val;
+		var result = this.r[src_reg].val;
+		
+		var addr = base + offset;
+		this.log(addr + " = " + base + " + " + offset);
+		this.mem.mar.val = addr;
+		this.mem.mdr.val = result;
+		this.mem.interrogate(1);
+		set_conditions(this, result);
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -349,6 +386,9 @@ var LC2 = (function(LC2, undefined) {
 		var ir = this.ir.val & ones(BITS);
 		var code = ir >> (BITS - OPCODE_BITS);
 		switch(code) {
+		case 0:  // 0000: br
+			this.log("Opcode " + code + " (br) not yet implemented");
+			break;
 		case 1:  // 0001: add
 			this.add((ir >> 9) & ones(3), (ir >> 6) & ones(3),
 					 (ir >> 5) & 1, ir & ones(5));
@@ -359,9 +399,21 @@ var LC2 = (function(LC2, undefined) {
 		case 3:  // 0011: st
 			this.st((ir >> 9) & ones(3), ir & ones(9));
 			break;
+		case 4:  // 0100: jsr
+			this.log("Opcode " + code + " (jsr) not yet implemented");
+			break;
 		case 5:  // 0101: and
 			this.and((ir >> 9) & ones(3), (ir >> 6) & ones(3),
 					 (ir >> 5) & 1, ir & ones(5));
+			break;
+		case 6:  // 0110: ldr
+			this.ldr((ir >> 9) & ones(3), (ir >> 6) & ones(3), ir & ones(6));
+			break;
+		case 7:  // 0111: str
+			this.str((ir >> 9) & ones(3), (ir >> 6) & ones(3), ir & ones(6));
+			break;
+		case 8: // 1000: rti
+			this.log("Opcode " + code + " (rti) not yet implemented");
 			break;
 		case 9:  // 1001: not
 			this.not((ir >> 9) & ones(3), (ir >> 6) & ones(3));
@@ -372,11 +424,20 @@ var LC2 = (function(LC2, undefined) {
 		case 11: // 1011: sti
 			this.sti((ir >> 9) & ones(3), ir & ones(9));
 			break;
+		case 12: // 1100: jsrr
+			this.log("Opcode " + code + " (jsrr) not yet implemented");
+			break;
+		case 13: // 1101: ret
+			this.log("Opcode " + code + " (ret) not yet implemented");
+			break;
 		case 14: // 1110: lea
 			this.lea((ir >> 9) & ones(3), ir & ones(9));
 			break;
-		default: // Not yet implemented
-			this.log("Opcode " + code + " not yet implemented");
+		case 15: // 1111: trap
+			this.log("Opcode " + code + " (trap) not yet implemented");
+			break;
+		default: // Must be invalid
+			this.log("Opcode " + code + " invalid");
 		}
 	};
 

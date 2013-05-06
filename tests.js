@@ -334,3 +334,67 @@ test("test run_cycle method on sti instruction", function() {
 	equal( lc2.conds,    2    ); // positive
 	equal( lc2.pc.val,   1 + parseInt('4A1B',16) );
 });
+
+test("test ldr method", function() {
+	var lc2 = new LC2;
+
+	lc2.r[2].val = parseInt('2345',16);
+	lc2.mem.mar.val = parseInt('2362',16);
+	lc2.mem.mdr.val = 42;
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+
+	lc2.ldr(1,2,parseInt('1D',16));
+	equal( lc2.r[1].val, 42 );
+});
+
+test("test run_cycle method on ldr instruction", function() {
+	var lc2 = new LC2;
+
+	lc2.r[2].val = parseInt('2345',16);
+	lc2.mem.mar.val = parseInt('2362',16);
+	lc2.mem.mdr.val = 42;
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.mem.mar.val = parseInt('3000',16);
+	lc2.mem.mdr.val = parseInt('0110001010011101',2); 	// ldr(1,2,parseInt('1D',16)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+	equal( lc2.r[1].val, 42 );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   1 + parseInt('3000',16) );
+});
+
+test("test str method", function() {
+	var lc2 = new LC2;
+
+	lc2.r[1].val = 42;
+	lc2.r[2].val = parseInt('2345',16);
+	lc2.str(1,2,parseInt('1D',16));
+	lc2.mem.mar.val = parseInt('2362',16);
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+});
+
+test("test run_cycle method on str instruction", function() {
+	var lc2 = new LC2;
+
+	lc2.r[1].val = 42;
+	lc2.r[2].val = parseInt('2345',16);
+	lc2.pc.val = parseInt('3000',16);
+	lc2.mem.mar.val = parseInt('3000',16);
+	lc2.mem.mdr.val = parseInt('0111001010011101',2); 	// str(1,2,parseInt('1D',16)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+	lc2.mem.mar.val = parseInt('2362',16);
+	lc2.mem.interrogate();
+	equal( lc2.mem.mdr.val, 42 );
+	equal( lc2.conds,    2    ); // positive
+	equal( lc2.pc.val,   1 + parseInt('3000',16) );
+});
