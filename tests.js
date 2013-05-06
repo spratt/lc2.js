@@ -625,3 +625,32 @@ test("test run_cycle method on jsrr instruction", function() {
 	equal( lc2.pc.val, parseInt('503F',16) );
 	equal( lc2.r[7].val, parseInt('3001',16) );
 });
+
+test("test rti method", function() {
+	var lc2 = new LC2;
+
+	lc2.r[7].val = parseInt('5000',16);
+	lc2.mem.mar.val = parseInt('5000',16);
+	lc2.mem.mdr.val = 42;
+	lc2.mem.interrogate(1);
+	lc2.rti();
+	equal( lc2.pc.val, 42 );
+});
+
+test("test run_cycle method on rti instruction", function() {
+	var lc2 = new LC2;
+
+	lc2.r[7].val = parseInt('5000',16);
+	lc2.mem.mar.val = parseInt('5000',16);
+	lc2.mem.mdr.val = 42;
+	lc2.mem.interrogate(1);
+	lc2.mem.mdr.val = 0;
+	lc2.mem.interrogate(0);
+	equal( lc2.mem.mdr.val, 42 );
+	lc2.pc.val = parseInt('3000',16);
+	lc2.mem.mar.val = parseInt('3000',16);
+	lc2.mem.mdr.val = parseInt('1000000000000000');
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+	equal( lc2.pc.val, 42 );
+});

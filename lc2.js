@@ -391,6 +391,13 @@ var LC2 = (function(LC2, undefined) {
 		this.pc.val = addr;
 	};
 
+	ProtoLC2.rti = function() {
+		this.log("rti()");
+		this.mem.mar.val = this.r[7].val;
+		this.mem.interrogate();
+		this.pc.val = this.mem.mdr.val;
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -433,7 +440,7 @@ var LC2 = (function(LC2, undefined) {
 			this.str((ir >> 9) & ones(3), (ir >> 6) & ones(3), ir & ones(6));
 			break;
 		case 8: // 1000: rti
-			this.log("Opcode " + code + " (rti) not yet implemented");
+			this.rti();
 			break;
 		case 9:  // 1001: not
 			this.not((ir >> 9) & ones(3), (ir >> 6) & ones(3));

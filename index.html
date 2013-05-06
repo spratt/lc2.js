@@ -517,6 +517,27 @@
           </pre>
         </p>
       </dd>
+      <dt><code>lc2.rti()</code></dt>
+      <dd>
+        <p>
+          ReTurns Indirectly (RTI) to regular program execution after
+          a jump that saves the <code>PC</code> register to memory at
+          the address specified by the value of register 7.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            lc2.r[7].val = parseInt('5000',16);
+            lc2.mem.mar.val = parseInt('5000',16);
+            lc2.mem.mdr.val = 42;
+            lc2.mem.interrogate(1);
+            lc2.rti();
+            console.log(lc2.pc.val); // 42
+          </pre>
+        </p>
+      </dd>
       <dt><code>lc2.run_cycle()</code></dt>
       <dd>
         <p>
