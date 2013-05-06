@@ -359,7 +359,6 @@ var LC2 = (function(LC2, undefined) {
 		offset = offset & ones(9);
 		
 		this.log("str(" + src_reg + "," + base_reg + "," + offset + ")");
-		this.log("pc: " + this.pc.val);
 
 		var base = this.r[base_reg].val;
 		var result = this.r[src_reg].val;
@@ -370,6 +369,28 @@ var LC2 = (function(LC2, undefined) {
 		this.mem.mdr.val = result;
 		this.mem.interrogate(1);
 		set_conditions(this, result);
+	};
+
+	ProtoLC2.br = function(n, z, p, offset) {
+		n = n & 1;
+		z = z & 1;
+		p = p & 1;
+		offset = offset & ones(9);
+
+		this.log("br(" + n + "," + z + "," + p + "," + offset + ")");
+		this.log("pc: " + this.pc.val);
+
+		var conds = this.conds;
+		var branch =
+			(n && (conds & COND_NEG)) ||
+			(z && (conds & COND_ZERO)) ||
+			(p && (conds & COND_POS));
+		if(!branch) return;
+		
+		var page = this.pc.val & (ones(7) << 9);
+		var addr = page | offset;
+		this.log(addr + " = " + page + " | " + offset);
+		this.pc.val = addr;
 	};
 
 	ProtoLC2.run_cycle = function() {
@@ -387,7 +408,8 @@ var LC2 = (function(LC2, undefined) {
 		var code = ir >> (BITS - OPCODE_BITS);
 		switch(code) {
 		case 0:  // 0000: br
-			this.log("Opcode " + code + " (br) not yet implemented");
+			this.br((ir >> 11) & 1, (ir >> 10) & 1, (ir >> 9) & 1,
+					ir & ones(9));
 			break;
 		case 1:  // 0001: add
 			this.add((ir >> 9) & ones(3), (ir >> 6) & ones(3),
@@ -446,7 +468,7 @@ var LC2 = (function(LC2, undefined) {
 	// initialization
 	var LC2 = function() {
 		this.debug = false;
-		var conds = 0;
+		var conds = COND_ZERO;
 		var pc = new Register("pc");
 		var ir = new Register("ir");
 		var mem = new MemoryUnit(this);
@@ -481,6 +503,10 @@ var LC2 = (function(LC2, undefined) {
 			return reg.slice(0); 
 		});
 	};
+
+	LC2.__defineGetter__("COND_POS",  function() { return COND_POS; });
+	LC2.__defineGetter__("COND_NEG",  function() { return COND_NEG; });
+	LC2.__defineGetter__("COND_ZERO", function() { return COND_ZERO; });
 
 	// inheritance
 	LC2.prototype = ProtoLC2;

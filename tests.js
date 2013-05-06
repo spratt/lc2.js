@@ -6,7 +6,7 @@ test("instantiated LC2 object has expected attributes", function() {
 	var lc2 = new LC2;
 	
 	equal( lc2.debug, false );
-	equal( lc2.conds, 0 );
+	equal( lc2.conds, LC2.COND_ZERO );
 	ok( lc2.pc );
 	equal( lc2.pc.val, 0 );
 	ok( lc2.ir );
@@ -397,4 +397,127 @@ test("test run_cycle method on str instruction", function() {
 	equal( lc2.mem.mdr.val, 42 );
 	equal( lc2.conds,    2    ); // positive
 	equal( lc2.pc.val,   1 + parseInt('3000',16) );
+});
+
+test("test br method", function() {
+	var lc2 = new LC2;
+
+	lc2.conds = LC2.COND_ZERO;
+	
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,0,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,0,1,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,1,0,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,1,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,0,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,0,1,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,1,0,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,1,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.conds = LC2.COND_POS;
+	
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,0,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,0,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,1,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,1,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,0,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,0,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,1,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,1,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.conds = LC2.COND_NEG;
+	
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,0,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,0,1,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,1,0,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(0,1,1,100);
+	equal( lc2.pc.val, parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,0,0,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,0,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,1,0,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+
+	lc2.pc.val = parseInt('3000',16);
+	lc2.br(1,1,1,100);
+	equal( lc2.pc.val, 100 + parseInt('3000',16) );
+});
+
+test("test run_cycle method on br instruction", function() {
+	var lc2 = new LC2;
+
+	lc2.conds = LC2.COND_NEG;
+	lc2.pc.val = parseInt('3000',16);
+	lc2.mem.mar.val = parseInt('3000',16);
+	lc2.mem.mdr.val = parseInt('0000000000000101',2); // br(0,0,0,5)
+	lc2.mem.interrogate(1);
+	lc2.mem.mar.val = parseInt('3001',16);
+	lc2.mem.mdr.val = parseInt('0000111000000101',2); // br(1,1,1,5)
+	lc2.mem.interrogate(1);
+	lc2.run_cycle();
+	equal( lc2.pc.val, 1 + parseInt('3000',16) );
+	lc2.run_cycle();
+	equal( lc2.pc.val, 5 + parseInt('3000',16) );
 });

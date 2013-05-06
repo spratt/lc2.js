@@ -42,9 +42,10 @@
       </dd>
       <dt><code>lc2.conds</code></dt>
       <dd>
-        Type: number.  Default: 0.  Bit 0 is set if the previous result
-        was negative.  Bit 1 is set if the previous result was positive.
-        Bit 2 is set if the previous result was zero.
+        Type: number.  Default: LC2.COND_ZERO (bit 2 set).  Bit 0 is
+        set if the previous result was negative.  Bit 1 is set if the
+        previous result was positive.  Bit 2 is set if the previous
+        result was zero.
       </dd>
       <dt><code>lc2.pc</code></dt>
       <dd>
@@ -73,7 +74,7 @@
     <dl>
       <dt><code>Register</code></dt>
       <dd>
-        A 16 bit register.  
+        A 16 bit register.
         
         <p>
           To assign a value to register 0 on an LC2
@@ -85,7 +86,7 @@
           evaluate: <code>lc2.r[0].val</code>.
         </p>
         <p>
-          Example: 
+          Example:
           <pre>
             var lc2 = new LC2;
             
@@ -97,14 +98,14 @@
       </dd>
       <dt><code>MemoryUnit</code></dt>
       <dd>
-        Controls access to the LC-2 memory.  
+        Controls access to the LC-2 memory.
         
         <p>
           To retrieve the value at memory location 3000 from the memory
           unit of an LC2 instance <code>lc2</code>, first set the memory
           address register (MAR): <code>lc2.mem.mar = 3000</code>, then
-          interrogate the memory unit: <code>lc2.mem.interrogate()</code>, 
-          then read from the memory data register (MDR): 
+          interrogate the memory unit: <code>lc2.mem.interrogate()</code>,
+          then read from the memory data register (MDR):
           <code>lc2.mem.mdr</code>.
         </p>
         
@@ -397,6 +398,36 @@
             lc2.mem.mar.val = parseInt('2362',16);
             lc2.mem.interrogate();
             console.log(lc2.mem.mdr.val); // 42
+          </pre>
+        </p>
+      </dd>
+      <dt><code>lc2.br(n,z,p,offset)</code></dt>
+      <dd>
+        <p>
+          BRanch (BR) based on the conditional values.  If
+          bit <code>n</code> is set, inspect the <code>N</code>
+          conditional bit.  If bit <code>z</code> is set, inspect
+          the <code>Z</code> conditional bit.  If bit <code>p</code>
+          is set, inspect the <code>P</code> conditional bit.  If any
+          of the inspected bits are set, set the value of
+          the <code>PC</code> register to the result of bitwise ORing
+          the upper 7 bits of the instruction address with the 9 bits
+          of the <code>offset</code> parameter.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+
+            lc2.conds = LC2.COND_POS;
+            
+            lc2.pc.val = parseInt('3000',16);
+            lc2.br(0,0,0,5);
+            console.log(lc2.pc.val.toString(16)); // 3001
+
+            lc2.pc.val = parseInt('3000',16);
+            lc2.br(0,0,1,100);
+            console.log(lc2.pc.val.toString(16)); // 3005
           </pre>
         </p>
       </dd>
