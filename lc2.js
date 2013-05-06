@@ -75,36 +75,6 @@ var LC2 = (function(LC2, undefined) {
 		};
 	};
 
-	var Memory = function(_id, _hval, _lval) {
-		if(!_hval) var _hval = 0;
-		if(!_lval) var _lval = 0;
-		var _val = (_hval << BITS) + toSignedInt(_lval, BITS);
-
-		this.__defineGetter__("value", function() {
-			return _val;
-		});
-
-		this.__defineGetter__("hvalue", function() {
-			return (_val & (ones(BITS) << BITS)) >> BITS;
-		});
-
-		this.__defineGetter__("lvalue", function() {
-			return _val & ones(BITS);
-		});
-		
-		this.__defineSetter__("lvalue", function(val) {
-			_val = (_val & (ones(BITS) << BITS)) | toSignedInt(val, BITS);
-		});
-		
-		this.__defineSetter__("hvalue", function(val) {
-			_val = (toSignedInt(val, BITS) << BITS) | (_val & ones(BITS));
-		});
-
-		this.toString = function() {
-			return "" + _id + "[" + _val + "]";
-		};
-	};
-
 	var MemoryUnit = function(lc2_inst) {
 		var mar = new Register("mar");
 		var mdr = new Register("mdr");
@@ -119,12 +89,7 @@ var LC2 = (function(LC2, undefined) {
 		
 		// fake initialize memory
 		for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
-			var this_page = []
-			for(var i = 0; i < Math.pow(BASE, PAGE_LOCS); i += 2) {
-				var full_addr = (page << PAGE_LOCS) | i;
-				this_page[i/2] = null;
-			}
-			pages[page] = this_page;
+			pages[page] = null;
 		}
 
 		
@@ -138,9 +103,8 @@ var LC2 = (function(LC2, undefined) {
 
 		this.interrogate = function(write_bit) {
 			// translate 16 bit location to 32 bit location
-			var page = mar.val >> (BITS - PAGE_BITS);
-			var addr = (mar.val & ones(PAGE_LOCS)) >> 1;
-			var lval = mar.val & 1;
+			var page = (mar.val >> PAGE_LOCS) & ones(PAGE_BITS);
+			var addr = mar.val & ones(PAGE_LOCS);
 
 			this.log('interrogate(' + write_bit + ')');
 			this.log('mar:          ' + mar.val +
@@ -151,21 +115,20 @@ var LC2 = (function(LC2, undefined) {
 						 ' = ' + toBinaryString(page));
 			this.log('addr:         ' + addr +
 						 ' = ' + toBinaryString(addr));
-			this.log('lval:         ' + lval);
 			this.log('pages.length: ' + pages.length);
-			this.log('page.length:  ' + pages[page].length);
 
 			// just in time memory initialization
-			if(pages[page][addr] === null) {
-				pages[page][addr] = new Memory("mem@" + mar.val, 0, 0);
+			if(pages[page] === null) {
+				this.log('first time addressing the given page, allocating');
+				pages[page] = new Int16Array(Math.pow(2,PAGE_LOCS));
 			}
 
+			this.log('page.length:  ' + pages[page].length);
+			
 			if(write_bit && (write_bit & 1)) { // write
-				if(lval) pages[page][addr].lvalue = mdr.val;
-				else     pages[page][addr].hvalue = mdr.val;
+				pages[page][addr] = mdr.val;
 			} else {                           // read
-				if(lval) mdr.val = pages[page][addr].lvalue;
-				else     mdr.val = pages[page][addr].hvalue;
+				mdr.val = pages[page][addr];
 			}
 		};
 		
