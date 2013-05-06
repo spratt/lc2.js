@@ -27,11 +27,6 @@ var LC2 = (function(LC2, undefined) {
 		return value;
 	}
 
-	var toUnsignedInt = function(n, bits) {
-		// this trashes the sign bit which is fine for unsigned integers
-		return n & ones(bits);
-	};
-
 	var toSignedInt = function(n, bits) {
 		// Bitwise operators in Javascript coerce the number to a 32 bit integer
 		// so this removes the value of the upper 32-n bits to coerce to n bits
@@ -57,21 +52,21 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	// classes
-	var Register = function(_id, _val) {
+	var Register = function(_id) {
 		if(!_id)  var _id  = "reg";
-		if(!_val) var _val = 0;
+		var _val = new Int16Array(1);
+		_val[0] = 0;
 
 		this.__defineGetter__("val", function() {
-			return _val;
+			return _val[0];
 		});
 		
 		this.__defineSetter__("val", function(val) {
-			// use the least signficant bits, and only as many as the CPU has
-			_val = toSignedInt(val, BITS);
+			_val[0] = val;
 		});
 
 		this.toString = function() {
-			return "" + _id + "[" + _val + "]";
+			return "" + _id + "[" + _val[0] + "]";
 		};
 	};
 
