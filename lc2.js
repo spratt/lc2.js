@@ -364,6 +364,19 @@ var LC2 = (function(LC2, undefined) {
 		this.pc.val = this.r[7].val;
 	};
 
+	ProtoLC2.jsr = function(l, offset) {
+		l = l & 1;
+		offset = offset & ones(9);
+
+		this.log("jsr(" + l + "," + offset + ")");
+		if(l) this.r[7].val = this.pc.val;
+		
+		var page = this.pc.val & (ones(7) << 9);
+		var addr = page | offset;
+		this.log(addr + " = " + page + " | " + offset);
+		this.pc.val = addr;
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -393,7 +406,7 @@ var LC2 = (function(LC2, undefined) {
 			this.st((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		case 4:  // 0100: jsr
-			this.log("Opcode " + code + " (jsr) not yet implemented");
+			this.jsr((ir >> 11) & 1, ir & ones(9));
 			break;
 		case 5:  // 0101: and
 			this.and((ir >> 9) & ones(3), (ir >> 6) & ones(3),

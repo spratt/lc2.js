@@ -457,7 +457,7 @@
       <dt><code>lc2.ret()</code></dt>
       <dd>
         <p>
-          Returns to regular program execution after a long jump
+          RETurns (RET) to regular program execution after a long jump
           like <code>trap</code>.  Under the hood, this sets the value
           of the <code>PC</code> register to the value of register 7.
         </p>
@@ -469,6 +469,27 @@
             lc2.r[7].val = parseInt('3000',16);
             lc2.ret();
             console.log(lc2.pc.val.toString(16)); // 3000
+          </pre>
+        </p>
+      </dd>
+      <dt><code>lc2.jsr(l,offset)</code></dt>
+      <dd>
+        <p>
+          Jump and Save Register (JSR).  Jump to the
+          specified <code>offset</code> within the same page.  If
+          the <code>l</code> bit is set, save the <code>PC</code>
+          register to register 7 for later return.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            lc2.r[7].val = 42;
+            lc2.pc.val = parseInt('3000',16);
+            lc2.jsr(0, 5);
+            console.log(lc2.pc.val.toString(16)); // 3005
+            console.log(lc2.r[7].val);            // 42
           </pre>
         </p>
       </dd>
