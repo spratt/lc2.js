@@ -377,6 +377,20 @@ var LC2 = (function(LC2, undefined) {
 		this.pc.val = addr;
 	};
 
+	ProtoLC2.jsrr = function(l, base_reg, offset) {
+		l = l & 1;
+		base_reg = base_reg & ones(3);
+		offset = offset & ones(6);
+
+		this.log("jsrr(" + l + "," + base_reg + "," + offset + ")");
+		if(l) this.r[7].val = this.pc.val;
+
+		var base = this.r[base_reg].val;
+		var addr = base + offset;
+		this.log(addr + " = " + base + " + " + offset);
+		this.pc.val = addr;
+	};
+
 	ProtoLC2.run_cycle = function() {
 		this.log("run_cycle()");
 		this.log("pc: " + this.pc.val);
@@ -431,7 +445,7 @@ var LC2 = (function(LC2, undefined) {
 			this.sti((ir >> 9) & ones(3), ir & ones(9));
 			break;
 		case 12: // 1100: jsrr
-			this.log("Opcode " + code + " (jsrr) not yet implemented");
+			this.jsrr((ir >> 11) & 1, (ir >> 6) & ones(3), ir & ones(6));
 			break;
 		case 13: // 1101: ret
 			this.ret();
@@ -442,8 +456,8 @@ var LC2 = (function(LC2, undefined) {
 		case 15: // 1111: trap
 			this.trap(ir & ones(8));
 			break;
-		default: // Must be invalid
-			this.log("Opcode " + code + " invalid");
+		default: // invalid
+			throw new Error("Opcode " + code + " invalid");
 		}
 	};
 

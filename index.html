@@ -493,6 +493,30 @@
           </pre>
         </p>
       </dd>
+      <dt><code>lc2.jsrr(l,base_reg,offset)</code></dt>
+      <dd>
+        <p>
+          Jump and Save Register to Register (JSRR).  Jump to the
+          memory location obtained by adding the value of
+          register <code>base_reg</code> to the value
+          of <code>offset</code>.  If the <code>l</code> bit is set,
+          save the <code>PC</code> register to register 7 for later
+          return.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            lc2.r[7].val = 42;
+            lc2.r[5].val = parseInt('5000',16);
+            lc2.pc.val = parseInt('3000',16);
+            lc2.jsrr(1,5,parseInt('3F',16));
+            console.log(lc2.pc.val.toString(16));   // 503f
+            console.log(lc2.r[7].val.toString(16)); // 3000
+          </pre>
+        </p>
+      </dd>
       <dt><code>lc2.run_cycle()</code></dt>
       <dd>
         <p>
