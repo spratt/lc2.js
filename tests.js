@@ -654,3 +654,20 @@ test("test run_cycle method on rti instruction", function() {
 	lc2.run_cycle();
 	equal( lc2.pc.val, 42 );
 });
+
+test("test tokenizing space separated words", function() {
+	deepEqual(LC2.tokenize("  one    two     three     four    "),
+			  [["one","two","three","four"]]);
+});
+
+test("test tokenizing with newlines", function() {
+	var str = "one two\n three four";
+	deepEqual(LC2.tokenize(str),
+			  [["one","two"],["three","four"]]);
+});
+
+test("test tokenizing with blank lines", function() {
+	var str = "one two\n\f\r three four";
+	deepEqual(LC2.tokenize(str),
+			  [["one","two"],["three","four"]]);
+});
