@@ -5,17 +5,21 @@
 // Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
+	var newline_symbols    = /[\n\f\r]+/;
+	var special_symbols    = /[\.\$#;]/;
+	var whitespace_symbols = /[ \t]+/;
+	
 	LC2.tokenize = function LC2_tokenize(str) {
-		var lines = str.split(/[\n\f\r]+/);
+		var lines = str.split(newline_symbols);
 		var tokenized_lines = [];
 		lines.forEach(function(line) {
-			var line_tokens = line.split(/[ \t]+/);
-			var comment = false;
-			var tokens = line_tokens.filter(function(token) {
-				return token.length > 0;
-			});
-			if(tokens.length > 0)
-				tokenized_lines.push(tokens);
+			var tokens = line
+				.split(whitespace_symbols)
+				.filter(function(token) {
+					return token.length > 0;
+				});
+			if(tokens.length < 1) return;
+			tokenized_lines.push(tokens);
 		});
 		return tokenized_lines;
 	}

@@ -667,7 +667,22 @@ test("test tokenizing with newlines", function() {
 });
 
 test("test tokenizing with blank lines", function() {
-	var str = "one two\n\f\r three four";
+	var str = "one two\n\f\r\n\n three four";
 	deepEqual(LC2.tokenize(str),
 			  [["one","two"],["three","four"]]);
+});
+
+test("test tokenizing actual program", function() {
+	var str = "";
+	str += "; myprog.asm\n";
+	str += ".ORIG $3000\n";
+	str += "AND R0, R0, #0 ;zero out R0\n";
+	str += ".END\n";
+	var expected_tokens = [
+		[";","myprog.asm"],
+		[".ORIG","$3000"],
+		["AND","R0,","R0,","#0",";zero","out","R0"],
+		[".END"]
+	];
+	deepEqual(LC2.tokenize(str), expected_tokens);
 });
