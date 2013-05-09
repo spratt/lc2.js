@@ -22,21 +22,46 @@ var LC2 = (function(LC2, undefined) {
 			tokenized_lines.push(tokens);
 		});
 		return tokenized_lines;
-	}
+	};
 
-	LC2.parse = function LC2_parse(tokens) {
-		return {symbols:{},tokens:tokens};
-	}
+	LC2.removeComments = function LC2_removeComments(lines) {
+		var tokens = [];
+		var line_tokens = [];
+		lines.forEach(function(line) {
+			for(var i = 0; i < line.length; ++i) {
+				var token = line[i];
+				if(token[0] === ';') {
+					break;
+				}
+				line_tokens.push(token);
+			}
+			if(line_tokens.length === 0)
+				return;
+			tokens.push(line_tokens);
+			line_tokens = [];
+		});
+		return tokens;
+	};
+
+	LC2.parse = function LC2_parse(lines) {
+		var symbols = {};
+
+		
+		
+		return {symbols:symbols,lines:lines};
+	};
 
 	LC2.translate = function LC2_translate(ob) {
+		var start = parseInt('3000',16);
 		var symbols = ob.symbols;
-		var tokens  = ob.tokens;
+		var lines  = ob.lines;
 
-		return {start:parseInt('3000',16),bytecode:''};
-	}
+		return {start:start,bytecode:''};
+	};
 	
 	LC2.assemble = function LC2_assemble(str) {
-		return translate(parse(tokenize(str)));
+		var tokens = LC2.removeComments(LC2.tokenize(str));
+		return LC2.translate(LC2.parse(tokens));
 	};
 
 	return LC2;

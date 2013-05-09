@@ -686,3 +686,27 @@ test("test tokenizing actual program", function() {
 	];
 	deepEqual(LC2.tokenize(str), expected_tokens);
 });
+
+test("test removing comments", function() {
+	var input_tokens = [
+		[";","myprog.asm"],
+		[".ORIG","$3000"],
+		["AND","R0,","R0,","#0",";zero","out","R0"],
+		[".END"]
+	];
+	var expected_tokens = [
+		[".ORIG","$3000"],
+		["AND","R0,","R0,","#0"],
+		[".END"]
+	];
+	deepEqual(LC2.removeComments(input_tokens), expected_tokens);
+});
+
+/*
+test("test parsing lea with symbol", function() {
+	var tokens = [
+		[".ORIG","$3000"],
+		["
+	];
+});
+*/

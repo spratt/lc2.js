@@ -32,12 +32,17 @@
         Splits a string into an array containing an array of tokens
         for each line in the input string.
       </dd>
-      <dt><code>lc2.parse(tokens)</code></dt>
+      <dt><code>lc2.removeComments(lines)</code></dt>
       <dd>
-        Given an array containing an array of arrays of token strings,
-        return an object with key "symbols" whose value is a mapping
-        from symbols to memory locations, and "tokens" whose value is
-        the input array with comments stripped out.
+        Given an array of arrays (lines) of token strings, strip out
+        any tokens after a semicolon on each line.
+      </dd>
+      <dt><code>lc2.parse(lines)</code></dt>
+      <dd>
+        Given an array containing an array of arrays (lines) of token
+        strings, return an object with key "symbols" whose value is a
+        mapping from symbols to memory locations, and "lines" whose
+        value is the input array with comments stripped out.
       </dd>
       <dt><code>lc2.translate(ob)</code></dt>
       <dd>
