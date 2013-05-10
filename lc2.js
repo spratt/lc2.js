@@ -468,11 +468,8 @@ var LC2 = (function(LC2, undefined) {
 		}
 	};
 
-	ProtoLC2.log = function(o) { if(this.debug) console.log(o); };
-
 	// initialization
 	var LC2 = function() {
-		this.debug = false;
 		var conds = COND_ZERO;
 		var pc = new Register("pc");
 		var ir = new Register("ir");
@@ -507,11 +504,22 @@ var LC2 = (function(LC2, undefined) {
 			// copy to prevent access to original array
 			return reg.slice(0); 
 		});
+
+		this.log = LC2.log;
+		this.__defineSetter__("debug", function(val) {
+			LC2.debug = val;
+		});
+		this.__defineGetter__("debug", function() {
+			return LC2.debug;
+		});
 	};
 
 	LC2.__defineGetter__("COND_POS",  function() { return COND_POS; });
 	LC2.__defineGetter__("COND_NEG",  function() { return COND_NEG; });
 	LC2.__defineGetter__("COND_ZERO", function() { return COND_ZERO; });
+
+	LC2.debug = false;
+	LC2.log = function(o) { if(LC2.debug) console.log(o); };
 
 	// inheritance
 	LC2.prototype = ProtoLC2;

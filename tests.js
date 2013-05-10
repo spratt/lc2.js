@@ -702,11 +702,96 @@ test("test removing comments", function() {
 	deepEqual(LC2.removeComments(input_tokens), expected_tokens);
 });
 
-/*
-test("test parsing lea with symbol", function() {
+test("test parsing assembler directive .ORIG", function() {
 	var tokens = [
-		[".ORIG","$3000"],
-		["
+		[".ORIG","$4000"],
 	];
+	var expected_object = {
+		start: parseInt('4000',16),
+		symbols: {},
+		lines: [],
+		line: 0,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
+	tokens = [
+		[".orig","x4000"],
+	];
+	expected_object = {
+		start: parseInt('4000',16),
+		symbols: {},
+		lines: [],
+		line: 0,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
+	tokens = [
+		[".OrIg","X4000"],
+	];
+	expected_object = {
+		start: parseInt('4000',16),
+		symbols: {},
+		lines: [],
+		line: 0,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
+	tokens = [
+		[".oRiG","0x4000"],
+	];
+	expected_object = {
+		start: parseInt('4000',16),
+		symbols: {},
+		lines: [],
+		line: 0,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
+	tokens = [
+		[".Orig","4000"],
+	];
+	expected_object = {
+		start: 4000,
+		symbols: {},
+		lines: [],
+		line: 0,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
 });
-*/
+
+test("test parsing doesn't remove assembler lines", function() {
+	var tokens = [
+		[".orig","$4000"],
+		["add","R0,","R0,","R0"]
+	];
+	var expected_object = {
+		start: parseInt('4000',16),
+		symbols: {},
+		lines: [
+			["add","R0,","R0,","R0"]
+		],
+		line: 1,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
+});
+
+test("test parsing adds symbols", function() {
+	var tokens = [
+		[".orig","$4000"],
+		["Start","add","R0,","R0,","R0"]
+	];
+	var expected_object = {
+		start: parseInt('4000',16),
+		symbols: {
+			"Start": parseInt('4000',16)
+		},
+		lines: [
+			["add","R0,","R0,","R0"]
+		],
+		line: 1,
+		bytecode: {}
+	};
+	deepEqual(LC2.parse(tokens), expected_object);
+});

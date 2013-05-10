@@ -42,12 +42,13 @@
         Given an array containing an array of arrays (lines) of token
         strings, return an object with key "symbols" whose value is a
         mapping from symbols to memory locations, and "lines" whose
-        value is the input array with comments stripped out.
+        value is the input array without any assembler directive
+        lines.
       </dd>
       <dt><code>lc2.translate(ob)</code></dt>
       <dd>
         Given an object with key "symbols" whose value is a mapping
-        from symbols to memory locations, and "tokens" whose value is
+        from symbols to memory locations, and "lines" whose value is
         an array of arrays of token strings, translate the tokens to
         an object with key "start" whose value is the memory location
         of the first instruction and "bytecode" whose value is the
