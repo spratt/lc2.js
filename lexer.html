@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>lexer.js Documentation</title>
+    <link rel="stylesheet" type="text/css" 
+          href="http://spratt.github.io/EasyCSS/minimalist.css" />
+    <style type="text/css">
+      body {
+        margin: 0 auto;   /* centre horizontally  */
+        max-width: 40em;  /* readable line width  */
+        line-height: 1.5; /* compact line spacing */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>lexer.js Documentation</h1>
+
+
+    <p>
+      <a href="index.html">Project Index</a>
+    </p>
+    
+    <h2>Methods</h2>
+    <dl>
+      <dt><code>lexer.lex(str, spec)</code></dt>
+      <dd>
+        Given a string and a lexer specification, return matched
+        tokens as an array.  The expected format of the lexer
+        specification is described below.
+      </dd>
+    </dl>
+    
+    <h2>Specification</h2>
+    
+    The lexer specification is an object with two
+    properties, <code>start_state</code>, which is a string name of
+    one of the <code>states</code>, which is an object whose values
+    are arrays of pattern objects which are attempted to match against
+    the string in order.  Each pattern object must have the
+    property <code>regex</code> which is matched against the input
+    string, and may contain a <code>next_state</code> to transition to
+    after a match, or a <code>type</code> whose value is a string and
+    whose inclusion means when the regex matches to return a token of
+    the matched characters with the specified token type.
+    
+    <h2>Specification Object Properties</h2>
+    <dl>
+      <dt><code>states</code></dt>
+      <dd>
+        An object with user-defined keys whose values are arrays of
+        pattern objects as described below.  These pattern objects are
+        attempted to be used to match the input string to the lexer in
+        the order specified by the array.
+      </dd>
+      <dt><code>start_state</code></dt>
+      <dd>
+        A string matching one of the keys of <code>states</code>.
+      </dd>
+    </dl>
+    
+    <h2>Pattern Object Properties</h2>
+    <dl>
+      <dt><code>regex</code></dt>
+      <dd>
+        A regular expression to be matched against the part of the
+        lexer input string that hasn't yet been matched.
+      </dd>
+      <dt><code>next_state</code> (optional)</dt>
+      <dd>
+        A string corresponding to the key of a state in the
+        specification object described above.  If the regex matches,
+        transition to this state.
+      </dd>
+      <dt><code>type</code> (optional)</dt>
+      <dd>
+        If the regex matches, return an object with two
+        properties: <code>type</code> which is this value,
+        and <code>val</code> which is the matched string.
+      </dd>
+    </dl>
+
+  </body>
+  <script src="lc2.js"></script>
+  <script src="lc2asm.js"></script>
+</html>
