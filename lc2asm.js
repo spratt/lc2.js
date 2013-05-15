@@ -4,54 +4,63 @@
 // License: ISC
 // Website: http://spratt.github.io/lc2.js/
 
-// startsWith polyfill
-if (!String.prototype.startsWith) {
-	Object.defineProperty(String.prototype, 'startsWith', {
-		enumerable: false,
-		configurable: false,
-		writable: false,
-		value: function (searchString, position) {
-			position = position || 0;
-			return this.indexOf(searchString, position) === position;
-		}
-	});
-}
-
-Object.defineProperty(String.prototype, 'startsWithAny', {
-	enumerable: false,
-	configurable: false,
-	writable: false,
-	value: function(searchStrings, position) {
-		var str = this;
-		var found = false;
-		LC2.log(str + '.swa([' + searchStrings + '],' + position + ')');
-		searchStrings.forEach(function(searchString) {
-			if(str.startsWith(searchString,position))
-				found = true;
-		});
-		return found;
-	}
-});
-
 var LC2 = (function(LC2, undefined) {
 	var newline_symbols    = /[\n\f\r]+/;
 	var special_symbols    = /[\.\$#;]/;
 	var whitespace_symbols = /[ \t]+/;
-	var hex_flags = ['$','x','X','0x'];
-
-	function myParseInt(int_str) {
-		LC2.log('mpi called with ' + int_str);
-		var base = 10;
-		while(int_str.startsWithAny(hex_flags)) {
-			LC2.log('starts with a hex flag');
-			base = 16;
-			int_str = int_str.substring(1);
-		}
-		LC2.log('now parsing ' + int_str);
-		var val = parseInt(int_str,base);
-		LC2.log('parsed as ' + val);
-		return val;
-	}
+	LC2.spec = {
+		states: {
+			'NORMAL': [
+				{
+					regex: /^[,\s]+/ // whitspace
+				},
+				{
+					regex: /^"/,  // open quote
+					next_state: 'STRING'
+				},
+				{
+					regex: /^;/,  // open comment
+					next_state: 'COMMENT'
+				},
+				{
+					regex: /^#?\$?\d+/, // literal number
+					type: 'NUM'
+				},
+				{
+					regex: /^R[0-9]{1,2}/, // register
+					type: 'REG'
+				},
+				{
+					regex: /^[a-zA-Z]\w*/, // keyword starting with a letter
+					type: 'KEY'
+				},
+				{
+					regex: /^\.[a-zA-Z]+/, // assembler directive
+					type: 'DIR'
+				}
+			],
+			'STRING': [
+				{
+					regex:/^"/,  // end string
+					next_state: 'NORMAL'
+				},
+				{
+					regex:/^[^"]*/, // anything else
+					type: 'STR'
+				}
+			],
+			'COMMENT': [
+				{
+					regex:/^\n/, // end comment
+					next_state: 'NORMAL'
+				},
+				{
+					regex:/^[^\n]*/ // anything else
+				}
+			]
+		},
+		start_state: 'NORMAL'
+	};
 	
 	var assembler_directives = {
 		'.ORIG'    : function(line, ob) {
@@ -130,72 +139,55 @@ var LC2 = (function(LC2, undefined) {
 		'TRAP'  : function(line, ob) {
 		}
 	};
-	
-	LC2.tokenize = function LC2_tokenize(str) {
-		var lines = str.split(newline_symbols);
-		var tokenized_lines = [];
-		lines.forEach(function(line) {
-			var tokens = line
-				.split(whitespace_symbols)
-				.filter(function(token) {
-					return token.length > 0;
-				});
-			if(tokens.length < 1) return;
-			tokenized_lines.push(tokens);
-		});
-		return tokenized_lines;
-	};
 
-	LC2.removeComments = function LC2_removeComments(lines) {
-		var tokens = [];
-		var line_tokens = [];
-		lines.forEach(function(line) {
-			for(var i = 0; i < line.length; ++i) {
-				var token = line[i];
-				if(token[0] === ';') {
-					break;
-				}
-				line_tokens.push(token);
-			}
-			if(line_tokens.length === 0)
-				return;
-			tokens.push(line_tokens);
-			line_tokens = [];
-		});
-		return tokens;
-	};
+	LC2.lex = function LC2_lex(str) {
+		return lexer.lex(str, LC2.spec);
+	}
 
-	LC2.parse = function LC2_parse(lines) {
+	LC2.parse = function LC2_parse(lexemes) {
 		var ob = {
 			start: parseInt('3000',16),
 			symbols: {},
-			lines: lines,
+			lines: [[]],
 			line: 0,
-			bytecode: {}
+			bytecode: []
 		};
 
-		lines = [];
-		ob.lines.forEach(function(line) {
-			var first = line[0].toUpperCase();
-			if(first in assembler_directives) {
-				assembler_directives[(first)](line, ob);
-			} else if(first in assembler_mnemonics) {
-				lines.push(line);
-				++(ob.line);
-			} else {
-				// must be a new label
-				ob.symbols[line.shift()] = ob.start + ob.line;
-				first = line[0].toUpperCase();
-				if(first in assembler_mnemonics) {
-					lines.push(line);
+		var state = 'KEY';
+		var states = {
+			'KEY': function(lexeme) {
+				LC2.log('in state: KEY');
+				var type = lexeme.type;
+				ob.lines[ob.line].push(lexeme);
+				if(type !== 'DIR' && type !== 'KEY')
+					state = 'ARG';
+			},
+			'ARG': function(lexeme) {
+				LC2.log('in state: ARG');
+				var type = lexeme.type;
+				if(type === 'DIR' || type === 'KEY') {
+					LC2.log('found new directive, incrementing line');
 					++(ob.line);
-				} else {
-					throw new Error('Parse Error on line ' + (ob.line + 1));
+					ob.lines[ob.line] = [];
+					state = 'KEY';
 				}
+				ob.lines[ob.line].push(lexeme);
 			}
+		};
+		lexemes.forEach(function(lexeme) {
+			LC2.log('parsing lexeme ' + lexeme);
+			states[state](lexeme);
 		});
-		ob.lines = lines;
+		ob.line = 0;
 		
+		return ob;
+	};
+
+	LC2.run_directives = function LC2_run_directives(ob) {
+		return ob;
+	};
+
+	LC2.build_symbol_table = function LC2_build_symbol_table(ob) {
 		return ob;
 	};
 
@@ -208,8 +200,11 @@ var LC2 = (function(LC2, undefined) {
 	};
 	
 	LC2.assemble = function LC2_assemble(str) {
-		var tokens = LC2.removeComments(LC2.tokenize(str));
-		return LC2.translate(LC2.parse(tokens));
+		var ob = LC2.parse(LC2.removeComments(LC2.tokenize(str)));
+		ob = LC2.run_directives(ob);
+		ob = LC2.build_symbol_table(ob);
+		ob = LC2.translate(ob);
+		return ob;
 	};
 
 	return LC2;

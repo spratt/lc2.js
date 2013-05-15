@@ -11,39 +11,44 @@ var lexer = (function(lexer, undefined) {
 	
 	lexer.lex = function(str,spec) {
 		var tokens = [];
-		var start = 0;
 		var state = spec.start_state;
 
 		lexer.log('len: ' + str.length);
-		while(start < str.length) {
-			lexer.log('start: ' + start);
-			var matched = false;
-			var patterns = spec.states[state];
-			for(var i = 0; i < patterns.length; ++i) {
-				var pattern = patterns[i];
-				var matches = pattern.regex.exec(str.substring(start));
-				lexer.dir(matches);
-				if(matches) {
-					var match = matches[0];
-					if('type' in pattern) {
-						tokens.push({
-							type: pattern.type,
-							val: match
-						});
+		str.split('\n').forEach(function(line_str,line_num) {
+			line_str += '\n'; // replace removed newline
+			var start = 0;
+			while(start < line_str.length) {
+				lexer.log('start: ' + start);
+				var matched = false;
+				var patterns = spec.states[state];
+				for(var i = 0; i < patterns.length; ++i) {
+					var pattern = patterns[i];
+					var matches = pattern.regex.exec(line_str.substring(start));
+					lexer.dir(matches);
+					if(matches) {
+						var match = matches[0];
+						if('type' in pattern) {
+							tokens.push({
+								type: pattern.type,
+								val: match,
+								line: line_num
+							});
+						}
+						if('next_state' in pattern) {
+							state = pattern.next_state;
+						}
+						matched = true;
+						start += match.length;
+						break;
 					}
-					if('next_state' in pattern) {
-						state = pattern.next_state;
-					}
-					matched = true;
-					start += match.length;
-					break;
 				}
+				if(!matched)
+					throw new Error('No pattern matched on line ' + line_num +
+									', character ' + start);
+				lexer.log('end: ' + start);
+				lexer.log('state: ' + state);
 			}
-			if(!matched)
-				throw new Error("No pattern matched on character " + start);
-			lexer.log('end: ' + start);
-			lexer.log('state: ' + state);
-		}
+		});
 
 		return tokens;
 	};

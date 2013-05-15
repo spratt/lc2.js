@@ -655,59 +655,77 @@ test("test run_cycle method on rti instruction", function() {
 	equal( lc2.pc.val, 42 );
 });
 
-test("test tokenizing space separated words", function() {
-	deepEqual(LC2.tokenize("  one    two     three     four    "),
-			  [["one","two","three","four"]]);
-});
-
-test("test tokenizing with newlines", function() {
-	var str = "one two\n three four";
-	deepEqual(LC2.tokenize(str),
-			  [["one","two"],["three","four"]]);
-});
-
-test("test tokenizing with blank lines", function() {
-	var str = "one two\n\f\r\n\n three four";
-	deepEqual(LC2.tokenize(str),
-			  [["one","two"],["three","four"]]);
-});
-
-test("test tokenizing actual program", function() {
+test("test lexing actual program", function() {
 	var str = "";
 	str += "; myprog.asm\n";
 	str += ".ORIG $3000\n";
 	str += "AND R0, R0, #0 ;zero out R0\n";
+	str += 'HELLO .STRINGZ "Hello, world!" ; never used\n';
 	str += ".END\n";
 	var expected_tokens = [
-		[";","myprog.asm"],
-		[".ORIG","$3000"],
-		["AND","R0,","R0,","#0",";zero","out","R0"],
-		[".END"]
+		{type: 'DIR', line: 1, val: '.ORIG'},
+		{type: 'NUM', line: 1, val: '$3000'},
+		{type: 'KEY', line: 2, val: 'AND'},
+		{type: 'REG', line: 2, val: 'R0'},
+		{type: 'REG', line: 2, val: 'R0'},
+		{type: 'NUM', line: 2, val: '#0'},
+		{type: 'KEY', line: 3, val: 'HELLO'},
+		{type: 'DIR', line: 3, val: '.STRINGZ'},
+		{type: 'STR', line: 3, val: 'Hello, world!'},
+		{type: 'DIR', line: 4, val: '.END'}
 	];
-	deepEqual(LC2.tokenize(str), expected_tokens);
+	deepEqual(LC2.lex(str), expected_tokens);
 });
 
-test("test removing comments", function() {
+test("test parsing actual program", function() {
 	var input_tokens = [
-		[";","myprog.asm"],
-		[".ORIG","$3000"],
-		["AND","R0,","R0,","#0",";zero","out","R0"],
-		[".END"]
+		{type: 'DIR', line: 1, val: '.ORIG'},
+		{type: 'NUM', line: 1, val: '$3000'},
+		{type: 'KEY', line: 2, val: 'AND'},
+		{type: 'REG', line: 2, val: 'R0'},
+		{type: 'REG', line: 2, val: 'R0'},
+		{type: 'NUM', line: 2, val: '#0'},
+		{type: 'KEY', line: 3, val: 'HELLO'},
+		{type: 'DIR', line: 3, val: '.STRINGZ'},
+		{type: 'STR', line: 3, val: 'Hello, world!'},
+		{type: 'DIR', line: 4, val: '.END'}
 	];
-	var expected_tokens = [
-		[".ORIG","$3000"],
-		["AND","R0,","R0,","#0"],
-		[".END"]
-	];
-	deepEqual(LC2.removeComments(input_tokens), expected_tokens);
+	var expected_ob = {
+		start: parseInt('3000',16),
+		symbols: {},
+		line: 0,
+		bytecode: [],
+		lines: [
+			[
+				{type: 'DIR', line: 1, val: '.ORIG'},
+				{type: 'NUM', line: 1, val: '$3000'}
+			],[
+				{type: 'KEY', line: 2, val: 'AND'},
+				{type: 'REG', line: 2, val: 'R0'},
+				{type: 'REG', line: 2, val: 'R0'},
+				{type: 'NUM', line: 2, val: '#0'}
+			],[
+				{type: 'KEY', line: 3, val: 'HELLO'},
+				{type: 'DIR', line: 3, val: '.STRINGZ'},
+				{type: 'STR', line: 3, val: 'Hello, world!'}
+			],[
+				{type: 'DIR', line: 4, val: '.END'}
+			]
+		]
+	};
+	LC2.debug = true;
+	deepEqual(LC2.parse(input_tokens), expected_ob);
+	LC2.debug = false;
 });
 
-test("test parsing assembler directive .ORIG", function() {
+/*
+test("test running assembler directive .ORIG", function() {
 	var tokens = [
-		[".ORIG","$4000"],
+		{type: 'DIR', line: 1, val: '.ORIG'},
+		{type: 'NUM', line: 1, val: '$3000'},
 	];
 	var expected_object = {
-		start: parseInt('4000',16),
+		start: parseInt('3000',16),
 		symbols: {},
 		lines: [],
 		line: 0,
@@ -760,7 +778,7 @@ test("test parsing assembler directive .ORIG", function() {
 	deepEqual(LC2.parse(tokens), expected_object);
 });
 
-test("test parsing doesn't remove assembler lines", function() {
+test("test directives don't remove assembler lines", function() {
 	var tokens = [
 		[".orig","$4000"],
 		["add","R0,","R0,","R0"]
@@ -777,7 +795,7 @@ test("test parsing doesn't remove assembler lines", function() {
 	deepEqual(LC2.parse(tokens), expected_object);
 });
 
-test("test parsing adds symbols", function() {
+test("test building symbol table adds symbols", function() {
 	var tokens = [
 		[".orig","$4000"],
 		["Start","add","R0,","R0,","R0"]
@@ -795,3 +813,4 @@ test("test parsing adds symbols", function() {
 	};
 	deepEqual(LC2.parse(tokens), expected_object);
 });
+*/

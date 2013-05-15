@@ -25,27 +25,27 @@ var str_spec = {
 
 test("single string tokenization", function() {
 	deepEqual(lexer.lex('"Hello, world!"',str_spec),
-			  [{type: 'STRING', val: 'Hello, world!'}]);
+			  [{type: 'STRING', line: 0, val: 'Hello, world!'}]);
 	deepEqual(lexer.lex('    "Hello, world!"        ',str_spec),
-			  [{type: 'STRING', val: 'Hello, world!'}]);
+			  [{type: 'STRING', line: 0, val: 'Hello, world!'}]);
 	deepEqual(lexer.lex(' blah    "Hello, world!"   herp     ',str_spec),
-			  [{type: 'STRING', val: 'Hello, world!'}]);
+			  [{type: 'STRING', line: 0, val: 'Hello, world!'}]);
 });
 
 test("multi string tokenization", function() {
 	deepEqual(lexer.lex('"Hello, world!""The quick brown fox jumps over the lazy dog"',str_spec),
 			  [
-				  {type: 'STRING', val: 'Hello, world!'},
-				  {type: 'STRING', val: 'The quick brown fox jumps over the lazy dog'}
+				  {type: 'STRING', line: 0, val: 'Hello, world!'},
+				  {type: 'STRING', line: 0, val: 'The quick brown fox jumps over the lazy dog'}
 			  ]);
 	deepEqual(lexer.lex('    "Hello, world!"   "The quick brown fox jumps over the lazy dog"     ',str_spec),
 			  [
-				  {type: 'STRING', val: 'Hello, world!'},
-				  {type: 'STRING', val: 'The quick brown fox jumps over the lazy dog'}
+				  {type: 'STRING', line: 0, val: 'Hello, world!'},
+				  {type: 'STRING', line: 0, val: 'The quick brown fox jumps over the lazy dog'}
 			  ]);
 	deepEqual(lexer.lex(' blah    "Hello, world!"   herp   "The quick brown fox jumps over the lazy dog" derp  ',str_spec),
 			  [
-				  {type: 'STRING', val: 'Hello, world!'},
-				  {type: 'STRING', val: 'The quick brown fox jumps over the lazy dog'}
+				  {type: 'STRING', line: 0, val: 'Hello, world!'},
+				  {type: 'STRING', line: 0, val: 'The quick brown fox jumps over the lazy dog'}
 			  ]);
 });
