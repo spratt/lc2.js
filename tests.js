@@ -691,9 +691,6 @@ test("test parsing actual program", function() {
 		{type: 'DIR', line: 4, val: '.END'}
 	];
 	var expected_ob = {
-		start: parseInt('3000',16),
-		symbols: {},
-		bytecode: [],
 		lines: [
 			{
 				line: 1,

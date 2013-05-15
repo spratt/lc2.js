@@ -146,10 +146,7 @@ var LC2 = (function(LC2, undefined) {
 
 	LC2.parse = function LC2_parse(lexemes) {
 		var ob = {
-			start: parseInt('3000',16),
-			symbols: {},
-			lines: [],
-			bytecode: []
+			lines: []
 		};
 
 		var line = 0;
@@ -202,10 +199,12 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	LC2.build_symbol_table = function LC2_build_symbol_table(ob) {
+		ob.symbols = {};
 		return ob;
 	};
 
 	LC2.translate = function LC2_translate(ob) {
+		ob.bytecode = {};
 		return ob;
 	};
 	

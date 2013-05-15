@@ -27,39 +27,59 @@
     
     <h2>Methods</h2>
     <dl>
-      <dt><code>lc2.tokenize(str)</code></dt>
+      <dt><code>lc2.lex(str)</code></dt>
       <dd>
-        Splits a string into an array containing an array of tokens
-        for each line in the input string.
+        Given an input string containing valid LC-2 assembler code,
+        returns an array of Lexeme objects as described
+        in <a href="lexer.html">the lexer.js documentation</a>.
       </dd>
-      <dt><code>lc2.removeComments(lines)</code></dt>
+      <dt><code>lc2.parse(lexemes)</code></dt>
       <dd>
-        Given an array of arrays (lines) of token strings, strip out
-        any tokens after a semicolon on each line.
+        Given an input array of Lexeme objects corresponding to a
+        valid LC-2 assembler code, return a Code object containing
+        only the <code>lines</code> attribute.
       </dd>
-      <dt><code>lc2.parse(lines)</code></dt>
+      <dt><code>lc2.run_directives(ob)</code></dt>
       <dd>
-        Given an array containing an array of arrays (lines) of token
-        strings, return an object with key "symbols" whose value is a
-        mapping from symbols to memory locations, and "lines" whose
-        value is the input array without any assembler directive
-        lines.
+        Given a Code object with the <code>lines</code> attribute, run
+        and remove each of the assembler directive lines.
+      </dd>
+      <dt><code>lc2.build_symbol_table(ob)</code></dt>
+      <dd>
+        Given a Code object with the <code>lines</code> attribute
+        containing no assembler directives, build the symbol table
+        mapping symbols in the assembler source to final memory
+        locations and add this to the Code object as
+        the <code>symbol</code> attribute.
       </dd>
       <dt><code>lc2.translate(ob)</code></dt>
       <dd>
-        Given an object with key "symbols" whose value is a mapping
-        from symbols to memory locations, and "lines" whose value is
-        an array of arrays of token strings, translate the tokens to
-        an object with key "start" whose value is the memory location
-        of the first instruction and "bytecode" whose value is the
-        bytecode string corresponding to the input tokens.
+        Given a Code object with <code>lines</code>
+        and <code>symbol</code> attributes, translate the lines to a
+        mapping from memory locations to bytes corresponding to the
+        lines of code.
       </dd>
       <dt><code>lc2.assemble(str)</code></dt>
       <dd>
-        Given a string containing LC-2 assembly code, return an object
-        with key "start" whose value is the memory location of the
-        first instruction and "bytecode" whose value is the bytecode
-        string corresponding to the input string.
+        Given a string containing LC-2 assembly code, return a Code
+        object as specified below.
+      </dd>
+    </dl>
+    
+    <h2>Code Object Properties</h2>
+    <dl>
+      <dt><code>lines</code></dt>
+      <dd>
+        Lexemes arranged by line in the source file.
+      </dd>
+      <dt><code>symbols</code></dt>
+      <dd>
+        A mapping from symbol strings to final memory locations.
+      </dd>
+      <dt><code>bytecode</code></dt>
+      <dd>
+        A mapping from memory locations to bytes corresponding to the
+        lines of code.
       </dd>
     </dl>
 
