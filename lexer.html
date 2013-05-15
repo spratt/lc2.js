@@ -30,23 +30,10 @@
       <dt><code>lexer.lex(str, spec)</code></dt>
       <dd>
         Given a string and a lexer specification, return matched
-        tokens as an array.  The expected format of the lexer
-        specification is described below.
+        Lexeme objects (see below) as an array.  The expected format
+        of the lexer specification is described below.
       </dd>
     </dl>
-    
-    <h2>Specification</h2>
-    
-    The lexer specification is an object with two
-    properties, <code>start_state</code>, which is a string name of
-    one of the <code>states</code>, which is an object whose values
-    are arrays of pattern objects which are attempted to match against
-    the string in order.  Each pattern object must have the
-    property <code>regex</code> which is matched against the input
-    string, and may contain a <code>next_state</code> to transition to
-    after a match, or a <code>type</code> whose value is a string and
-    whose inclusion means when the regex matches to return a token of
-    the matched characters with the specified token type.
     
     <h2>Specification Object Properties</h2>
     <dl>
@@ -78,9 +65,27 @@
       </dd>
       <dt><code>type</code> (optional)</dt>
       <dd>
-        If the regex matches, return an object with two
-        properties: <code>type</code> which is this value,
-        and <code>val</code> which is the matched string.
+        The type of lexeme, to be returned as part of the Lexeme
+        object (see below).
+      </dd>
+    </dl>
+    
+    <h2>Lexeme Object Properties</h2>
+    <dl>
+      <dt><code>type</code></dt>
+      <dd>
+        The type of lexeme, as specified in the Pattern object (see
+        above).
+      </dd>
+      <dt><code>val</code></dt>
+      <dd>
+        The value of the matched regex pattern as specified in the
+        Pattern object (see above).
+      </dd>
+      <dt><code>line</code></dt>
+      <dd>
+        The 0-indexed line of the source file on which the lexeme
+        appears.
       </dd>
     </dl>
 

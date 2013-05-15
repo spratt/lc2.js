@@ -693,27 +693,35 @@ test("test parsing actual program", function() {
 	var expected_ob = {
 		start: parseInt('3000',16),
 		symbols: {},
-		line: 0,
 		bytecode: [],
 		lines: [
-			[
-				{type: 'DIR', line: 1, val: '.ORIG'},
-				{type: 'NUM', line: 1, val: '$3000'}
-			],[
-				{type: 'KEY', line: 2, val: 'AND'},
-				{type: 'REG', line: 2, val: 'R0'},
-				{type: 'REG', line: 2, val: 'R0'},
-				{type: 'NUM', line: 2, val: '#0'}
-			],[
-				{type: 'KEY', line: 3, val: 'HELLO'},
-				{type: 'DIR', line: 3, val: '.STRINGZ'},
-				{type: 'STR', line: 3, val: 'Hello, world!'}
-			],[
-				{type: 'DIR', line: 4, val: '.END'}
-			]
+			{
+				line: 1,
+				operator: {type: 'DIR', val: '.ORIG'},
+				operands: [
+					{type: 'NUM', val: '$3000'}
+				]
+			},{
+				line: 2,
+				operator: {type: 'KEY', val: 'AND'},
+				operands: [
+					{type: 'REG', val: 'R0'},
+					{type: 'REG', val: 'R0'},
+					{type: 'NUM', val: '#0'}
+				]
+			},{
+				line: 3,
+				symbol: {type: 'KEY', val: 'HELLO'},
+				operator: {type: 'DIR', val: '.STRINGZ'},
+				operands: [
+					{type: 'STR', val: 'Hello, world!'}
+				]
+			},{
+				line: 4,
+				operator: {type: 'DIR', val: '.END'},
+				operands: []
+			}
 		]
 	};
-	LC2.debug = true;
 	deepEqual(LC2.parse(input_tokens), expected_ob);
-	LC2.debug = false;
 });

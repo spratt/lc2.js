@@ -148,37 +148,51 @@ var LC2 = (function(LC2, undefined) {
 		var ob = {
 			start: parseInt('3000',16),
 			symbols: {},
-			lines: [[]],
-			line: 0,
+			lines: [],
 			bytecode: []
 		};
 
-		var state = 'KEY';
-		var states = {
-			'KEY': function(lexeme) {
-				LC2.log('in state: KEY');
-				var type = lexeme.type;
-				ob.lines[ob.line].push(lexeme);
-				if(type !== 'DIR' && type !== 'KEY')
-					state = 'ARG';
-			},
-			'ARG': function(lexeme) {
-				LC2.log('in state: ARG');
-				var type = lexeme.type;
-				if(type === 'DIR' || type === 'KEY') {
-					LC2.log('found new directive, incrementing line');
-					++(ob.line);
-					ob.lines[ob.line] = [];
-					state = 'KEY';
-				}
-				ob.lines[ob.line].push(lexeme);
+		var line = 0;
+		var lines = [[]];
+		lexemes.forEach(function(lexeme, index) {
+			LC2.log('parsing lexeme of type ' + lexeme.type);
+			lines[line].push(lexeme);
+			if(index + 1 === lexemes.length)
+				return;
+			var next_lex = lexemes[index + 1];
+			if(next_lex.line > lexeme.line) {
+				LC2.log('found new operator, incrementing line');
+				lines[++line] = [];
+				state = 'OP';
+			} else if(next_lex.type === 'DIR' || next_lex.type === 'KEY') {
+				state = 'OP';
+			} else {
+				state = 'ARG';
 			}
-		};
-		lexemes.forEach(function(lexeme) {
-			LC2.log('parsing lexeme ' + lexeme);
-			states[state](lexeme);
 		});
-		ob.line = 0;
+		lines.forEach(function(line) {
+			var op = {
+				line: line[0].line,
+				operator: null,
+				operands: []
+			};
+
+			// remove line information
+			line.forEach(function(lexeme) {
+				delete lexeme.line;
+			});
+
+			// check for preceding symbol
+			if(line.length > 1 && line[0].type === 'KEY' &&
+			   (line[1].type === 'KEY' || line[1].type === 'DIR')) {
+				op.symbol = line.shift();
+			}
+			op.operator = line.shift();
+			while(line.length > 0)
+				op.operands.push(line.shift());
+
+			ob.lines.push(op);
+		});
 		
 		return ob;
 	};
@@ -192,15 +206,11 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	LC2.translate = function LC2_translate(ob) {
-		var start = parseInt('3000',16);
-		var symbols = ob.symbols;
-		var lines  = ob.lines;
-
-		return {start:start,bytecode:''};
+		return ob;
 	};
 	
 	LC2.assemble = function LC2_assemble(str) {
-		var ob = LC2.parse(LC2.removeComments(LC2.tokenize(str)));
+		var ob = LC2.parse(LC2.lex(str));
 		ob = LC2.run_directives(ob);
 		ob = LC2.build_symbol_table(ob);
 		ob = LC2.translate(ob);
