@@ -5,9 +5,34 @@
 // Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
-	var newline_symbols    = /[\n\f\r]+/;
-	var special_symbols    = /[\.\$#;]/;
-	var whitespace_symbols = /[ \t]+/;
+	var hex_codes = [ 'X', '0X', '$' ];
+
+	var startsWith = function(str, prefix) {
+		return str.indexOf(prefix) === 0;
+	};
+
+	var startsWithAny = function(str, prefixes) {
+		var found = false;
+		prefixes.forEach(function(prefix) {
+			found = found || startsWith(str, prefix);
+		});
+		return found;
+	};
+
+	LC2.parseNum = function(num_str) {
+		var base = 10;
+		LC2.log('parseNum: ' + num_str);
+		num_str = num_str.toUpperCase();
+		while(startsWithAny(num_str, hex_codes)) {
+			base = 16;
+			// this next piece of code doesn't work in general, but it works in
+			// this case because the only multi-character prefix reduces to
+			// another single-character prefix
+			num_str = num_str.substring(1);
+		}
+		return parseInt(num_str, base);
+	};
+	
 	LC2.spec = {
 		states: {
 			'NORMAL': [
@@ -63,29 +88,33 @@ var LC2 = (function(LC2, undefined) {
 	};
 	
 	var assembler_directives = {
-		'.ORIG'    : function(line, ob) {
-			ob.start = myParseInt(line[1]);
+		'.ORIG' : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Invalid directive on line ' + op.line);
+			ob.next_address = LC2.parseNum(op.operands[0].val);
 		},
-		'.FILL'    : function(line, ob) {
-			ob.bytecode[ob.line] = myParseInt(line[1]);
+		'.FILL' : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Invalid directive on line ' + op.line);
+			ob.bytecode[(ob.next_address)++] = LC2.parseNum(op.operands[0].val);
 		},
-		'.STRINGZ' : function(line, ob) {
-			var str = '';
-			for(var i = 1; i < line.length; ++i) {
-				str += line[i];
-			}
-			str.substr(1,str.length-2); // remove quotes
+		'.STRINGZ' : function(op, ob) {
+			if(op.operands[0].type !== 'STR')
+				throw new Error('Invalid directive on line ' + op.line);
+			var str = op.operands[0].val;
 			for(var i = 0; i < str.length; ++i) {
-				ob.bytecode[(ob.line)++] = str.charCodeAt(i);
+				ob.bytecode[(ob.next_address)++] = str.charCodeAt(i);
+			}
+			ob.bytecode[(ob.next_address)++] = 0; // 0 terminated
+		},
+		'.BLKW' : function(op, ob) {
+			var size = LC2.parseNum(op.operands[0].val);
+			var init = LC2.parseNum(op.operands[1].val);
+			for(var i = 0; i < size; ++i)  {
+				ob.bytecode[(ob.next_address)++] = init;
 			}
 		},
-		'.BLKW'    : function(line, ob) {
-			var size = myParseInt(line[1]);
-			var init = myParseInt(line[2]);
-			for(var i = 0; i < size; ++i)  {
-				ob.bytecode[(ob.line)++] = init;
-			}
-		}
+		'.END' : function() {}
 	};
 	var assembler_mnemonics = {
 		'ADD'   : function(line, ob) {
@@ -195,6 +224,20 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	LC2.run_directives = function LC2_run_directives(ob) {
+		ob.next_address = parseInt('3000', 16);
+		ob.bytecode = {};
+
+		var lines = [];
+		ob.lines.forEach(function(op) {
+			if(op.operator.type !== 'DIR') {
+				op.address = (ob.next_address)++;
+				lines.push(op);
+				return;
+			}
+			assembler_directives[op.operator.val](op,ob);
+		});
+		ob.lines = lines;
+		
 		return ob;
 	};
 
@@ -204,7 +247,6 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	LC2.translate = function LC2_translate(ob) {
-		ob.bytecode = {};
 		return ob;
 	};
 	
