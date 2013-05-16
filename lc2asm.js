@@ -96,11 +96,15 @@ var LC2 = (function(LC2, undefined) {
 		'.FILL' : function(op, ob) {
 			if(op.operands[0].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
+			if(op.symbol)
+				ob.symbols[op.symbol.val] = ob.next_address;
 			ob.bytecode[(ob.next_address)++] = LC2.parseNum(op.operands[0].val);
 		},
 		'.STRINGZ' : function(op, ob) {
 			if(op.operands[0].type !== 'STR')
 				throw new Error('Invalid directive on line ' + op.line);
+			if(op.symbol)
+				ob.symbols[op.symbol.val] = ob.next_address;
 			var str = op.operands[0].val;
 			for(var i = 0; i < str.length; ++i) {
 				ob.bytecode[(ob.next_address)++] = str.charCodeAt(i);
@@ -108,6 +112,10 @@ var LC2 = (function(LC2, undefined) {
 			ob.bytecode[(ob.next_address)++] = 0; // 0 terminated
 		},
 		'.BLKW' : function(op, ob) {
+			if(op.operands[0].type !== 'NUM' || op.operands[1].type !== 'NUM')
+				throw new Error('Invalid directive on line ' + op.line);
+			if(op.symbol)
+				ob.symbols[op.symbol.val] = ob.next_address;
 			var size = LC2.parseNum(op.operands[0].val);
 			var init = LC2.parseNum(op.operands[1].val);
 			for(var i = 0; i < size; ++i)  {
@@ -226,6 +234,7 @@ var LC2 = (function(LC2, undefined) {
 	LC2.run_directives = function LC2_run_directives(ob) {
 		ob.next_address = parseInt('3000', 16);
 		ob.bytecode = {};
+		ob.symbols = {};
 
 		var lines = [];
 		ob.lines.forEach(function(op) {
@@ -242,7 +251,6 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	LC2.build_symbol_table = function LC2_build_symbol_table(ob) {
-		ob.symbols = {};
 		return ob;
 	};
 

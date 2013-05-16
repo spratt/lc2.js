@@ -756,6 +756,9 @@ test("test directives on actual program", function() {
 	};
 	var expected_ob = {
 		next_address : parseInt('4001', 16) + 14,
+		symbols: {
+			'HELLO' : parseInt('4001', 16)
+		},
 		bytecode: {
 			"16385": 72,
 			"16386": 101,
