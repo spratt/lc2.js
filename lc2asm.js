@@ -52,7 +52,7 @@ var LC2 = (function(LC2, undefined) {
 					type: 'NUM'
 				},
 				{
-					regex: /^R[0-9]{1,2}/, // register
+					regex: /^R1?[0-9]/, // register
 					type: 'REG'
 				},
 				{
@@ -125,55 +125,55 @@ var LC2 = (function(LC2, undefined) {
 		'.END' : function() {}
 	};
 	var assembler_mnemonics = {
-		'ADD'   : function(line, ob) {
+		'ADD'   : function(op, ob) {
 		},
-		'AND'   : function(line, ob) {
+		'AND'   : function(op, ob) {
 		},
-		'BR'    : function(line, ob) {
+		'BR'    : function(op, ob) {
 		},
-		'BRN'   : function(line, ob) {
+		'BRN'   : function(op, ob) {
 		},
-		'BRZ'   : function(line, ob) {
+		'BRZ'   : function(op, ob) {
 		},
-		'BRP'   : function(line, ob) {
+		'BRP'   : function(op, ob) {
 		},
-		'BRNZ'  : function(line, ob) {
+		'BRNZ'  : function(op, ob) {
 		},
-		'BRNP'  : function(line, ob) {
+		'BRNP'  : function(op, ob) {
 		},
-		'BRZP'  : function(line, ob) {
+		'BRZP'  : function(op, ob) {
 		},
-		'BRNZP' : function(line, ob) {
+		'BRNZP' : function(op, ob) {
 		},
-		'JSR'   : function(line, ob) {
+		'JSR'   : function(op, ob) {
 		},
-		'JMP'   : function(line, ob) {
+		'JMP'   : function(op, ob) {
 		},
-		'JSRR'  : function(line, ob) {
+		'JSRR'  : function(op, ob) {
 		},
-		'JMPRR' : function(line, ob) {
+		'JMPRR' : function(op, ob) {
 		},
-		'LD'    : function(line, ob) {
+		'LD'    : function(op, ob) {
 		},
-		'LDI'   : function(line, ob) {
+		'LDI'   : function(op, ob) {
 		},
-		'LDR'   : function(line, ob) {
+		'LDR'   : function(op, ob) {
 		},
-		'LEA'   : function(line, ob) {
+		'LEA'   : function(op, ob) {
 		},
-		'NOT'   : function(line, ob) {
+		'NOT'   : function(op, ob) {
 		},
-		'RET'   : function(line, ob) {
+		'RET'   : function(op, ob) {
 		},
-		'RTI'   : function(line, ob) {
+		'RTI'   : function(op, ob) {
 		},
-		'ST'    : function(line, ob) {
+		'ST'    : function(op, ob) {
 		},
-		'STI'   : function(line, ob) {
+		'STI'   : function(op, ob) {
 		},
-		'STR'   : function(line, ob) {
+		'STR'   : function(op, ob) {
 		},
-		'TRAP'  : function(line, ob) {
+		'TRAP'  : function(op, ob) {
 		}
 	};
 
@@ -251,10 +251,31 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	LC2.build_symbol_table = function LC2_build_symbol_table(ob) {
+		ob.lines.forEach(function(op) {
+			if(op.symbol)
+				ob.symbols[op.symbol.val] = op.address;
+		});
+		
 		return ob;
 	};
 
 	LC2.translate = function LC2_translate(ob) {
+		ob.lines.forEach(function(op) {
+			op.operands.forEach(function(arg,i) {
+				if(arg.type === 'KEY') {
+					if(!(arg.val in ob.symbols))
+						throw new Error('Undefined symbol on line ' + op.line);
+					op.operands[i] = {type: 'NUM', val: ob.symbols[arg.val]};
+				}
+			});
+			if(op.operator.type !== 'KEY')
+				throw new Error('Invalid syntax on line ' + op.line);
+			op.operator.val = op.operator.val.toUpperCase();
+			if(!(op.operator.val in assembler_mnemonics))
+				throw new Error('Invalid operator on line ' + op.line);
+			assembler_mnemonics[op.operator.val](op,ob);
+		});
+		
 		return ob;
 	};
 	
