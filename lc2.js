@@ -5,8 +5,6 @@
 // Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
-	console.log('DEBUG DEBUG ' + ('lex' in LC2));
-	
 	// constants
 	var BASE = 2;
 	var BITS = 16;

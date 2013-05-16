@@ -42,7 +42,13 @@
       <dt><code>lc2.run_directives(ob)</code></dt>
       <dd>
         Given a Code object with the <code>lines</code> attribute, run
-        and remove each of the assembler directive lines.
+        and remove each of the assembler directive lines.  At the end
+        of this method, the only remaining lines will be those with
+        CPU instructions each of which will have an address property
+        which gives its calculated address in memory.  Additionally,
+        any bytecode or symbols introduced by assembler directives
+        will appear in the <code>bytecode</code>
+        or <code>symbols</code> attributes respectively.
       </dd>
       <dt><code>lc2.build_symbol_table(ob)</code></dt>
       <dd>
@@ -57,12 +63,14 @@
         Given a Code object with <code>lines</code>
         and <code>symbol</code> attributes, translate the lines to a
         mapping from memory locations to bytes corresponding to the
-        lines of code.
+        lines of code.  This method returns only the mapping from
+        memory locations to bytes.
       </dd>
       <dt><code>lc2.assemble(str)</code></dt>
       <dd>
-        Given a string containing LC-2 assembly code, return a Code
-        object as specified below.
+        Given a string containing LC-2 assembly code, return an object
+        mapping memory locations to the bytecode representation of the
+        code, suitable for loading into the lc2.js simulator.
       </dd>
     </dl>
     
