@@ -5,6 +5,8 @@
 // Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
+	console.log('DEBUG DEBUG ' + ('lex' in LC2));
+	
 	// constants
 	var BASE = 2;
 	var BITS = 16;
@@ -130,7 +132,7 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	// methods
-	var ProtoLC2 = {};
+	var ProtoLC2 = function() {};
 	
 	ProtoLC2.add = function(dest_reg, src_reg, imm5_bit, last) {
 		dest_reg = dest_reg & ones(3);
@@ -469,7 +471,7 @@ var LC2 = (function(LC2, undefined) {
 	};
 
 	// initialization
-	var LC2 = function() {
+	var newLC2 = function() {
 		var conds = COND_ZERO;
 		var pc = new Register("pc");
 		var ir = new Register("ir");
@@ -514,6 +516,11 @@ var LC2 = (function(LC2, undefined) {
 		});
 	};
 
+	// copy properties from original LC2
+	for(property in LC2)
+		newLC2[property] = LC2[property];
+	LC2 = newLC2;
+
 	LC2.__defineGetter__("COND_POS",  function() { return COND_POS; });
 	LC2.__defineGetter__("COND_NEG",  function() { return COND_NEG; });
 	LC2.__defineGetter__("COND_ZERO", function() { return COND_ZERO; });
@@ -524,4 +531,4 @@ var LC2 = (function(LC2, undefined) {
 	// inheritance
 	LC2.prototype = ProtoLC2;
 	return LC2;
-}(LC2 || {}));
+})(LC2 || {});

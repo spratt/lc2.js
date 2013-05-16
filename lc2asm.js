@@ -5,7 +5,8 @@
 // Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
-
+	LC2.log = function(o) { if(LC2.debug) console.log(o); };
+	
 	// copied from lc2.js - TODO: remove this duplication
 	var toSignedInt = function(n, bits) {
 		var shift = 32 - bits;
@@ -14,7 +15,7 @@ var LC2 = (function(LC2, undefined) {
 
 	LC2.parseNum = function(num_str) {
 		var hex = /^(?:\$|x|X|0x|0X)([\da-fA-F]+)/.exec(num_str);
-		var bin = /^(?:%|b|B)(\d+)/.exec(num_str);
+		var bin = /^(?:%|b|B)(1[0-1]*)/.exec(num_str);
 		var dec = /^#(\d+)/.exec(num_str);
 		if(hex && hex[1]) return parseInt(hex[1], 16);
 		if(bin && bin[1]) return parseInt(bin[1], 2);
@@ -323,6 +324,12 @@ var LC2 = (function(LC2, undefined) {
 
 	LC2.translate = function LC2_translate(ob) {
 		ob.lines.forEach(function(op) {
+			if(op.operator.type !== 'KEY')
+				throw new Error('Invalid syntax on line ' + op.line);
+			op.operator.val = op.operator.val.toUpperCase();
+			if(!(op.operator.val in assembler_mnemonics))
+				throw new Error('Invalid operator on line ' + op.line);
+			// replace symbolic operands with memory locations
 			op.operands.forEach(function(arg,i) {
 				if(arg.type === 'KEY') {
 					if(!(arg.val in ob.symbols))
@@ -330,11 +337,6 @@ var LC2 = (function(LC2, undefined) {
 					op.operands[i] = {type: 'NUM', val: ob.symbols[arg.val]};
 				}
 			});
-			if(op.operator.type !== 'KEY')
-				throw new Error('Invalid syntax on line ' + op.line);
-			op.operator.val = op.operator.val.toUpperCase();
-			if(!(op.operator.val in assembler_mnemonics))
-				throw new Error('Invalid operator on line ' + op.line);
 			assembler_mnemonics[op.operator.val](op,ob);
 		});
 		
