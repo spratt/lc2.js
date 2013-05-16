@@ -5,32 +5,21 @@
 // Website: http://spratt.github.io/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
-	var hex_codes = [ 'X', '0X', '$' ];
 
-	var startsWith = function(str, prefix) {
-		return str.indexOf(prefix) === 0;
-	};
-
-	var startsWithAny = function(str, prefixes) {
-		var found = false;
-		prefixes.forEach(function(prefix) {
-			found = found || startsWith(str, prefix);
-		});
-		return found;
+	// copied from lc2.js - TODO: remove this duplication
+	var toSignedInt = function(n, bits) {
+		var shift = 32 - bits;
+		return (n << shift) >> shift;
 	};
 
 	LC2.parseNum = function(num_str) {
-		var base = 10;
-		LC2.log('parseNum: ' + num_str);
-		num_str = num_str.toUpperCase();
-		while(startsWithAny(num_str, hex_codes)) {
-			base = 16;
-			// this next piece of code doesn't work in general, but it works in
-			// this case because the only multi-character prefix reduces to
-			// another single-character prefix
-			num_str = num_str.substring(1);
-		}
-		return parseInt(num_str, base);
+		var hex = /^(?:\$|x|X|0x|0X)([\da-fA-F]+)/.exec(num_str);
+		var bin = /^(?:%|b|B)(\d+)/.exec(num_str);
+		var dec = /^#(\d+)/.exec(num_str);
+		if(hex && hex[1]) return parseInt(hex[1], 16);
+		if(bin && bin[1]) return parseInt(bin[1], 2);
+		if(dec && dec[1]) return parseInt(dec[1], 10);
+		throw new Error('Invalid number specification');
 	};
 	
 	LC2.spec = {
@@ -48,7 +37,7 @@ var LC2 = (function(LC2, undefined) {
 					next_state: 'COMMENT'
 				},
 				{
-					regex: /^#?\$?\d+/, // literal number
+					regex: /^(?:\$|x|X|0x|0X|%|b|B|#)[\da-fA-F]+/, // literal number
 					type: 'NUM'
 				},
 				{
@@ -91,14 +80,23 @@ var LC2 = (function(LC2, undefined) {
 		'.ORIG' : function(op, ob) {
 			if(op.operands[0].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
-			ob.next_address = LC2.parseNum(op.operands[0].val);
+			try {
+				ob.next_address = LC2.parseNum(op.operands[0].val);
+			} catch(err) {
+				throw new Error('Invalid number on line ' +	op.line);
+			}
 		},
 		'.FILL' : function(op, ob) {
 			if(op.operands[0].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
 			if(op.symbol)
 				ob.symbols[op.symbol.val] = ob.next_address;
-			ob.bytecode[(ob.next_address)++] = LC2.parseNum(op.operands[0].val);
+			try {
+				ob.bytecode[(ob.next_address)++] =
+					LC2.parseNum(op.operands[0].val);
+			} catch(err) {
+				throw new Error('Invalid number on line ' +	op.line);
+			}
 		},
 		'.STRINGZ' : function(op, ob) {
 			if(op.operands[0].type !== 'STR')
@@ -116,8 +114,12 @@ var LC2 = (function(LC2, undefined) {
 				throw new Error('Invalid directive on line ' + op.line);
 			if(op.symbol)
 				ob.symbols[op.symbol.val] = ob.next_address;
-			var size = LC2.parseNum(op.operands[0].val);
-			var init = LC2.parseNum(op.operands[1].val);
+			try {
+				var size = LC2.parseNum(op.operands[0].val);
+				var init = LC2.parseNum(op.operands[1].val);
+			} catch(err) {
+				throw new Error('Invalid number on line ' + op.line);
+			}
 			for(var i = 0; i < size; ++i)  {
 				ob.bytecode[(ob.next_address)++] = init;
 			}
@@ -126,8 +128,66 @@ var LC2 = (function(LC2, undefined) {
 	};
 	var assembler_mnemonics = {
 		'ADD'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to ADD on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'REG')
+				throw new Error('Arg 2 to ADD on line ' + op.line +
+								' should be a register');
+			if(op.operands[2].type !== 'REG' && op.operands[2].type !== 'NUM')
+				throw new Error('Arg 3 to ADD on line ' + op.line +
+								' should be a register or number');
+			var dest_reg = parseInt(op.operands[0].val.substring(1), 10);
+			var src1_reg = parseInt(op.operands[1].val.substring(1), 10);
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0001',2) << 12;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += src1_reg << 6;
+			if(op.operands[2].type === 'REG') {
+				var src2_reg = parseInt(op.operands[2].val.substring(1), 10);
+				ob.bytecode[op.address] += src2_reg;
+			} else {
+				ob.bytecode[op.address] += 1 << 5;
+				try {
+					ob.bytecode[op.address] += LC2.parseNum(op.operands[2].val);
+				} catch(err) {
+					throw new Error('Invalid number on line ' +	op.line);
+				}
+			}
 		},
 		'AND'   : function(op, ob) {
+			LC2.log('building AND bytecode');
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to AND on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'REG')
+				throw new Error('Arg 2 to AND on line ' + op.line +
+								' should be a register');
+			if(op.operands[2].type !== 'REG' && op.operands[2].type !== 'NUM')
+				throw new Error('Arg 3 to AND on line ' + op.line +
+								' should be a register or number');
+			var dest_reg = parseInt(op.operands[0].val.substring(1), 10);
+			var src1_reg = parseInt(op.operands[1].val.substring(1), 10);
+			LC2.log('dest: ' + dest_reg);
+			LC2.log('src1: ' + src1_reg);
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0101',2) << 12;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += src1_reg << 6;
+			if(op.operands[2].type === 'REG') {
+				var src2_reg = parseInt(op.operands[2].val.substring(1), 10);
+				LC2.log('src2: ' + src2_reg);
+				ob.bytecode[op.address] += src2_reg;
+			} else {
+				try {
+					var imm5_val = LC2.parseNum(op.operands[2].val);
+				} catch(err) {
+					throw new Error('Invalid number on line ' + op.line);
+				}
+				LC2.log('imm5: ' + imm5_val);
+				ob.bytecode[op.address] += 1 << 5;
+				ob.bytecode[op.address] += imm5_val;
+			}
 		},
 		'BR'    : function(op, ob) {
 		},
@@ -246,6 +306,7 @@ var LC2 = (function(LC2, undefined) {
 			assembler_directives[op.operator.val](op,ob);
 		});
 		ob.lines = lines;
+		delete ob.next_address;
 		
 		return ob;
 	};
@@ -254,6 +315,7 @@ var LC2 = (function(LC2, undefined) {
 		ob.lines.forEach(function(op) {
 			if(op.symbol)
 				ob.symbols[op.symbol.val] = op.address;
+			delete op.symbol;
 		});
 		
 		return ob;
@@ -276,7 +338,7 @@ var LC2 = (function(LC2, undefined) {
 			assembler_mnemonics[op.operator.val](op,ob);
 		});
 		
-		return ob;
+		return ob.bytecode;
 	};
 	
 	LC2.assemble = function LC2_assemble(str) {
