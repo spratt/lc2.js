@@ -1,3 +1,5 @@
+module('lexer.js');
+
 var str_spec = {
 	states: {
 		OUTSIDE: [
