@@ -43,16 +43,16 @@ test("test parsing actual program", function() {
 				line: 1,
 				operator: {type: 'DIR', val: '.ORIG'},
 				operands: [
-					{type: 'NUM', val: '$4000'}
+					{type: 'NUM', val: parseInt('4000', 16)}
 				]
 			},{
 				line: 2,
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
-					{type: 'REG', val: 'R0'},
-					{type: 'REG', val: 'R0'},
-					{type: 'NUM', val: '#0'}
+					{type: 'REG', val: 0},
+					{type: 'REG', val: 0},
+					{type: 'NUM', val: 0}
 				]
 			},{
 				line: 3,
@@ -78,16 +78,16 @@ test("test directives on actual program", function() {
 				line: 1,
 				operator: {type: 'DIR', val: '.ORIG'},
 				operands: [
-					{type: 'NUM', val: '$4000'}
+					{type: 'NUM', val: parseInt('4000', 16)}
 				]
 			},{
 				line: 2,
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
-					{type: 'REG', val: 'R0'},
-					{type: 'REG', val: 'R0'},
-					{type: 'NUM', val: '#0'}
+					{type: 'REG', val: 0},
+					{type: 'REG', val: 0},
+					{type: 'NUM', val: 0}
 				]
 			},{
 				line: 3,
@@ -130,9 +130,9 @@ test("test directives on actual program", function() {
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
-					{type: 'REG', val: 'R0'},
-					{type: 'REG', val: 'R0'},
-					{type: 'NUM', val: '#0'}
+					{type: 'REG', val: 0},
+					{type: 'REG', val: 0},
+					{type: 'NUM', val: 0}
 				]
 			}
 		]

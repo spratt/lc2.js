@@ -18,22 +18,30 @@ var LC2 = (function(LC2, undefined) {
 	var COND_ZERO = 1 << 2; // 2^2 = 4
 
 	// helpers
-	var ones = function(n) {
+	function ones(n) {
 		// Generate the largest unsigned integer representable in n bits
 		var value = 0;
 		for(var i = 0; i < n; ++i) {
 			value = value | (1 << i);
 		}
 		return value;
-	}
+	};
+	LC2.ones = ones;
 
-	var toSignedInt = function(n, bits) {
+	function toSignedInt(n, bits) {
 		// Bitwise operators in Javascript coerce the number to a 32 bit integer
 		// so this removes the value of the upper 32-n bits to coerce to n bits
 		// while maintaining the sign bit
 		var shift = 32 - bits;
 		return (n << shift) >> shift;
 	};
+	LC2.toSignedInt = toSignedInt;
+
+	function toBinaryString(num) {
+		if(typeof(num) !== "number") return;
+		return (num >> 0).toString(2);
+	};
+	LC2.toBinaryString = toBinaryString;
 	
 	var set_conditions = function(lc2_inst, value) {
 		// set the condition bits on the given lc2 whose last result was value
@@ -44,11 +52,6 @@ var LC2 = (function(LC2, undefined) {
 		else
 			lc2_inst.conds = COND_ZERO;
 		lc2_inst.log("conds set to " + lc2_inst.conds);
-	};
-
-	var toBinaryString = function(num) {
-		if(typeof(num) !== "number") return;
-		return (num >> 0).toString(2);
 	};
 
 	// classes

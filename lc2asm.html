@@ -37,7 +37,11 @@
       <dd>
         Given an input array of Lexeme objects corresponding to a
         valid LC-2 assembler code, return a Code object containing
-        only the <code>lines</code> attribute.
+        only the <code>lines</code> attribute.  Note that this step
+        also converts lexemes of type 'NUM' to have <code>val</code>
+        attribute equal to the value of the number, and converts
+        lexemes of type 'REG' to have val attribute equal to the value
+        of the register.
       </dd>
       <dt><code>lc2.run_directives(ob)</code></dt>
       <dd>

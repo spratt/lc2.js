@@ -7,12 +7,6 @@
 var LC2 = (function(LC2, undefined) {
 	LC2.log = function(o) { if(LC2.debug) console.log(o); };
 	
-	// copied from lc2.js - TODO: remove this duplication
-	var toSignedInt = function(n, bits) {
-		var shift = 32 - bits;
-		return (n << shift) >> shift;
-	};
-
 	LC2.parseNum = function(num_str) {
 		var hex = /^(?:\$|x|X|0x|0X)([\da-fA-F]+)/.exec(num_str);
 		var bin = /^(?:%|b|B)(1[0-1]*)/.exec(num_str);
@@ -82,7 +76,7 @@ var LC2 = (function(LC2, undefined) {
 			if(op.operands[0].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
 			try {
-				ob.next_address = LC2.parseNum(op.operands[0].val);
+				ob.next_address = op.operands[0].val;
 			} catch(err) {
 				throw new Error('Invalid number on line ' +	op.line);
 			}
@@ -93,8 +87,7 @@ var LC2 = (function(LC2, undefined) {
 			if(op.symbol)
 				ob.symbols[op.symbol.val] = ob.next_address;
 			try {
-				ob.bytecode[(ob.next_address)++] =
-					LC2.parseNum(op.operands[0].val);
+				ob.bytecode[(ob.next_address)++] = op.operands[0].val;
 			} catch(err) {
 				throw new Error('Invalid number on line ' +	op.line);
 			}
@@ -116,8 +109,8 @@ var LC2 = (function(LC2, undefined) {
 			if(op.symbol)
 				ob.symbols[op.symbol.val] = ob.next_address;
 			try {
-				var size = LC2.parseNum(op.operands[0].val);
-				var init = LC2.parseNum(op.operands[1].val);
+				var size = op.operands[0].val;
+				var init = op.operands[1].val;
 			} catch(err) {
 				throw new Error('Invalid number on line ' + op.line);
 			}
@@ -138,22 +131,19 @@ var LC2 = (function(LC2, undefined) {
 			if(op.operands[2].type !== 'REG' && op.operands[2].type !== 'NUM')
 				throw new Error('Arg 3 to ADD on line ' + op.line +
 								' should be a register or number');
-			var dest_reg = parseInt(op.operands[0].val.substring(1), 10);
-			var src1_reg = parseInt(op.operands[1].val.substring(1), 10);
+			var dest_reg = op.operands[0].val;
+			var src1_reg = op.operands[1].val;
 			ob.bytecode[op.address] = 0;
 			ob.bytecode[op.address] += parseInt('0001',2) << 12;
 			ob.bytecode[op.address] += dest_reg << 9;
 			ob.bytecode[op.address] += src1_reg << 6;
 			if(op.operands[2].type === 'REG') {
-				var src2_reg = parseInt(op.operands[2].val.substring(1), 10);
+				var src2_reg = op.operands[2].val;
 				ob.bytecode[op.address] += src2_reg;
 			} else {
 				ob.bytecode[op.address] += 1 << 5;
-				try {
-					ob.bytecode[op.address] += LC2.parseNum(op.operands[2].val);
-				} catch(err) {
-					throw new Error('Invalid number on line ' +	op.line);
-				}
+				var imm5_val = op.operands[2].val & LC2.ones(5);
+				ob.bytecode[op.address] += imm5_val;
 			}
 		},
 		'AND'   : function(op, ob) {
@@ -167,8 +157,8 @@ var LC2 = (function(LC2, undefined) {
 			if(op.operands[2].type !== 'REG' && op.operands[2].type !== 'NUM')
 				throw new Error('Arg 3 to AND on line ' + op.line +
 								' should be a register or number');
-			var dest_reg = parseInt(op.operands[0].val.substring(1), 10);
-			var src1_reg = parseInt(op.operands[1].val.substring(1), 10);
+			var dest_reg = op.operands[0].val;
+			var src1_reg = op.operands[1].val;
 			LC2.log('dest: ' + dest_reg);
 			LC2.log('src1: ' + src1_reg);
 			ob.bytecode[op.address] = 0;
@@ -176,65 +166,255 @@ var LC2 = (function(LC2, undefined) {
 			ob.bytecode[op.address] += dest_reg << 9;
 			ob.bytecode[op.address] += src1_reg << 6;
 			if(op.operands[2].type === 'REG') {
-				var src2_reg = parseInt(op.operands[2].val.substring(1), 10);
+				var src2_reg = op.operands[2].val.substring(1);
 				LC2.log('src2: ' + src2_reg);
 				ob.bytecode[op.address] += src2_reg;
 			} else {
-				try {
-					var imm5_val = LC2.parseNum(op.operands[2].val);
-				} catch(err) {
-					throw new Error('Invalid number on line ' + op.line);
-				}
-				LC2.log('imm5: ' + imm5_val);
 				ob.bytecode[op.address] += 1 << 5;
+				var imm5_val = op.operands[2].val & LC2.ones(5);
+				LC2.log('imm5: ' + imm5_val);
 				ob.bytecode[op.address] += imm5_val;
 			}
 		},
+		'NOP'   : function(op, ob) {
+			ob.bytecode[op.address] = 0;
+		},
 		'BR'    : function(op, ob) {
+			// this is really just a nop
+			ob.bytecode[op.address] = 0;
 		},
 		'BRN'   : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRn on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('100', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'BRZ'   : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRz on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('010', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'BRP'   : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRp on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('001', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'BRNZ'  : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRnz on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('110', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'BRNP'  : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRnp on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('101', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'BRZP'  : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRzp on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('011', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'BRNZP' : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to BRnzp on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('111', 2) << 9;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
+		},
+		'JMP'   : function(op, ob) { // JSR with L = 0
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to JMP on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0100', 2) << 12;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
+		},
+		'JMPRR' : function(op, ob) { // JSRR with L = 0
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to JMPRR on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to JMPRR on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1100', 2) << 12;
+			ob.bytecode[op.address] += op.operands[0].val << 6;
+			ob.bytecode[op.address] += op.operands[1].val & LC2.ones(6);
 		},
 		'JSR'   : function(op, ob) {
-		},
-		'JMP'   : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to JMP on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0100', 2) << 12;
+			ob.bytecode[op.address] += 1 << 11;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
 		},
 		'JSRR'  : function(op, ob) {
-		},
-		'JMPRR' : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to JMPRR on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to JMPRR on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1100', 2) << 12;
+			ob.bytecode[op.address] += 1 << 11;
+			var dest_reg = op.operands[0].val
+			ob.bytecode[op.address] += dest_reg << 6;
+			ob.bytecode[op.address] += op.operands[1].val & LC2.ones(6);
 		},
 		'LD'    : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to LD on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to LD on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0010', 2) << 12;
+			var dest_reg = op.operands[0].val;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += (op.operands[1].val & LC2.ones(9));
 		},
 		'LDI'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to LDI on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to LDI on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1010', 2) << 12;
+			var dest_reg = op.operands[0].val;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += (op.operands[1].val & LC2.ones(9));
 		},
 		'LDR'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to LDR on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'REG')
+				throw new Error('Arg 2 to LDR on line ' + op.line +
+								' should be a register');
+			if(op.operands[2].type !== 'NUM')
+				throw new Error('Arg 3 to LDR on line ' + op.line +
+								' should be a number');
+			var dest_reg = op.operands[0].val;
+			var base_reg = op.operands[1].val;
+			var ind6_val = op.operands[2].val & LC2.ones(6);
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0110',2) << 12;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += base_reg << 6;
+			ob.bytecode[op.address] += ind6_val;
 		},
 		'LEA'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to LEA on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to LEA on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1110', 2) << 12;
+			var dest_reg = op.operands[0].val;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += (op.operands[1].val & LC2.ones(9));
 		},
 		'NOT'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to ADD on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'REG')
+				throw new Error('Arg 2 to ADD on line ' + op.line +
+								' should be a register');
+			var dest_reg = op.operands[0].val;
+			var src1_reg = op.operands[1].val;
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1001',2) << 12;
+			ob.bytecode[op.address] += dest_reg << 9;
+			ob.bytecode[op.address] += src1_reg << 6;
+			ob.bytecode[op.address] += LC2.ones(6);
 		},
 		'RET'   : function(op, ob) {
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1101', 2) << 12;
 		},
 		'RTI'   : function(op, ob) {
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1000', 2) << 12;
 		},
 		'ST'    : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to ST on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to ST on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0011', 2) << 12;
+			var src1_reg = op.operands[0].val;
+			ob.bytecode[op.address] += src1_reg << 9;
+			ob.bytecode[op.address] += (op.operands[1].val & LC2.ones(9));
 		},
 		'STI'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to STI on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'NUM')
+				throw new Error('Arg 2 to STI on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1011', 2) << 12;
+			var src1_reg = op.operands[0].val;
+			ob.bytecode[op.address] += src1_reg << 9;
+			ob.bytecode[op.address] += (op.operands[1].val & LC2.ones(9));
 		},
 		'STR'   : function(op, ob) {
+			if(op.operands[0].type !== 'REG')
+				throw new Error('Arg 1 to STR on line ' + op.line +
+								' should be a register');
+			if(op.operands[1].type !== 'REG')
+				throw new Error('Arg 2 to STR on line ' + op.line +
+								' should be a register');
+			if(op.operands[2].type !== 'NUM')
+				throw new Error('Arg 3 to STR on line ' + op.line +
+								' should be a number');
+			var src1_reg = op.operands[0].val;
+			var base_reg = op.operands[1].val;
+			var ind6_val = op.operands[2].val & LC2.ones(6);
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('0111',2) << 12;
+			ob.bytecode[op.address] += src1_reg << 9;
+			ob.bytecode[op.address] += base_reg << 6;
+			ob.bytecode[op.address] += ind6_val;
 		},
 		'TRAP'  : function(op, ob) {
+			if(op.operands[0].type !== 'NUM')
+				throw new Error('Arg 1 to TRAP on line ' + op.line +
+								' should be a number');
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1111', 2) << 12;
+			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(8);
 		}
 	};
 
@@ -251,6 +431,17 @@ var LC2 = (function(LC2, undefined) {
 		var lines = [[]];
 		lexemes.forEach(function(lexeme, index) {
 			LC2.log('parsing lexeme of type ' + lexeme.type);
+			// clean up some lexemes
+			if(lexeme.type === 'REG') {
+				var val = parseInt(lexeme.val.substring(1), 10) & LC2.ones(3);
+				lexeme.val = val;
+			} else if(lexeme.type === 'NUM') {
+				try {
+					lexeme.val = LC2.parseNum(lexeme.val);
+				} catch(err) {
+					throw new Error('Invalid number on line ' + lexeme.line);
+				}
+			}
 			lines[line].push(lexeme);
 			if(index + 1 === lexemes.length)
 				return;
@@ -283,6 +474,7 @@ var LC2 = (function(LC2, undefined) {
 				op.symbol = line.shift();
 			}
 			op.operator = line.shift();
+			op.operator.val = op.operator.val.toUpperCase();
 			while(line.length > 0)
 				op.operands.push(line.shift());
 
@@ -326,7 +518,6 @@ var LC2 = (function(LC2, undefined) {
 		ob.lines.forEach(function(op) {
 			if(op.operator.type !== 'KEY')
 				throw new Error('Invalid syntax on line ' + op.line);
-			op.operator.val = op.operator.val.toUpperCase();
 			if(!(op.operator.val in assembler_mnemonics))
 				throw new Error('Invalid operator on line ' + op.line);
 			// replace symbolic operands with memory locations
