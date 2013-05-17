@@ -295,7 +295,7 @@ test("test assemble actual program", function() {
 });
 
 test("test lex bigger program", function() {
-	var input_source = lib.readFromURL('test_code.asm');
+	var input_source = lib.readFromURL('test_trap_and_add.asm');
 	var expected_lexemes = [
 		{
 			"line": 7,
@@ -377,7 +377,7 @@ test("test lex bigger program", function() {
 });
 
 test("test assemble bigger program", function() {
-	var input_source = lib.readFromURL('test_code.asm');
+	var input_source = lib.readFromURL('test_trap_and_add.asm');
 	var expected_ob = {
 		"12288" : parseInt('1111000000100011', 2),
 		"12289" : parseInt('0001001000100000', 2),
