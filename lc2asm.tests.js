@@ -8,45 +8,45 @@ test("test lexing actual program", function() {
 	str += 'HELLO .STRINGZ "Hello, world!" ; never used\n';
 	str += ".END\n";
 	var expected_tokens = [
-		{type: 'DIR', line: 1, val: '.ORIG'},
-		{type: 'NUM', line: 1, val: '$4000'},
-		{type: 'KEY', line: 2, val: 'ZERO'},
-		{type: 'KEY', line: 2, val: 'AND'},
-		{type: 'REG', line: 2, val: 'R0'},
-		{type: 'REG', line: 2, val: 'R0'},
-		{type: 'NUM', line: 2, val: '#0'},
-		{type: 'KEY', line: 3, val: 'HELLO'},
-		{type: 'DIR', line: 3, val: '.STRINGZ'},
-		{type: 'STR', line: 3, val: 'Hello, world!'},
-		{type: 'DIR', line: 4, val: '.END'}
+		{type: 'DIR', line: 2, val: '.ORIG'},
+		{type: 'NUM', line: 2, val: '$4000'},
+		{type: 'KEY', line: 3, val: 'ZERO'},
+		{type: 'KEY', line: 3, val: 'AND'},
+		{type: 'REG', line: 3, val: 'R0'},
+		{type: 'REG', line: 3, val: 'R0'},
+		{type: 'NUM', line: 3, val: '#0'},
+		{type: 'KEY', line: 4, val: 'HELLO'},
+		{type: 'DIR', line: 4, val: '.STRINGZ'},
+		{type: 'STR', line: 4, val: 'Hello, world!'},
+		{type: 'DIR', line: 5, val: '.END'}
 	];
 	deepEqual(LC2.lex(str), expected_tokens);
 });
 
 test("test parsing actual program", function() {
 	var input_tokens = [
-		{type: 'DIR', line: 1, val: '.ORIG'},
-		{type: 'NUM', line: 1, val: '$4000'},
-		{type: 'KEY', line: 2, val: 'ZERO'},
-		{type: 'KEY', line: 2, val: 'AND'},
-		{type: 'REG', line: 2, val: 'R0'},
-		{type: 'REG', line: 2, val: 'R0'},
-		{type: 'NUM', line: 2, val: '#0'},
-		{type: 'KEY', line: 3, val: 'HELLO'},
-		{type: 'DIR', line: 3, val: '.STRINGZ'},
-		{type: 'STR', line: 3, val: 'Hello, world!'},
-		{type: 'DIR', line: 4, val: '.END'}
+		{type: 'DIR', line: 2, val: '.ORIG'},
+		{type: 'NUM', line: 2, val: '$4000'},
+		{type: 'KEY', line: 3, val: 'ZERO'},
+		{type: 'KEY', line: 3, val: 'AND'},
+		{type: 'REG', line: 3, val: 'R0'},
+		{type: 'REG', line: 3, val: 'R0'},
+		{type: 'NUM', line: 3, val: '#0'},
+		{type: 'KEY', line: 4, val: 'HELLO'},
+		{type: 'DIR', line: 4, val: '.STRINGZ'},
+		{type: 'STR', line: 4, val: 'Hello, world!'},
+		{type: 'DIR', line: 5, val: '.END'}
 	];
 	var expected_ob = {
 		lines: [
 			{
-				line: 1,
+				line: 2,
 				operator: {type: 'DIR', val: '.ORIG'},
 				operands: [
 					{type: 'NUM', val: parseInt('4000', 16)}
 				]
 			},{
-				line: 2,
+				line: 3,
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
@@ -55,14 +55,14 @@ test("test parsing actual program", function() {
 					{type: 'NUM', val: 0}
 				]
 			},{
-				line: 3,
+				line: 4,
 				symbol: {type: 'KEY', val: 'HELLO'},
 				operator: {type: 'DIR', val: '.STRINGZ'},
 				operands: [
 					{type: 'STR', val: 'Hello, world!'}
 				]
 			},{
-				line: 4,
+				line: 5,
 				operator: {type: 'DIR', val: '.END'},
 				operands: []
 			}
@@ -75,13 +75,13 @@ test("test directives on actual program", function() {
 	var input_ob = {
 		lines: [
 			{
-				line: 1,
+				line: 2,
 				operator: {type: 'DIR', val: '.ORIG'},
 				operands: [
 					{type: 'NUM', val: parseInt('4000', 16)}
 				]
 			},{
-				line: 2,
+				line: 3,
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
@@ -90,14 +90,14 @@ test("test directives on actual program", function() {
 					{type: 'NUM', val: 0}
 				]
 			},{
-				line: 3,
+				line: 4,
 				symbol: {type: 'KEY', val: 'HELLO'},
 				operator: {type: 'DIR', val: '.STRINGZ'},
 				operands: [
 					{type: 'STR', val: 'Hello, world!'}
 				]
 			},{
-				line: 4,
+				line: 5,
 				operator: {type: 'DIR', val: '.END'},
 				operands: []
 			}
@@ -126,7 +126,7 @@ test("test directives on actual program", function() {
 		lines: [
 			{
 				address: parseInt('4000', 16),
-				line: 2,
+				line: 3,
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
@@ -164,7 +164,7 @@ test("test build symbol table on actual program", function() {
 		lines: [
 			{
 				address: parseInt('4000', 16),
-				line: 2,
+				line: 3,
 				symbol: {type: 'KEY', val: 'ZERO'},
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
@@ -199,7 +199,7 @@ test("test build symbol table on actual program", function() {
 		lines: [
 			{
 				address: parseInt('4000', 16),
-				line: 2,
+				line: 3,
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
 					{type: 'REG', val: 'R0'},
@@ -237,7 +237,7 @@ test("test translate actual program", function() {
 		lines: [
 			{
 				address: parseInt('4000', 16),
-				line: 2,
+				line: 3,
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
 					{type: 'REG', val: 'R0'},
@@ -292,4 +292,99 @@ test("test assemble actual program", function() {
 		"16398": 0
 	};
 	deepEqual(LC2.assemble(str), expected_ob);
+});
+
+test("test lex bigger program", function() {
+	var input_source = lib.readFromURL('test_code.asm');
+	var expected_lexemes = [
+		{
+			"line": 7,
+			"type": "DIR",
+			"val": ".ORIG"
+		},
+		{
+			"line": 7,
+			"type": "NUM",
+			"val": "$3000"
+		},
+		{
+			"line": 10,
+			"type": "KEY",
+			"val": "IN"
+		},
+		{
+			"line": 11,
+			"type": "KEY",
+			"val": "ADD"
+		},
+		{
+			"line": 11,
+			"type": "REG",
+			"val": "R1"
+		},
+		{
+			"line": 11,
+			"type": "REG",
+			"val": "R0"
+		},
+		{
+			"line": 11,
+			"type": "NUM",
+			"val": "#0"
+		},
+		{
+			"line": 12,
+			"type": "KEY",
+			"val": "IN"
+		},
+		{
+			"line": 15,
+			"type": "KEY",
+			"val": "ADD"
+		},
+		{
+			"line": 15,
+			"type": "REG",
+			"val": "R0"
+		},
+		{
+			"line": 15,
+			"type": "REG",
+			"val": "R0"
+		},
+		{
+			"line": 15,
+			"type": "REG",
+			"val": "R1"
+		},
+		{
+			"line": 18,
+			"type": "KEY",
+			"val": "OUT"
+		},
+		{
+			"line": 19,
+			"type": "KEY",
+			"val": "HALT"
+		},
+		{
+			"line": 20,
+			"type": "DIR",
+			"val": ".END"
+		}
+	];
+	deepEqual(LC2.lex(input_source), expected_lexemes);
+});
+
+test("test assemble bigger program", function() {
+	var input_source = lib.readFromURL('test_code.asm');
+	var expected_ob = {
+		"12288" : parseInt('1111000000100011', 2),
+		"12289" : parseInt('0001001000100000', 2),
+		"12290" : parseInt('1111000000100011', 2),
+		"12291" : parseInt('0001000000000001', 2),
+		"12292" : parseInt('1111000000100001', 2),
+		"12293" : parseInt('1111000000100101', 2)
+	};
+	deepEqual(LC2.assemble(input_source), expected_ob);
 });

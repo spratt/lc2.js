@@ -415,6 +415,21 @@ var LC2 = (function(LC2, undefined) {
 			ob.bytecode[op.address] = 0;
 			ob.bytecode[op.address] += parseInt('1111', 2) << 12;
 			ob.bytecode[op.address] += op.operands[0].val & LC2.ones(8);
+		},
+		'IN' : function(op, ob) {
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1111', 2) << 12;
+			ob.bytecode[op.address] += parseInt('23', 16);
+		},
+		'OUT' : function(op, ob) {
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1111', 2) << 12;
+			ob.bytecode[op.address] += parseInt('21', 16);
+		},
+		'HALT' : function(op, ob) {
+			ob.bytecode[op.address] = 0;
+			ob.bytecode[op.address] += parseInt('1111', 2) << 12;
+			ob.bytecode[op.address] += parseInt('25', 16);
 		}
 	};
 

@@ -31,7 +31,7 @@ var lexer = (function(lexer, undefined) {
 							tokens.push({
 								type: pattern.type,
 								val: match,
-								line: line_num
+								line: line_num+1
 							});
 						}
 						if('next_state' in pattern) {
