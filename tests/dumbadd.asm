@@ -1,4 +1,8 @@
-		;; test_trap_and_add.asm
+		;; dumbadd.asm
+		;; 
+		;; example 3.6.4 on page 49 of
+		;; http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf
+		;; 
 		;; This LC2 program performs the following operations:
 		;; 		1) input two characters
 		;; 		2) adds the characters

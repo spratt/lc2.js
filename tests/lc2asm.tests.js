@@ -295,80 +295,80 @@ test("test assemble actual program", function() {
 });
 
 test("test lex bigger program", function() {
-	var input_source = lib.readFromURL('test_trap_and_add.asm');
-	var expected_lexemes = [
+	var input_source = lib.readFromURL('dumbadd.asm');
+	var expected_lexemes =[
 		{
-			"line": 7,
+			"line": 11,
 			"type": "DIR",
 			"val": ".ORIG"
 		},
 		{
-			"line": 7,
+			"line": 11,
 			"type": "NUM",
 			"val": "$3000"
 		},
 		{
-			"line": 10,
+			"line": 14,
 			"type": "KEY",
 			"val": "IN"
 		},
 		{
-			"line": 11,
+			"line": 15,
 			"type": "KEY",
 			"val": "ADD"
 		},
 		{
-			"line": 11,
+			"line": 15,
 			"type": "REG",
 			"val": "R1"
 		},
 		{
-			"line": 11,
+			"line": 15,
 			"type": "REG",
 			"val": "R0"
 		},
 		{
-			"line": 11,
+			"line": 15,
 			"type": "NUM",
 			"val": "#0"
 		},
 		{
-			"line": 12,
+			"line": 16,
 			"type": "KEY",
 			"val": "IN"
 		},
 		{
-			"line": 15,
+			"line": 19,
 			"type": "KEY",
 			"val": "ADD"
 		},
 		{
-			"line": 15,
+			"line": 19,
 			"type": "REG",
 			"val": "R0"
 		},
 		{
-			"line": 15,
+			"line": 19,
 			"type": "REG",
 			"val": "R0"
 		},
 		{
-			"line": 15,
+			"line": 19,
 			"type": "REG",
 			"val": "R1"
 		},
 		{
-			"line": 18,
+			"line": 22,
 			"type": "KEY",
 			"val": "OUT"
 		},
 		{
-			"line": 19,
+			"line": 23,
 			"type": "KEY",
 			"val": "HALT"
 		},
 		{
-			"line": 20,
+			"line": 24,
 			"type": "DIR",
 			"val": ".END"
 		}
@@ -376,8 +376,8 @@ test("test lex bigger program", function() {
 	deepEqual(LC2.lex(input_source), expected_lexemes);
 });
 
-test("test assemble bigger program", function() {
-	var input_source = lib.readFromURL('test_trap_and_add.asm');
+test("test assemble program with trap and add instructions", function() {
+	var input_source = lib.readFromURL('dumbadd.asm');
 	var expected_ob = {
 		"12288" : parseInt('1111000000100011', 2),
 		"12289" : parseInt('0001001000100000', 2),
