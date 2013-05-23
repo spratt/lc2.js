@@ -51,3 +51,20 @@ test("multi string tokenization", function() {
 				  {type: 'STRING', line: 1, val: 'The quick brown fox jumps over the lazy dog'}
 			  ]);
 });
+
+test("multi line assembly lexing", function() {
+	var str = '';
+	str += '  ;; this is a comment \n';
+	str += '  ;; this is a comment \n';
+	str += '  ;; this is a comment \n';
+	str += '  ;; this is a comment \n';
+	str += '\n';
+	str += 'LABEL: add R0, R0, R0 \n';
+	deepEqual(lexer.lex(str,LC2.spec),[
+		{type: 'KEY', line: 6, val: 'LABEL:'},
+		{type: 'KEY', line: 6, val: 'add'},
+		{type: 'REG', line: 6, val: 'R0'},
+		{type: 'REG', line: 6, val: 'R0'},
+		{type: 'REG', line: 6, val: 'R0'}
+	]);
+});

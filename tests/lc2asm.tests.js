@@ -294,7 +294,7 @@ test("test assemble actual program", function() {
 	deepEqual(LC2.assemble(str), expected_ob);
 });
 
-test("test lex bigger program", function() {
+test("test lex dumbadd.asm", function() {
 	var input_source = lib.readFromURL('dumbadd.asm');
 	var expected_lexemes =[
 		{
@@ -376,7 +376,7 @@ test("test lex bigger program", function() {
 	deepEqual(LC2.lex(input_source), expected_lexemes);
 });
 
-test("test assemble program with trap and add instructions", function() {
+test("test assemble dumbadd.asm", function() {
 	var input_source = lib.readFromURL('dumbadd.asm');
 	var expected_ob = {
 		"12288" : parseInt('1111000000100011', 2),
@@ -387,4 +387,336 @@ test("test assemble program with trap and add instructions", function() {
 		"12293" : parseInt('1111000000100101', 2)
 	};
 	deepEqual(LC2.assemble(input_source), expected_ob);
+});
+
+test("test lex reverse.asm", function() {
+	var input_source = lib.readFromURL('reverse.asm');
+	var expected_lexemes =[
+		{
+			"line": 13,
+			"type": "DIR",
+			"val": ".ORIG"
+		},
+		{
+			"line": 13,
+			"type": "NUM",
+			"val": "$3000"
+		},
+		{
+			"line": 16,
+			"type": "KEY",
+			"val": "lea"
+		},
+		{
+			"line": 16,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 16,
+			"type": "KEY",
+			"val": "BUFFER"
+		},
+		{
+			"line": 17,
+			"type": "KEY",
+			"val": "and"
+		},
+		{
+			"line": 17,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 17,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 17,
+			"type": "NUM",
+			"val": "#0"
+		},
+		{
+			"line": 20,
+			"type": "KEY",
+			"val": "READ:"
+		},
+		{
+			"line": 20,
+			"type": "KEY",
+			"val": "in"
+		},
+		{
+			"line": 21,
+			"type": "KEY",
+			"val": "add"
+		},
+		{
+			"line": 21,
+			"type": "REG",
+			"val": "R1"
+		},
+		{
+			"line": 21,
+			"type": "REG",
+			"val": "R0"
+		},
+		{
+			"line": 21,
+			"type": "NUM",
+			"val": "$-A"
+		},
+		{
+			"line": 22,
+			"type": "KEY",
+			"val": "brz"
+		},
+		{
+			"line": 22,
+			"type": "KEY",
+			"val": "PRNTIT"
+		},
+		{
+			"line": 23,
+			"type": "KEY",
+			"val": "str"
+		},
+		{
+			"line": 23,
+			"type": "REG",
+			"val": "R0"
+		},
+		{
+			"line": 23,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 23,
+			"type": "NUM",
+			"val": "#0"
+		},
+		{
+			"line": 24,
+			"type": "KEY",
+			"val": "add"
+		},
+		{
+			"line": 24,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 24,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 24,
+			"type": "NUM",
+			"val": "#1"
+		},
+		{
+			"line": 25,
+			"type": "KEY",
+			"val": "add"
+		},
+		{
+			"line": 25,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 25,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 25,
+			"type": "NUM",
+			"val": "#1"
+		},
+		{
+			"line": 26,
+			"type": "KEY",
+			"val": "jmp"
+		},
+		{
+			"line": 26,
+			"type": "KEY",
+			"val": "READ"
+		},
+		{
+			"line": 28,
+			"type": "KEY",
+			"val": "PRNTIT:"
+		},
+		{
+			"line": 28,
+			"type": "KEY",
+			"val": "add"
+		},
+		{
+			"line": 28,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 28,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 28,
+			"type": "NUM",
+			"val": "#-1"
+		},
+		{
+			"line": 31,
+			"type": "KEY",
+			"val": "PRINT:"
+		},
+		{
+			"line": 31,
+			"type": "KEY",
+			"val": "and"
+		},
+		{
+			"line": 31,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 31,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 31,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 32,
+			"type": "KEY",
+			"val": "brz"
+		},
+		{
+			"line": 32,
+			"type": "KEY",
+			"val": "DONE"
+		},
+		{
+			"line": 33,
+			"type": "KEY",
+			"val": "ldr"
+		},
+		{
+			"line": 33,
+			"type": "REG",
+			"val": "R0"
+		},
+		{
+			"line": 33,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 33,
+			"type": "NUM",
+			"val": "#0"
+		},
+		{
+			"line": 34,
+			"type": "KEY",
+			"val": "out"
+		},
+		{
+			"line": 35,
+			"type": "KEY",
+			"val": "add"
+		},
+		{
+			"line": 35,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 35,
+			"type": "REG",
+			"val": "R2"
+		},
+		{
+			"line": 35,
+			"type": "NUM",
+			"val": "#-1"
+		},
+		{
+			"line": 36,
+			"type": "KEY",
+			"val": "add"
+		},
+		{
+			"line": 36,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 36,
+			"type": "REG",
+			"val": "R3"
+		},
+		{
+			"line": 36,
+			"type": "NUM",
+			"val": "#-1"
+		},
+		{
+			"line": 37,
+			"type": "KEY",
+			"val": "jmp"
+		},
+		{
+			"line": 37,
+			"type": "KEY",
+			"val": "PRINT"
+		},
+		{
+			"line": 39,
+			"type": "KEY",
+			"val": "DONE:"
+		},
+		{
+			"line": 39,
+			"type": "KEY",
+			"val": "halt"
+		},
+		{
+			"line": 42,
+			"type": "KEY",
+			"val": "BUFFER:"
+		},
+		{
+			"line": 42,
+			"type": "DIR",
+			"val": ".BLKW"
+		},
+		{
+			"line": 42,
+			"type": "NUM",
+			"val": "10"
+		},
+		{
+			"line": 42,
+			"type": "NUM",
+			"val": "$0000"
+		},
+		{
+			"line": 43,
+			"type": "DIR",
+			"val": ".END"
+		},
+	];
+	deepEqual(LC2.lex(input_source), expected_lexemes);
 });

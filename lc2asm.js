@@ -10,7 +10,7 @@ var LC2 = (function(LC2, undefined) {
 	LC2.parseNum = function(num_str) {
 		var hex = /^(?:\$|x|X|0x|0X)([\da-fA-F]+)/.exec(num_str);
 		var bin = /^(?:%|b|B)(1[0-1]*)/.exec(num_str);
-		var dec = /^#(\d+)/.exec(num_str);
+		var dec = /^#?(\d+)/.exec(num_str);
 		if(hex && hex[1]) return parseInt(hex[1], 16);
 		if(bin && bin[1]) return parseInt(bin[1], 2);
 		if(dec && dec[1]) return parseInt(dec[1], 10);
@@ -32,7 +32,11 @@ var LC2 = (function(LC2, undefined) {
 					next_state: 'COMMENT'
 				},
 				{
-					regex: /^(?:\$|x|X|0x|0X|%|b|B|#)[\da-fA-F]+/, // literal number
+					regex: /^(?:\$|x|X|0x|0X|%|b|B|#)\-?[\da-fA-F]+/, // literal number
+					type: 'NUM'
+				},
+				{
+					regex: /^\-?\d+/, // literal number
 					type: 'NUM'
 				},
 				{
@@ -40,7 +44,7 @@ var LC2 = (function(LC2, undefined) {
 					type: 'REG'
 				},
 				{
-					regex: /^[a-zA-Z]\w*/, // keyword starting with a letter
+					regex: /^[a-zA-Z]\w*:?/, // keyword starting with a letter
 					type: 'KEY'
 				},
 				{
@@ -486,7 +490,10 @@ var LC2 = (function(LC2, undefined) {
 			// check for preceding symbol
 			if(line.length > 1 && line[0].type === 'KEY' &&
 			   (line[1].type === 'KEY' || line[1].type === 'DIR')) {
-				op.symbol = line.shift();
+				var symbol = line.shift();
+				if(symbol[symbol.length-1] === ':')
+					symbol.substring(0,symbol.length-2);
+				op.symbol = symbol;
 			}
 			op.operator = line.shift();
 			op.operator.val = op.operator.val.toUpperCase();

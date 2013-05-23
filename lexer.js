@@ -15,6 +15,7 @@ var lexer = (function(lexer, undefined) {
 
 		lexer.log('len: ' + str.length);
 		str.split('\n').forEach(function(line_str,line_num) {
+			lexer.log(line_num + ': "' + line_str + '"');
 			line_str += '\n'; // replace removed newline
 			var start = 0;
 			while(start < line_str.length) {
@@ -43,7 +44,7 @@ var lexer = (function(lexer, undefined) {
 					}
 				}
 				if(!matched)
-					throw new Error('No pattern matched on line ' + line_num +
+					throw new Error('No pattern matched on line ' + (line_num+1) +
 									', character ' + start);
 				lexer.log('end: ' + start);
 				lexer.log('state: ' + state);
