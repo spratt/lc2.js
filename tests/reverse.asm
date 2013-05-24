@@ -10,7 +10,7 @@
 		;; R2 is the count of characters that have been read in so far
 		;; R3 is the address into the buffer (same as bufptr)
 
-		.ORIG $3000				; directive: program load location
+		.ORIG $3000				; program load location
 
 		;; Set up
 		lea R3, BUFFER			; R3 points to start of buffer
