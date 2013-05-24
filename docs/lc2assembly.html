@@ -33,6 +33,70 @@
       a <a href="http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf">series
       of notes about the LC-2</a> which may also be of help.
     </p>
+    
+    <p>
+      The LC-2 computer has 16 general purpose registers (R0, R1, ...,
+      R16), and 65535 (0xffff) memory locations.  Memory addresses
+      0x0000 to 0x0fff are reserved for the Operating System.  0x1000
+      to 0x2fff, and 0xd000 to 0xefff are reserved.  0xf000 to 0xfbff
+      are reserved for memory mapped I/O.  0xfc00 to 0xffff are
+      reserved for Boot ROM.
+    </p>
+    
+    <p>
+      Note that the lc2asm.js assembler is not case-sensitive, and
+      differs slightly from the original LC-2 assembler presented in
+      the above book and notes.  Line labels may optionally be
+      followed by a colon.
+    </p>
+    
+    <pre>
+STR1:    .STRINGZ "The label on this line is valid."
+STR2     .STRINGZ "The label on this line is also valid."
+    </pre>
+    
+    <h2>Assembler Directives</h2>
+    <dl>
+      <dt><code>.ORIGIN</code> Loc</dt>
+      <dd>
+        Loc is a memory location which specifies where the next
+        instruction should be placed in memory, and following
+        instructions should follow this address accordingly.
+      </dd>
+      <dt><code>.FILL</code> Val</dt>
+      <dd>
+        Fill this memory location with Val.
+      </dd>
+      <dt><code>.STRINGZ</code> Str</dt>
+      <dd>
+        Str is a string of length n delimited by double-quotes
+        (&quot;).  Fill the next n+1 memory locations with the
+        characters of Str, followed by a zero value.
+      </dd>
+      <dt><code>.BLKW</code> N Val</dt>
+      <dd>
+        N is a number of memory locations.  Fills the next N memory
+        locations with Val.
+      </dd>
+      <dt><code>.END</code></dt>
+      <dd>
+        This simply signals to the assembler that the code has ended,
+        and no following code will be assembled.
+      </dd>
+    </dl>
+    
+    <h2>Assembly Instructions</h2>
+    <dl>
+      <dt><code>ADD</code> Reg_dest, Reg_src1, Reg_src2</dt>
+      <dd>
+        Add the values in Reg_src1 and Reg_src2 and put the result in
+        Reg_dest.
+      </dd>
+      <dt><code>ADD</code> Reg_dest, Reg_src1, Val5</dt>
+      <dd>
+        Add the values in Reg_src1 and the 5-bit value Val5, and put
+        the result in Reg_dest.
+      </dd>
+    </dl>
   </body>
-  <script src="lib.js"></script>
 </html>

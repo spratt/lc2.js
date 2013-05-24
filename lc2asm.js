@@ -76,7 +76,7 @@ var LC2 = (function(LC2, undefined) {
 	};
 	
 	var assembler_directives = {
-		'.ORIG' : function(op, ob) {
+		'.ORIG' : function(op, ob) { // set next memory location
 			if(op.operands[0].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
 			try {
@@ -85,7 +85,7 @@ var LC2 = (function(LC2, undefined) {
 				throw new Error('Invalid number on line ' +	op.line);
 			}
 		},
-		'.FILL' : function(op, ob) {
+		'.FILL' : function(op, ob) { // fill a specific location in memory
 			if(op.operands[0].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
 			if(op.symbol)
@@ -96,7 +96,7 @@ var LC2 = (function(LC2, undefined) {
 				throw new Error('Invalid number on line ' +	op.line);
 			}
 		},
-		'.STRINGZ' : function(op, ob) {
+		'.STRINGZ' : function(op, ob) { // write a string to memory
 			if(op.operands[0].type !== 'STR')
 				throw new Error('Invalid directive on line ' + op.line);
 			if(op.symbol)
@@ -107,7 +107,7 @@ var LC2 = (function(LC2, undefined) {
 			}
 			ob.bytecode[(ob.next_address)++] = 0; // 0 terminated
 		},
-		'.BLKW' : function(op, ob) {
+		'.BLKW' : function(op, ob) { // fill several locations in memory
 			if(op.operands[0].type !== 'NUM' || op.operands[1].type !== 'NUM')
 				throw new Error('Invalid directive on line ' + op.line);
 			if(op.symbol)
@@ -122,7 +122,7 @@ var LC2 = (function(LC2, undefined) {
 				ob.bytecode[(ob.next_address)++] = init;
 			}
 		},
-		'.END' : function() {}
+		'.END' : function() {} // mark end of program
 	};
 	var assembler_mnemonics = {
 		'ADD'   : function(op, ob) {
