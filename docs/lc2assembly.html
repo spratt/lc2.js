@@ -55,54 +55,90 @@ STR1:    .STRINGZ "The label on this line is valid."
 STR2     .STRINGZ "The label on this line is also valid."
     </pre>
     
+    <h2>Trap Vectors</h2>
+    <dl>
+      <dt><code><b>0x21</b></code></dt>
+      <dd>
+        Print the ASCII character whose value is in R0 to console
+        output.
+      </dd>
+      <dt><code><b>0x23</b></code></dt>
+      <dd>
+        Read the value from the keyboard and put it in R0.
+      </dd>
+      <dt><code><b>0x25</b></code></dt>
+      <dd>
+        Stop the computer.
+      </dd>
+    </dl>
+    
     <h2>Assembler Directives</h2>
     <dl>
-      <dt><code>.ORIGIN</code> Loc</dt>
+      <dt><code><b>.ORIGIN</b> Loc</code></dt>
       <dd>
         Loc is a memory location which specifies where the next
         instruction should be placed in memory, and following
         instructions should follow this address accordingly.
       </dd>
-      <dt><code>.FILL</code> Val</dt>
+      <dt><code><b>.FILL</b> Val</code></dt>
       <dd>
         Fill this memory location with Val.
       </dd>
-      <dt><code>.STRINGZ</code> Str</dt>
+      <dt><code><b>.STRINGZ</b> Str</code></dt>
       <dd>
         Str is a string of length n delimited by double-quotes
         (&quot;).  Fill the next n+1 memory locations with the
         characters of Str, followed by a zero value.
       </dd>
-      <dt><code>.BLKW</code> N Val</dt>
+      <dt><code><b>.BLKW</b> N Val</code></dt>
       <dd>
         N is a number of memory locations.  Fills the next N memory
         locations with Val.
       </dd>
-      <dt><code>.END</code></dt>
+      <dt><code><b>.END</b></code></dt>
       <dd>
         This simply signals to the assembler that the code has ended,
         and no following code will be assembled.
       </dd>
     </dl>
     
-    <h2>Assembly Instructions</h2>
+    <h2>Assembly Macro Instructions</h2>
     <dl>
-      <dt><code>ADD</code> Reg_dest, Reg_src1, Reg_src2</dt>
+      <dt><code><b>IN</b></code></dt>
+      <dd>
+        Read the value from the keyboard and put it in R0.
+        Equivalent to <code>TRAP $23</code>.
+      </dd>
+      <dt><code><b>OUT</b></code></dt>
+      <dd>
+        Print the ASCII character whose value is in R0 to console
+        output.  Equivalent to <code>TRAP $21</code>.
+      </dd>
+      <dt><code><b>HALT</b></code></dt>
+      <dd>
+        Stop the computer.
+        Requivalent to <code>TRAP $25</code>.
+      </dd>
+    </dl>
+    
+    <h2>Assembly CPU Instructions</h2>
+    <dl>
+      <dt><code><b>ADD</b> Reg_dest, Reg_src1, Reg_src2</code></dt>
       <dd>
         Add the values in Reg_src1 and Reg_src2 and put the result in
         Reg_dest.
       </dd>
-      <dt><code>ADD</code> Reg_dest, Reg_src1, Val5</dt>
+      <dt><code><b>ADD</b> Reg_dest, Reg_src1, Val5</code></dt>
       <dd>
         Add the values in Reg_src1 and the 5-bit value Val5, and put
         the result in Reg_dest.
       </dd>
-      <dt><code>AND</code> Reg_dest, Reg_src1, Reg_src2</dt>
+      <dt><code><b>AND</b> Reg_dest, Reg_src1, Reg_src2</code></dt>
       <dd>
         Logically AND the values in Reg_src1 and Reg_src2 and put the
         result in Reg_dest.
       </dd>
-      <dt><code>AND</code> Reg_dest, Reg_src1, Val5</dt>
+      <dt><code><b>AND</b> Reg_dest, Reg_src1, Val5</code></dt>
       <dd>
         Logically AND the values in Reg_src1 and the zero-extended
         5-bit value Val5, and put the result in Reg_dest.
