@@ -31,20 +31,38 @@
       of notes about the LC-2</a> which may also be of help.
     </p>
     
+    <h2>Number Specifications</h2>
     <p>
-      The LC-2 computer has 16 general purpose registers (R0, R1, ...,
-      R16), and 65535 (0xffff) memory locations.  Memory addresses
+      Decimal numbers can be specified by #123 or 123.  Binary number
+      can be specified as %101, b101, or B101.  Hexadecimal numbers
+      can be specified as $fade, xfade, Xfade, 0xfade, or 0Xfade.
+      Case is not sensitive.
+    </p>
+
+    <h2>The LC-2 Computer</h2>
+    <p>
+      The LC-2 computer has 8 general purpose registers (R0, R1, ...,
+      R7), and 65535 (0xffff) memory locations.  The CPU has a Program
+      Counter (PC), also known as an instruction pointer, whose value
+      is the memory address of the next instruction to be executed.
+      The CPU also has 3 conditional flags: negative, zero, positive;
+      whose values are set to the sign of the result of the previous
+      operation (for some operations).
+    </p>
+    <p>
+      Memory addresses
       0x0000 to 0x0fff are reserved for the Operating System.  0x1000
       to 0x2fff, and 0xd000 to 0xefff are reserved.  0xf000 to 0xfbff
       are reserved for memory mapped I/O.  0xfc00 to 0xffff are
       reserved for Boot ROM.
     </p>
     
+    <h2>The lc2asm.js Assembler</h2>
     <p>
-      Note that the lc2asm.js assembler is not case-sensitive, and
-      differs slightly from the original LC-2 assembler presented in
-      the above book and notes.  Line labels may optionally be
-      followed by a colon.
+      Note that the lc2asm.js assembler instructions are not
+      case-sensitive, and differs slightly from the original LC-2
+      assembler presented in the above book and notes.  Line labels
+      may optionally be followed by a colon.
     </p>
     
     <pre>
@@ -73,24 +91,26 @@ STR2     .STRINGZ "The label on this line is also valid."
     <dl>
       <dt><code><b>.ORIGIN</b> Loc</code></dt>
       <dd>
-        Loc is a memory location which specifies where the next
-        instruction should be placed in memory, and following
-        instructions should follow this address accordingly.
+        <code>Loc</code> is a memory location which specifies where
+        the next instruction should be placed in memory, and following
+        instructions should follow this address accordingly.  Without
+        this directive, the first instruction is placed by default at
+        0x3000.
       </dd>
       <dt><code><b>.FILL</b> Val</code></dt>
       <dd>
-        Fill this memory location with Val.
+        Fill this memory location with <code>Val</code>.
       </dd>
-      <dt><code><b>.STRINGZ</b> Str</code></dt>
+      <dt><code><b>.STRINGZ</b> "Str"</code></dt>
       <dd>
-        Str is a string of length n delimited by double-quotes
-        (&quot;).  Fill the next n+1 memory locations with the
-        characters of Str, followed by a zero value.
+        <code>Str</code> is a string of length n.  Fill the next n+1
+        memory locations with the characters of Str, followed by a
+        zero value.
       </dd>
       <dt><code><b>.BLKW</b> N Val</code></dt>
       <dd>
-        N is a number of memory locations.  Fills the next N memory
-        locations with Val.
+        <code>N</code> is a number of memory locations.  Fills the
+        next <code>N</code> memory locations with <code>Val</code>.
       </dd>
       <dt><code><b>.END</b></code></dt>
       <dd>
@@ -122,24 +142,180 @@ STR2     .STRINGZ "The label on this line is also valid."
     <dl>
       <dt><code><b>ADD</b> Reg_dest, Reg_src1, Reg_src2</code></dt>
       <dd>
-        Add the values in Reg_src1 and Reg_src2 and put the result in
-        Reg_dest.
+        Add the values in <code>Reg_src1</code>
+        and <code>Reg_src2</code> and put the result
+        in <code>Reg_dest</code>.  Sets the conditional flags.
       </dd>
       <dt><code><b>ADD</b> Reg_dest, Reg_src1, Val5</code></dt>
       <dd>
-        Add the values in Reg_src1 and the 5-bit value Val5, and put
-        the result in Reg_dest.
+        Add the values in <code>Reg_src1</code> and the 5-bit value
+        Val5, and put the result in <code>Reg_dest</code>.  Sets the
+        conditional flags.
       </dd>
       <dt><code><b>AND</b> Reg_dest, Reg_src1, Reg_src2</code></dt>
       <dd>
-        Logically AND the values in Reg_src1 and Reg_src2 and put the
-        result in Reg_dest.
+        Logically AND the values in <code>Reg_src1</code>
+        and <code>Reg_src2</code> and put the result
+        in <code>Reg_dest</code>.  Sets the conditional flags.
       </dd>
       <dt><code><b>AND</b> Reg_dest, Reg_src1, Val5</code></dt>
       <dd>
-        Logically AND the values in Reg_src1 and the zero-extended
-        5-bit value Val5, and put the result in Reg_dest.
+        Logically AND the values in <code>Reg_src1</code> and the
+        zero-extended 5-bit value <code>Val5</code>, and put the
+        result in <code>Reg_dest</code>.  Sets the conditional flags.
+      </dd>
+      <dt><code><b>NOP</b></code></dt>
+      <dd>
+        Does nothing.
+      </dd>
+      <dt><code><b>BR</b> Mem9</code></dt>
+      <dd>
+        Jump to the memory address <code>Mem9</code> within this
+        memory page, if nothing.  Effectively the same
+        as <code><b>NOP</b></code>.  In fact,
+        the <code><b>NOP</b></code> assembly instruction is translated
+        to a <code><b>BR</b></code> with a zero value
+        for <code>Mem9</code>.
+      </dd>
+      <dt><code><b>BRn</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page, if the negative conditional flag is set.
+      </dd>
+      <dt><code><b>BRz</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page, if the zero conditional flag is set.
+      </dd>
+      <dt><code><b>BRp</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page, if the positive conditional flag is set.
+      </dd>
+      <dt><code><b>BRnp</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page, if the either the negative or positive
+        conditional flags are set.
+      </dd>
+      <dt><code><b>BRnz</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page, if either the negative or zero conditional flags
+        are set.
+      </dd>
+      <dt><code><b>BRzp</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page, if either the zero or positive conditional flags
+        are set.
+      </dd>
+      <dt><code><b>BRnzp</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem9</code> within this
+        memory page (i.e. with the upper 7 bits determined by the
+        location of this instruction within memory), if the negative,
+        zero, or positive conditional flags is set.  Effectively, this
+        always jumps since one of the flags is guaranteed to be set
+        from the last calculation.
+      </dd>
+      <dt><code><b>JMP</b> Mem9</code></dt>
+      <dd>
+        Jump to the 9-bit memory address <code>Mem6</code> within this
+        memory page.  Effectively the same
+        as <code><b>BRnzp</b></code>.
+      </dd>
+      <dt><code><b>JMPRR</b> Reg_base, Offset6</code></dt>
+      <dd>
+        Add the value in <code>Reg_base</code> to the 6-bit
+        value <code>Offset6</code>, and jump to that location in
+        memory.
+      </dd>
+      <dt><code><b>JSR</b> Mem9</code></dt>
+      <dd>
+        Save the current current instruction address in R7, then jump
+        to the 9-bit memory address <code>Mem6</code> within this
+        memory page.
+      </dd>
+      <dt><code><b>JSRR</b> Reg_base, Offset6</code></dt>
+      <dd>
+        Save the current current instruction address in R7, then add
+        the value in <code>Reg_base</code> to the 6-bit
+        value <code>Offset6</code>, and jump to that location in
+        memory.
+      </dd>
+      <dt><code><b>LD</b> Reg_dest, Offset9</code></dt>
+      <dd>
+        Retrieve the value at the 9-bit memory
+        address <code>Offset9</code> within this memory page and put
+        it into <code>Reg_dest</code>.
+      </dd>
+      <dt><code><b>LDI</b> Reg_dest, Offset9</code></dt>
+      <dd>
+        Retrieve the value at the 9-bit memory
+        address <code>Offset9</code> within this memory page, then use
+        this as a memory address.  Retrieve the value at that memory
+        address and put it into <code>Reg_dest</code>.
+      </dd>
+      <dt><code><b>LDR</b> Reg_dest, Reg_base, Offset6</code></dt>
+      <dd>
+        Add the value in <code>Reg_base</code> to the 6-bit
+        value <code>Offset6</code>, retrieve the value in that memory
+        location, and store it in <code>Reg_dest</code>.
+      </dd>
+      <dt><code><b>LEA</b> Reg_dest, Offset9</code></dt>
+      <dd>
+        Concatenate the bits of the current page (the top 7 bits in
+        the memory address of the current instruction) with the 9-bit
+        value <code>Offset6</code> and store the result
+        in <code>Reg_dest</code>.
+      </dd>
+      <dt><code><b>NOT</b> Reg_dest, Reg_src</code></dt>
+      <dd>
+        Take the logical NOT of the value in <code>Reg_src</code> and
+        store it in <code>Reg_dest</code>.
+      </dd>
+      <dt><code><b>RET</b></code></dt>
+      <dd>
+        Set the program counter (PC) to the value stored in R7.
+      </dd>
+      <dt><code><b>RTI</b></code></dt>
+      <dd>
+        Set the PC to the value at the memory location pointed to by
+        R7.
+      </dd>
+      <dt><code><b>ST</b> Reg_src, Offset9</code></dt>
+      <dd>
+        Set the value at the 9-bit memory address <code>Offset9</code>
+        within this memory page to the value in <code>Reg_src</code>.
+      </dd>
+      <dt><code><b>STI</b> Reg_src, Offset9</code></dt>
+      <dd>
+        Retrieve the value at the 9-bit memory
+        address <code>Offset9</code> within this memory page, then use
+        this as a memory address.  Set the value at that memory
+        address to the value in <code>Reg_src</code>.
+      </dd>
+      <dt><code><b>STR</b> Reg_src, Reg_base, Offset6</code></dt>
+      <dd>
+        Add the value in <code>Reg_base</code> to the 6-bit
+        value <code>Offset6</code>, set the value in that memory
+        location to the value in <code>Reg_src</code>.
+      </dd>
+      <dt><code><b>TRAP</b> vector8</code></dt>
+      <dd>
+        Activate the operating system with trap <code>vector8</code>.
+        Effectively, this saves the value of the PC into R7 and jumps
+        to the zero-extended memory location <code>vector8</code>,
+        which is filled with operating system code to perform some
+        function, after which the operating system jumps back into the
+        user program by reseting the PC to the value in R7.
       </dd>
     </dl>
+    
+    <br>
+    <p style="text-align: center">
+      <a href="#">^ Back to Top ^</a>
+    </p>
   </body>
 </html>
