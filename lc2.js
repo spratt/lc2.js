@@ -296,16 +296,16 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
-	ProtoLC2.ldr = function(dest_reg, base_reg, offset) {
+	ProtoLC2.ldr = function(dest_reg, base_reg, offset6) {
 		dest_reg = dest_reg & ones(3);
 		base_reg = base_reg & ones(3);
-		offset = offset & ones(9);
+		offset6 = offset6 & ones(6);
 		
-		this.log("ldr(" + dest_reg + "," + base_reg + "," + offset + ")");
+		this.log("ldr(" + dest_reg + "," + base_reg + "," + offset6 + ")");
 
 		var base = this.r[base_reg].val;
-		var addr = base + offset;
-		this.log(addr + " = " + base + " + " + offset);
+		var addr = base + offset6;
+		this.log(addr + " = " + base + " + " + offset6);
 		this.mem.mar.val = addr;
 		this.mem.interrogate();
 		
@@ -314,18 +314,18 @@ var LC2 = (function(LC2, undefined) {
 		set_conditions(this, result);
 	};
 
-	ProtoLC2.str = function(src_reg, base_reg, offset) {
+	ProtoLC2.str = function(src_reg, base_reg, offset6) {
 		src_reg = src_reg & ones(3);
 		base_reg = base_reg & ones(3);
-		offset = offset & ones(9);
+		offset6 = offset6 & ones(6);
 		
-		this.log("str(" + src_reg + "," + base_reg + "," + offset + ")");
+		this.log("str(" + src_reg + "," + base_reg + "," + offset6 + ")");
 
 		var base = this.r[base_reg].val;
 		var result = this.r[src_reg].val;
 		
-		var addr = base + offset;
-		this.log(addr + " = " + base + " + " + offset);
+		var addr = base + offset6;
+		this.log(addr + " = " + base + " + " + offset6);
 		this.mem.mar.val = addr;
 		this.mem.mdr.val = result;
 		this.mem.interrogate(1);
