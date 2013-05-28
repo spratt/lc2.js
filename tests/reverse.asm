@@ -25,7 +25,7 @@ READ:   in                      ; read a character from keyboard
         add R2, R2, #1          ; increment character count
         jmp READ                ; read the next character
 
-PRNTIT: add R3, R3, #-1     ; move pointer to prev char read
+PRNTIT: add R3, R3, #-1         ; move pointer to prev char read
 
         ;; Print the characters in reverse order
 PRINT:  and R2, R2, R2          ; and R2 to itself to set the flags

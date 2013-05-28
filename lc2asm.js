@@ -265,7 +265,7 @@ var LC2 = (function(LC2, undefined) {
 		},
 		'JSR'   : function(op, ob) {
 			if(op.operands[0].type !== 'NUM')
-				throw new Error('Arg 1 to JMP on line ' + op.line +
+				throw new Error('Arg 1 to JSR on line ' + op.line +
 								' should be a number');
 			ob.bytecode[op.address] = 0;
 			ob.bytecode[op.address] += parseInt('0100', 2) << 12;
@@ -274,10 +274,10 @@ var LC2 = (function(LC2, undefined) {
 		},
 		'JSRR'  : function(op, ob) {
 			if(op.operands[0].type !== 'REG')
-				throw new Error('Arg 1 to JMPRR on line ' + op.line +
+				throw new Error('Arg 1 to JSRR on line ' + op.line +
 								' should be a register');
 			if(op.operands[1].type !== 'NUM')
-				throw new Error('Arg 2 to JMPRR on line ' + op.line +
+				throw new Error('Arg 2 to JSRR on line ' + op.line +
 								' should be a number');
 			ob.bytecode[op.address] = 0;
 			ob.bytecode[op.address] += parseInt('1100', 2) << 12;

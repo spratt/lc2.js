@@ -720,3 +720,45 @@ test("test lex reverse.asm", function() {
 	];
 	deepEqual(LC2.lex(input_source), expected_lexemes);
 });
+
+test("lex justtest.asm",function() {
+	var input_source = lib.readFromURL('justtest.asm');
+	var expected_lexemes = [
+		{
+			"line": 1,
+			"type": "KEY",
+			"val": "START:"
+		},
+		{
+			"line": 1,
+			"type": "KEY",
+			"val": "nop"
+		},
+		{
+			"line": 2,
+			"type": "KEY",
+			"val": "br"
+		},
+		{
+			"line": 3,
+			"type": "KEY",
+			"val": "brn"
+		},
+		{
+			"line": 3,
+			"type": "KEY",
+			"val": "START"
+		},
+		{
+			"line": 4,
+			"type": "KEY",
+			"val": "brp"
+		},
+		{
+			"line": 4,
+			"type": "KEY",
+			"val": "START"
+		},
+	];
+	deepEqual(LC2.lex(input_source), expected_lexemes);
+});
