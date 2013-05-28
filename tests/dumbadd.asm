@@ -1,24 +1,24 @@
-		;; dumbadd.asm
-		;; 
-		;; example 3.6.4 on page 49 of
-		;; http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf
-		;; 
-		;; This LC2 program performs the following operations:
-		;; 		1) input two characters
-		;; 		2) adds the characters
-		;; 		3) output the result
+        ;; dumbadd.asm
+        ;; 
+        ;; example 3.6.4 on page 49 of
+        ;; http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf
+        ;; 
+        ;; This LC2 program performs the following operations:
+        ;;         1) input two characters
+        ;;         2) adds the characters
+        ;;         3) output the result
 
-		.ORIG $3000				; directive: program load location
-		
-		;; get the character inputs
-		IN 						; read character into R0
-		ADD R1, R0, #0			; move R0 into R1
-		IN						; read character into R0
+        .ORIG $3000             ; directive: program load location
 
-		;; do the addition
-		ADD R0, R0, R1			; add numbers
+        ;; get the character inputs
+        IN                      ; read character into R0
+        ADD R1, R0, #0          ; move R0 into R1
+        IN                      ; read character into R0
 
-		;; write the results
-		OUT						; write the single-character result
-		HALT					; stop the computer
-		.END					; end of code
+        ;; do the addition
+        ADD R0, R0, R1          ; add numbers
+
+        ;; write the results
+        OUT                     ; write the single-character result
+        HALT                    ; stop the computer
+        .END                    ; end of code

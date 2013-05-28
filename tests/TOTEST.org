@@ -1,0 +1,38 @@
+
+* TODO
+  - [X] .ORIG
+  - [ ] .FILL
+  - [ ] .STRINGZ
+  - [X] .BLKW
+  - [ ] .END
+  - [X] ADD reg, reg, reg
+  - [X] ADD reg, reg, imm
+  - [ ] AND reg, reg, reg
+  - [X] AND reg, reg, imm
+  - [ ] NOP
+  - [ ] BR
+  - [ ] BRN
+  - [X] BRZ
+  - [ ] BRP
+  - [ ] BRNZ
+  - [ ] BRNP
+  - [ ] BRZP
+  - [ ] BRNZP
+  - [X] JMP
+  - [ ] JMPRR
+  - [ ] JSR
+  - [ ] JSRR
+  - [ ] LD
+  - [ ] LDI
+  - [X] LDR
+  - [X] LEA
+  - [ ] NOT
+  - [ ] RET
+  - [ ] RTI
+  - [ ] ST
+  - [ ] STI
+  - [X] STR
+  - [ ] TRAP
+  - [X] IN
+  - [X] OUT
+  - [X] HALT
