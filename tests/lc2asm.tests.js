@@ -789,6 +789,171 @@ test("lex justtest.asm",function() {
 			"type": "KEY",
 			"val": "START"
 		},
+		{
+			"line": 8,
+			"type": "KEY",
+			"val": "jmprr"
+		},
+		{
+			"line": 8,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 8,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 9,
+			"type": "KEY",
+			"val": "jsr"
+		},
+		{
+			"line": 9,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 10,
+			"type": "KEY",
+			"val": "jsrr"
+		},
+		{
+			"line": 10,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 10,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 11,
+			"type": "KEY",
+			"val": "ld"
+		},
+		{
+			"line": 11,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 11,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 12,
+			"type": "KEY",
+			"val": "ldi"
+		},
+		{
+			"line": 12,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 12,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 13,
+			"type": "KEY",
+			"val": "not"
+		},
+		{
+			"line": 13,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 13,
+			"type": "REG",
+			"val": "r7"
+		},
+		{
+			"line": 14,
+			"type": "KEY",
+			"val": "st"
+		},
+		{
+			"line": 14,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 14,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 15,
+			"type": "KEY",
+			"val": "sti"
+		},
+		{
+			"line": 15,
+			"type": "REG",
+			"val": "r5"
+		},
+		{
+			"line": 15,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 16,
+			"type": "KEY",
+			"val": "trap"
+		},
+		{
+			"line": 16,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 17,
+			"type": "KEY",
+			"val": "ret"
+		},
+		{
+			"line": 18,
+			"type": "KEY",
+			"val": "rti"
+		},
+		{
+			"line": 19,
+			"type": "DIR",
+			"val": ".fill"
+		},
+		{
+			"line": 19,
+			"type": "NUM",
+			"val": "#5"
+		},
+		{
+			"line": 20,
+			"type": "DIR",
+			"val": ".stringz"
+		},
+		{
+			"line": 20,
+			"type": "STR",
+			"val": "Hello, world!"
+		},
+		{
+			"line": 21,
+			"type": "DIR",
+			"val": ".end"
+		},
+		{
+			"line": 22,
+			"type": "KEY",
+			"val": "nop"
+		},
 	];
 	deepEqual(LC2.lex(input_source), expected_lexemes);
 });

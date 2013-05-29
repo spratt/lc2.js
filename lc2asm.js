@@ -32,15 +32,19 @@ var LC2 = (function(LC2, undefined) {
 					next_state: 'COMMENT'
 				},
 				{
-					regex: /^(?:\$|x|X|0x|0X|%|b|B|#)\-?[\da-fA-F]+/, // literal number
+					regex: /^\[%bB]-?[01]+/, // binary number
 					type: 'NUM'
 				},
 				{
-					regex: /^\-?\d+/, // literal number
+					regex: /^(?:\$|x|X|0x|0X)\-?[\da-fA-F]+/, // hex number
 					type: 'NUM'
 				},
 				{
-					regex: /^R1?[0-9]/, // register
+					regex: /^#?\-?\d+/, // decimal number
+					type: 'NUM'
+				},
+				{
+					regex: /^[Rr]1?[0-9]/, // register
 					type: 'REG'
 				},
 				{

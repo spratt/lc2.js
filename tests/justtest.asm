@@ -13,7 +13,7 @@ START:  nop
         not r5, r7
         st r5, #5
         sti r5, #5
-        trap #0
+        trap #5
         ret
         rti
         .fill #5
