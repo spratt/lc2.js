@@ -759,6 +759,36 @@ test("lex justtest.asm",function() {
 			"type": "KEY",
 			"val": "START"
 		},
+		{
+			"line": 5,
+			"type": "KEY",
+			"val": "brnz"
+		},
+		{
+			"line": 5,
+			"type": "KEY",
+			"val": "START"
+		},
+		{
+			"line": 6,
+			"type": "KEY",
+			"val": "brzp"
+		},
+		{
+			"line": 6,
+			"type": "KEY",
+			"val": "START"
+		},
+		{
+			"line": 7,
+			"type": "KEY",
+			"val": "brnzp"
+		},
+		{
+			"line": 7,
+			"type": "KEY",
+			"val": "START"
+		},
 	];
 	deepEqual(LC2.lex(input_source), expected_lexemes);
 });
