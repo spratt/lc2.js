@@ -549,12 +549,12 @@ var LC2 = (function(LC2, undefined) {
             if(op.operator.type !== 'KEY')
                 throw new Error('Invalid syntax on line ' + op.line);
             if(!(op.operator.val in assembler_mnemonics))
-                throw new Error('Invalid operator on line ' + op.line);
+                throw new Error('Invalid operator "' + op.operator.val + '" on line ' + op.line);
             // replace symbolic operands with memory locations
             op.operands.forEach(function(arg,i) {
                 if(arg.type === 'KEY') {
                     if(!(arg.val in ob.symbols))
-                        throw new Error('Undefined symbol on line ' + op.line);
+                        throw new Error('Undefined symbol "' + arg.val + '" on line ' + op.line);
                     op.operands[i] = {type: 'NUM', val: ob.symbols[arg.val]};
                 }
             });
