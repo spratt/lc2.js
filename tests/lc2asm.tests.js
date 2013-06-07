@@ -9,12 +9,12 @@ test("test lexing actual program", function() {
 	str += ".END\n";
 	var expected_tokens = [
 		{type: 'DIR', line: 2, val: '.ORIG'},
-		{type: 'NUM', line: 2, val: '$4000'},
+		{type: 'HEX', line: 2, val: '4000'},
 		{type: 'KEY', line: 3, val: 'ZERO'},
 		{type: 'KEY', line: 3, val: 'AND'},
 		{type: 'REG', line: 3, val: 'R0'},
 		{type: 'REG', line: 3, val: 'R0'},
-		{type: 'NUM', line: 3, val: '#0'},
+		{type: 'DEC', line: 3, val: '0'},
 		{type: 'KEY', line: 4, val: 'HELLO'},
 		{type: 'DIR', line: 4, val: '.STRINGZ'},
 		{type: 'STR', line: 4, val: 'Hello, world!'},
@@ -26,12 +26,12 @@ test("test lexing actual program", function() {
 test("test parsing actual program", function() {
 	var input_tokens = [
 		{type: 'DIR', line: 2, val: '.ORIG'},
-		{type: 'NUM', line: 2, val: '$4000'},
+		{type: 'HEX', line: 2, val: '4000'},
 		{type: 'KEY', line: 3, val: 'ZERO'},
 		{type: 'KEY', line: 3, val: 'AND'},
 		{type: 'REG', line: 3, val: 'R0'},
 		{type: 'REG', line: 3, val: 'R0'},
-		{type: 'NUM', line: 3, val: '#0'},
+		{type: 'DEC', line: 3, val: '0'},
 		{type: 'KEY', line: 4, val: 'HELLO'},
 		{type: 'DIR', line: 4, val: '.STRINGZ'},
 		{type: 'STR', line: 4, val: 'Hello, world!'},
@@ -47,7 +47,7 @@ test("test parsing actual program", function() {
 				]
 			},{
 				line: 3,
-				symbol: {type: 'KEY', val: 'ZERO'},
+				symbol: 'ZERO',
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
 					{type: 'REG', val: 0},
@@ -56,7 +56,7 @@ test("test parsing actual program", function() {
 				]
 			},{
 				line: 4,
-				symbol: {type: 'KEY', val: 'HELLO'},
+				symbol: 'HELLO',
 				operator: {type: 'DIR', val: '.STRINGZ'},
 				operands: [
 					{type: 'STR', val: 'Hello, world!'}
@@ -82,7 +82,7 @@ test("test directives on actual program", function() {
 				]
 			},{
 				line: 3,
-				symbol: {type: 'KEY', val: 'ZERO'},
+				symbol: 'ZERO',
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
 					{type: 'REG', val: 0},
@@ -91,7 +91,7 @@ test("test directives on actual program", function() {
 				]
 			},{
 				line: 4,
-				symbol: {type: 'KEY', val: 'HELLO'},
+				symbol: 'HELLO',
 				operator: {type: 'DIR', val: '.STRINGZ'},
 				operands: [
 					{type: 'STR', val: 'Hello, world!'}
@@ -127,7 +127,7 @@ test("test directives on actual program", function() {
 			{
 				address: parseInt('4000', 16),
 				line: 3,
-				symbol: {type: 'KEY', val: 'ZERO'},
+				symbol: 'ZERO',
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
 					{type: 'REG', val: 0},
@@ -165,7 +165,7 @@ test("test build symbol table on actual program", function() {
 			{
 				address: parseInt('4000', 16),
 				line: 3,
-				symbol: {type: 'KEY', val: 'ZERO'},
+				symbol: 'ZERO',
 				operator: {type: 'KEY', val: 'AND'},
 				operands: [
 					{type: 'REG', val: 'R0'},
@@ -405,7 +405,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 16,
 			"type": "KEY",
-			"val": "lea"
+			"val": "LEA"
 		},
 		{
 			"line": 16,
@@ -420,7 +420,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 17,
 			"type": "KEY",
-			"val": "and"
+			"val": "AND"
 		},
 		{
 			"line": 17,
@@ -445,12 +445,12 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 20,
 			"type": "KEY",
-			"val": "in"
+			"val": "IN"
 		},
 		{
 			"line": 21,
 			"type": "KEY",
-			"val": "add"
+			"val": "ADD"
 		},
 		{
 			"line": 21,
@@ -470,7 +470,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 22,
 			"type": "KEY",
-			"val": "brz"
+			"val": "BRZ"
 		},
 		{
 			"line": 22,
@@ -480,7 +480,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 23,
 			"type": "KEY",
-			"val": "str"
+			"val": "STR"
 		},
 		{
 			"line": 23,
@@ -500,7 +500,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 24,
 			"type": "KEY",
-			"val": "add"
+			"val": "ADD"
 		},
 		{
 			"line": 24,
@@ -520,7 +520,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 25,
 			"type": "KEY",
-			"val": "add"
+			"val": "ADD"
 		},
 		{
 			"line": 25,
@@ -540,7 +540,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 26,
 			"type": "KEY",
-			"val": "jmp"
+			"val": "JMP"
 		},
 		{
 			"line": 26,
@@ -555,7 +555,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 28,
 			"type": "KEY",
-			"val": "add"
+			"val": "ADD"
 		},
 		{
 			"line": 28,
@@ -580,7 +580,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 31,
 			"type": "KEY",
-			"val": "and"
+			"val": "AND"
 		},
 		{
 			"line": 31,
@@ -600,7 +600,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 32,
 			"type": "KEY",
-			"val": "brz"
+			"val": "BRZ"
 		},
 		{
 			"line": 32,
@@ -610,7 +610,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 33,
 			"type": "KEY",
-			"val": "ldr"
+			"val": "LDR"
 		},
 		{
 			"line": 33,
@@ -630,12 +630,12 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 34,
 			"type": "KEY",
-			"val": "out"
+			"val": "OUT"
 		},
 		{
 			"line": 35,
 			"type": "KEY",
-			"val": "add"
+			"val": "ADD"
 		},
 		{
 			"line": 35,
@@ -655,7 +655,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 36,
 			"type": "KEY",
-			"val": "add"
+			"val": "ADD"
 		},
 		{
 			"line": 36,
@@ -675,7 +675,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 37,
 			"type": "KEY",
-			"val": "jmp"
+			"val": "JMP"
 		},
 		{
 			"line": 37,
@@ -690,7 +690,7 @@ test("test lex reverse.asm", function() {
 		{
 			"line": 39,
 			"type": "KEY",
-			"val": "halt"
+			"val": "HALT"
 		},
 		{
 			"line": 42,
@@ -721,6 +721,13 @@ test("test lex reverse.asm", function() {
 	deepEqual(LC2.lex(input_source), expected_lexemes);
 });
 
+test("test assemble reverse.asm", function() {
+	var input_source = lib.readFromURL('reverse.asm');
+	var expected_ob = {
+	};
+	deepEqual(LC2.assemble(input_source), expected_ob);
+});
+
 test("lex justtest.asm",function() {
 	var input_source = lib.readFromURL('justtest.asm');
 	var expected_lexemes = [
@@ -732,17 +739,17 @@ test("lex justtest.asm",function() {
 		{
 			"line": 1,
 			"type": "KEY",
-			"val": "nop"
+			"val": "NOP"
 		},
 		{
 			"line": 2,
 			"type": "KEY",
-			"val": "br"
+			"val": "BR"
 		},
 		{
 			"line": 3,
 			"type": "KEY",
-			"val": "brn"
+			"val": "BRN"
 		},
 		{
 			"line": 3,
@@ -752,7 +759,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 4,
 			"type": "KEY",
-			"val": "brp"
+			"val": "BRP"
 		},
 		{
 			"line": 4,
@@ -762,7 +769,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 5,
 			"type": "KEY",
-			"val": "brnz"
+			"val": "BRNZ"
 		},
 		{
 			"line": 5,
@@ -772,7 +779,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 6,
 			"type": "KEY",
-			"val": "brzp"
+			"val": "BRZP"
 		},
 		{
 			"line": 6,
@@ -782,7 +789,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 7,
 			"type": "KEY",
-			"val": "brnzp"
+			"val": "BRNZP"
 		},
 		{
 			"line": 7,
@@ -792,12 +799,12 @@ test("lex justtest.asm",function() {
 		{
 			"line": 8,
 			"type": "KEY",
-			"val": "jmprr"
+			"val": "JMPRR"
 		},
 		{
 			"line": 8,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 8,
@@ -807,7 +814,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 9,
 			"type": "KEY",
-			"val": "jsr"
+			"val": "JSR"
 		},
 		{
 			"line": 9,
@@ -817,12 +824,12 @@ test("lex justtest.asm",function() {
 		{
 			"line": 10,
 			"type": "KEY",
-			"val": "jsrr"
+			"val": "JSRR"
 		},
 		{
 			"line": 10,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 10,
@@ -832,12 +839,12 @@ test("lex justtest.asm",function() {
 		{
 			"line": 11,
 			"type": "KEY",
-			"val": "ld"
+			"val": "LD"
 		},
 		{
 			"line": 11,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 11,
@@ -847,12 +854,12 @@ test("lex justtest.asm",function() {
 		{
 			"line": 12,
 			"type": "KEY",
-			"val": "ldi"
+			"val": "LDI"
 		},
 		{
 			"line": 12,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 12,
@@ -862,27 +869,27 @@ test("lex justtest.asm",function() {
 		{
 			"line": 13,
 			"type": "KEY",
-			"val": "not"
+			"val": "NOT"
 		},
 		{
 			"line": 13,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 13,
 			"type": "REG",
-			"val": "r7"
+			"val": "R7"
 		},
 		{
 			"line": 14,
 			"type": "KEY",
-			"val": "st"
+			"val": "ST"
 		},
 		{
 			"line": 14,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 14,
@@ -892,12 +899,12 @@ test("lex justtest.asm",function() {
 		{
 			"line": 15,
 			"type": "KEY",
-			"val": "sti"
+			"val": "STI"
 		},
 		{
 			"line": 15,
 			"type": "REG",
-			"val": "r5"
+			"val": "R5"
 		},
 		{
 			"line": 15,
@@ -907,7 +914,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 16,
 			"type": "KEY",
-			"val": "trap"
+			"val": "TRAP"
 		},
 		{
 			"line": 16,
@@ -917,17 +924,17 @@ test("lex justtest.asm",function() {
 		{
 			"line": 17,
 			"type": "KEY",
-			"val": "ret"
+			"val": "RET"
 		},
 		{
 			"line": 18,
 			"type": "KEY",
-			"val": "rti"
+			"val": "RTI"
 		},
 		{
 			"line": 19,
 			"type": "DIR",
-			"val": ".fill"
+			"val": ".FILL"
 		},
 		{
 			"line": 19,
@@ -937,7 +944,7 @@ test("lex justtest.asm",function() {
 		{
 			"line": 20,
 			"type": "DIR",
-			"val": ".stringz"
+			"val": ".STRINGZ"
 		},
 		{
 			"line": 20,
@@ -947,13 +954,20 @@ test("lex justtest.asm",function() {
 		{
 			"line": 21,
 			"type": "DIR",
-			"val": ".end"
+			"val": ".END"
 		},
 		{
 			"line": 22,
 			"type": "KEY",
-			"val": "nop"
+			"val": "NOP"
 		},
 	];
 	deepEqual(LC2.lex(input_source), expected_lexemes);
+});
+
+test("test assemble justtest.asm", function() {
+	var input_source = lib.readFromURL('justtest.asm');
+	var expected_ob = {
+	};
+	deepEqual(LC2.assemble(input_source), expected_ob);
 });

@@ -27,7 +27,7 @@ var lexer = (function(lexer, undefined) {
 					var matches = pattern.regex.exec(line_str.substring(start));
 					lexer.dir(matches);
 					if(matches) {
-						var match = matches[0];
+						var match = matches[1] || matches[0];
 						if('type' in pattern) {
 							tokens.push({
 								type: pattern.type,
@@ -39,7 +39,7 @@ var lexer = (function(lexer, undefined) {
 							state = pattern.next_state;
 						}
 						matched = true;
-						start += match.length;
+						start += matches[0].length;
 						break;
 					}
 				}
