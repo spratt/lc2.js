@@ -49,7 +49,7 @@ var LC2 = (function(LC2, undefined) {
                 },
                 {
                     regex: /^[a-zA-Z]\w*/, // mnemonic starting with a letter
-                    type: 'MEM'
+                    type: 'OPR'
                 },
                 {
                     regex: /^\.([a-zA-Z]+)/, // assembler directive
@@ -483,7 +483,7 @@ var LC2 = (function(LC2, undefined) {
                 LC2.log('found new operator, incrementing line');
                 lines[++line] = [];
                 state = 'OP';
-            } else if(next_lex.type === 'DIR' || next_lex.type === 'KEY') {
+            } else if(next_lex.type === 'DIR' || next_lex.type === 'OPR') {
                 state = 'OP';
             } else {
                 state = 'ARG';
@@ -502,8 +502,7 @@ var LC2 = (function(LC2, undefined) {
             });
 
             // check for preceding symbol
-            if(line[0].type === 'KEY' &&
-               !(line[0].val in assembler_mnemonics)) {
+            if(line[0].type === 'SYM') {
                 var symbol = line.shift().val;
                 if(symbol[symbol.length-1] === ':')
                     symbol.substring(0,symbol.length-2);
