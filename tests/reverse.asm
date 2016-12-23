@@ -14,7 +14,7 @@
 
         ;; Set up
         lea R3, BUFFER          ; R3 points to start of buffer
-        and    R2, R2, #0       ; zero out character counter
+        and R2, R2, #0          ; zero out character counter
 
         ;; Read characters and store them
 READ:   in                      ; read a character from keyboard

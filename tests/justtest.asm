@@ -5,7 +5,7 @@ START:  nop
         brnz START
         brzp START
         brnzp START
-        jmprr r5, #5
+        jmpr r5, #5
         jsr #5
         jsrr r5, #5
         ld r5, #5
