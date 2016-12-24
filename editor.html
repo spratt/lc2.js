@@ -15,6 +15,9 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.css" />
     <link rel="stylesheet" type="text/css" 
           href="docs/style.css" />
+    <style type="text/css">
+      .error {width: .8em;}
+    </style>
   </head>
   <body>
     <h1>LC-2 Assembly Editor</h1>
@@ -33,6 +36,7 @@
         <option value="tests/dumbadd.asm">dumbadd.asm</option>
         <option value="tests/justtest.asm">justtest.asm</option>
       </select>
+      <span id="errors" style="float: right"></span>
       <br />
       <textarea id="bytecode" readonly></textarea>
     </p>
@@ -44,7 +48,14 @@
     <script src="lc2asm.js"></script>
     <script src="lc2editor.js"></script>
     <script>
+      var errors = document.getElementById('errors');
       var editor = LC2.editorFromTextArea(document.getElementById('editor'));
+      editor.onError = function(err) {
+          errors.innerHTML = err.message + ' on line ' + err.line;
+      };
+      editor.onChange = function(change) {
+          errors.innerHTML = '&nbsp;';
+      };
       var bytes = 
           editor.bytesFromTextArea(document.getElementById('bytecode'));
       document.getElementById('assemble').addEventListener('click',

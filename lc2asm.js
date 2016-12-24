@@ -563,14 +563,19 @@ var LC2 = (function(LC2, undefined) {
         return ob;
     };
 
+    function LC2Error(msg, lineNum) {
+        this.message = msg;
+        this.line = lineNum;
+    }
+
     LC2.translate = function LC2_translate(ob) {
         ob.lines.forEach(function(op) {
-            if(op.operator.type !== 'OPR')
-                throw new Error('Invalid syntax on line ' + op.line);
             if(!(op.operator.val in assembler_mnemonics)) {
-                throw new Error('Invalid operator "' +
-                                op.operator.val + '" on line ' + op.line);
+                throw new LC2Error('Invalid operator "' + op.operator.val + '"',
+                                   op.line);
             }
+            if(op.operator.type !== 'OPR')
+                throw new LC2Error('Invalid syntax', op.line);
             // replace symbolic operands with memory locations
             op.operands.forEach(function(arg,i) {
                 if(arg.type === 'REF') {
