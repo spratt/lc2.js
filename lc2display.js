@@ -40,6 +40,24 @@ var LC2 = (function(LC2, undefined) {
     LC2.prototype.displayFromDiv = function(div) {
         var lc2inst = this;
         var display = {};
+        // REGISTERS
+        var registerInputs = [];
+        for(let i = 0; i < LC2.REGISTERS; ++i) {
+            var regDiv = document.createElement('div');
+            var label = document.createElement('span');
+            label.innerHTML = 'r' + i + ':';
+            regDiv.appendChild(label);
+            var input = document.createElement('input');
+            registerInputs.push(input);
+            regDiv.appendChild(input);
+            div.appendChild(regDiv);
+        }
+        function updateRegisters() {
+            for(let i = 0; i < LC2.REGISTERS; ++i) {
+                registerInputs[i].value = lc2inst.r[i].val;
+            }
+        }
+        // MEMORY
         var pageLabel = document.createElement('span');
         pageLabel.innerHTML = 'Page: ';
         div.appendChild(pageLabel);
@@ -52,6 +70,9 @@ var LC2 = (function(LC2, undefined) {
             pageSelect.appendChild(opt);
         }
         div.appendChild(pageSelect);
+        var stepButton = document.createElement('button');
+        stepButton.innerHTML = 'Step';
+        div.appendChild(stepButton);
         var memoryTextArea = document.createElement('textarea');
         div.appendChild(memoryTextArea);
         display.memoryCM = CodeMirror.fromTextArea(memoryTextArea, {
@@ -68,7 +89,12 @@ var LC2 = (function(LC2, undefined) {
         pageSelect.addEventListener('change', updateMemory);
         display.update = function() {
             updateMemory();
+            updateRegisters();
         };
+        stepButton.addEventListener('click',function() {
+            lc2inst.run_cycle();
+            display.update();
+        });
         return display;
     };
     return LC2;

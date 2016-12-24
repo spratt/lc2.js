@@ -574,6 +574,10 @@ var LC2 = (function(LC2, undefined) {
         value: PAGE_LOCS,
         writable: false,
     });
+    Object.defineProperty(LC2, 'REGISTERS', {
+        value: REGISTERS,
+        writable: false,
+    });
 
     LC2.__defineGetter__("COND_POS",  function() { return COND_POS; });
     LC2.__defineGetter__("COND_NEG",  function() { return COND_NEG; });

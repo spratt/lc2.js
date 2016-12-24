@@ -80,7 +80,7 @@ test("test load_program", function() {
         return parseInt(a, 16) - parseInt(b, 16);
     });
     addresses.forEach(function(addr) {
-        lc2.mem.mar.val = addr;
+        lc2.mem.mar.val = parseInt(addr, 16);
         lc2.mem.interrogate();
         equal( lc2.mem.mdr.val, prg[addr] );
     });

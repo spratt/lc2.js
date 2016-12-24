@@ -58,6 +58,8 @@
           errors.innerHTML = '&nbsp;';
       };
       var lc2inst = new LC2;
+      lc2inst.log = console.log;
+      lc2inst.pc.val = parseInt('3000', 16);
       var display = lc2inst.displayFromDiv(document.getElementById('lc2'));
       display.update();
       function handleProgram(prg) {
