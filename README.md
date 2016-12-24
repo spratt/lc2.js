@@ -5,4 +5,4 @@ A simulator of the LC-2 processor in Javascript.
 
 * Author: Simon Pratt
 * License: ISC
-* Documentation/demo: http://spratt.github.io/lc2.js/
+* Documentation/demo: http://blog.pr4tt.com/lc2.js/

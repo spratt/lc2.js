@@ -2,7 +2,7 @@
 //
 // Author: Simon Pratt
 // License: ISC
-// Website: http://spratt.github.io/lc2.js/
+// Website: http://blog.pr4tt.com/lc2.js/
 
 var lexer = (function(lexer, undefined) {
     lexer.debug = false;

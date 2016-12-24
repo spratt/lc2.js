@@ -2,7 +2,7 @@
 //
 // Author: Simon Pratt
 // License: ISC
-// Website: http://spratt.github.io/lc2.js/
+// Website: http://blog.pr4tt.com/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
     LC2.log = function(o) { if(LC2.debug) console.log(o); };
