@@ -24,7 +24,15 @@ var LC2 = (function(LC2, undefined) {
         var ch = cv.toString(16);
         var dh = dv.toString(16);
         line += `${ah}${bh}${ch}${dh}    `;
-        line += String.fromCharCode((av << 4) + bv, (cv << 4) + dv);
+        var subs = {
+            '\n' : '\\n',
+            '\t' : '\\t'
+        };
+        var ab = String.fromCharCode((av << 4) + bv);
+        var cd = String.fromCharCode((cv << 4) + dv);
+        if(ab in subs) ab = subs[ab];
+        if(cd in subs) cd = subs[cd];
+        line += ab + cd;
         return line;
     }
 
