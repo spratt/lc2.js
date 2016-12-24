@@ -6,12 +6,12 @@
 
 var LC2 = (function(LC2, undefined) {
     // constants
-    var BASE = 2;
-    var BITS = 16;
-    var OPCODE_BITS = 4;
-    var PAGE_BITS = 7;
-    var PAGE_LOCS = BITS - PAGE_BITS;
-    var REGISTERS = 8;
+    const BASE = 2;
+    const BITS = 16;
+    const OPCODE_BITS = 4;
+    const PAGE_BITS = 7;
+    const PAGE_LOCS = BITS - PAGE_BITS;
+    const REGISTERS = 8;
 
     var COND_NEG  = 1 << 0; // 2^0 = 1
     var COND_POS  = 1 << 1; // 2^1 = 2
@@ -42,6 +42,18 @@ var LC2 = (function(LC2, undefined) {
         return (num >> 0).toString(2);
     };
     LC2.toBinaryString = toBinaryString;
+
+    function toPrettyBinaryString(num) {
+        if(typeof(num) !== "number") return;
+        var bits = toBinaryString(num);
+        while(bits.length < 16) bits = '0' + bits;
+        var a = bits.substring(0,4);
+        var b = bits.substring(4,8);
+        var c = bits.substring(8,12);
+        var d = bits.substring(12,16);
+        return `${a} ${b} ${c} ${d}`;
+    };
+    LC2.toPrettyBinaryString = toPrettyBinaryString;
 
     var set_conditions = function(lc2_inst, value) {
         // set the condition bits on the given lc2 whose last result was value
@@ -80,9 +92,7 @@ var LC2 = (function(LC2, undefined) {
 
         this.log = function() {};
         if(lc2_inst && typeof(lc2_inst.log) === 'function') {
-            this.log = function(o) {
-                lc2_inst.log(o);
-            };
+            this.log = lc2_inst.log;
         }
 
         // fake initialize memory
@@ -99,9 +109,18 @@ var LC2 = (function(LC2, undefined) {
             return mdr;
         });
 
+        function getPage(pageNum) {
+            // just in time memory initialization
+            if(pages[pageNum] === null) {
+                lc2_inst.log('first time addressing the given page, allocating');
+                pages[pageNum] = new Int16Array(Math.pow(BASE,PAGE_LOCS));
+            }
+            return pages[pageNum];
+        }
+
         this.interrogate = function(write_bit) {
             // translate 16 bit location to 32 bit location
-            var page = (mar.val >> PAGE_LOCS) & ones(PAGE_BITS);
+            var pageNum = (mar.val >> PAGE_LOCS) & ones(PAGE_BITS);
             var addr = mar.val & ones(PAGE_LOCS);
 
             this.log('interrogate(' + write_bit + ')');
@@ -109,25 +128,31 @@ var LC2 = (function(LC2, undefined) {
                      ' = ' + toBinaryString(mar.val));
             this.log('mdr:          ' + mdr.val +
                      ' = ' + toBinaryString(mdr.val));
-            this.log('page:         ' + page +
-                     ' = ' + toBinaryString(page));
+            this.log('pageNum:         ' + pageNum +
+                     ' = ' + toBinaryString(pageNum));
             this.log('addr:         ' + addr +
                      ' = ' + toBinaryString(addr));
             this.log('pages.length: ' + pages.length);
 
-            // just in time memory initialization
-            if(pages[page] === null) {
-                this.log('first time addressing the given page, allocating');
-                pages[page] = new Int16Array(Math.pow(BASE,PAGE_LOCS));
-            }
+            var page = getPage(pageNum);
 
-            this.log('page.length:  ' + pages[page].length);
+            this.log('page.length:  ' + page.length);
 
             if(write_bit && (write_bit & 1)) { // write
-                pages[page][addr] = mdr.val;
+                page[addr] = mdr.val;
             } else {                           // read
-                mdr.val = pages[page][addr];
+                mdr.val = page[addr];
             }
+        };
+
+        this.getPage = function(pageNum) {
+            var strArr = [];
+            pageNum = pageNum & ones(PAGE_BITS);
+            var uArr = new Uint16Array(getPage(pageNum));
+            uArr.forEach(function(n) {
+                strArr.push(toPrettyBinaryString(n));
+            });
+            return strArr.join('\n');
         };
 
     };
@@ -412,7 +437,8 @@ var LC2 = (function(LC2, undefined) {
         });
         var that = this;
         addresses.forEach(function(addr) {
-            that.mem.mar.val = addr;
+            var nAddr = parseInt(addr, 16);
+            that.mem.mar.val = nAddr;
             that.mem.mdr.val = prg[addr];
             that.mem.interrogate(1);
         });
@@ -539,6 +565,15 @@ var LC2 = (function(LC2, undefined) {
     for(property in LC2)
         newLC2[property] = LC2[property];
     LC2 = newLC2;
+
+    Object.defineProperty(LC2, 'PAGE_BITS', {
+        value: PAGE_BITS,
+        writable: false,
+    });
+    Object.defineProperty(LC2, 'PAGE_LOCS', {
+        value: PAGE_LOCS,
+        writable: false,
+    });
 
     LC2.__defineGetter__("COND_POS",  function() { return COND_POS; });
     LC2.__defineGetter__("COND_NEG",  function() { return COND_NEG; });

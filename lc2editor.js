@@ -5,36 +5,6 @@
 // Website: http://blog.pr4tt.com/lc2.js/
 
 var LC2 = (function(LC2, undefined) {
-    function numToHex(n) { return (n >> 0).toString(16); }
-    function bytesToString(n) {
-        var bits = (n >> 0).toString(2);
-        while(bits.length < 16)
-            bits = '0' + bits;
-        var a = bits.substring(0,4);
-        var b = bits.substring(4,8);
-        var c = bits.substring(8,12);
-        var d = bits.substring(12,16);
-        var line = `${a} ${b} ${c} ${d}    `;
-        var av = parseInt(a, 2);
-        var bv = parseInt(b, 2);
-        var cv = parseInt(c, 2);
-        var dv = parseInt(d, 2);
-        var ah = av.toString(16);
-        var bh = bv.toString(16);
-        var ch = cv.toString(16);
-        var dh = dv.toString(16);
-        line += `${ah}${bh}${ch}${dh}    `;
-        var subs = {
-            '\n' : '\\n',
-            '\t' : '\\t'
-        };
-        var ab = String.fromCharCode((av << 4) + bv);
-        var cd = String.fromCharCode((cv << 4) + dv);
-        if(ab in subs) ab = subs[ab];
-        if(cd in subs) cd = subs[cd];
-        line += ab + cd;
-        return line;
-    }
 
     function makeMarker() {
         var marker = document.createElement("div");
@@ -59,38 +29,17 @@ var LC2 = (function(LC2, undefined) {
                 ed.onChange(change);
             }
         });
-        ed.bytesFromTextArea = function(bta) {
-            ed.bytesCM = CodeMirror.fromTextArea(bta, {
-                lineNumbers: true,
-                readOnly: true,
-                lineNumberFormatter: numToHex
-            });
-        };
-        ed.assemble = function() {
-            var output;
+        ed.assemble = function(handleProgram) {
             try {
-                output = LC2.assemble(ed.CM.getDoc().getValue());
-                if(ed.bytesCM) {
-                    var str = '';
-                    var addresses = Object.keys(output);
-                    addresses.sort(function(a,b) {
-                        return parseInt(a, 16) - parseInt(b, 16);
-                    });
-                    addresses.forEach(function(addr) {
-                        str += bytesToString(output[addr]) + '\n';
-                    });
-                    ed.bytesCM.getDoc().setValue(str.substring(0,str.length-1));
-                    ed.bytesCM.setOption('firstLineNumber',
-                                         parseInt(addresses[0], 16));
-                }
+                var output = LC2.assemble(ed.CM.getDoc().getValue());
+                if(handleProgram && (typeof handleProgram) === 'function')
+                    handleProgram(output);
             } catch(err) {
+                console.error(err);
                 errorLine = err.line - 1;
                 ed.CM.getDoc().setGutterMarker(errorLine, 'error', makeMarker());
                 console.error(err.message + ' on line ' + err.line);
                 if(ed.onError) {ed.onError(err);}
-                if(ed.bytesCM) {
-                    ed.bytesCM.getDoc().setValue('');
-                }
             }
         };
         ed.setValue = function(str) {

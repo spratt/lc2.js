@@ -38,7 +38,6 @@
       </select>
       <span id="errors" style="float: right"></span>
       <br />
-      <textarea id="bytecode" readonly></textarea>
       <div id="lc2"></div>
     </p>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.js"></script>
@@ -58,21 +57,24 @@
       editor.onChange = function(change) {
           errors.innerHTML = '&nbsp;';
       };
-      var bytes = 
-          editor.bytesFromTextArea(document.getElementById('bytecode'));
-      document.getElementById('assemble').addEventListener('click',
-                                                           editor.assemble);
+      var lc2inst = new LC2;
+      var display = lc2inst.displayFromDiv(document.getElementById('lc2'));
+      display.update();
+      function handleProgram(prg) {
+          lc2inst.load_program(prg);
+          display.update();
+      }
+      document.getElementById('assemble').addEventListener('click',function(){
+          editor.assemble(handleProgram);
+      });
       function loaderChange() {
           var path = loader.options[loader.selectedIndex].value;
           editor.setValue(lib.readFromURL(path));
-          editor.assemble();
+          editor.assemble(handleProgram);
       }
       document.getElementById('loader').addEventListener('change',
                                                          loaderChange);
       loaderChange();
-      var display = LC2.displayFromDiv(document.getElementById('lc2'));
-      var lc2inst = new LC2;
-      display.update(lc2inst);
     </script>
   </body>
 </html>
