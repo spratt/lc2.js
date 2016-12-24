@@ -401,6 +401,23 @@ var LC2 = (function(LC2, undefined) {
         this.pc.val = this.mem.mdr.val;
     };
 
+    ProtoLC2.load_program = function(prg) {
+        // expects an object of the form:
+        // { addr0: instr0, addr1: instr1, ... }
+        // where addr0, addr1, ... are memory addresses
+        // and instr0, instr1, ... are encoded machine instructions
+        var addresses = Object.keys(prg);
+        addresses.sort(function(a,b) {
+            return parseInt(a, 16) - parseInt(b, 16);
+        });
+        var that = this;
+        addresses.forEach(function(addr) {
+            that.mem.mar.val = addr;
+            that.mem.mdr.val = prg[addr];
+            that.mem.interrogate(1);
+        });
+    };
+
     ProtoLC2.run_cycle = function() {
         this.log("run_cycle()");
         this.log("pc: " + this.pc.val);
@@ -414,6 +431,7 @@ var LC2 = (function(LC2, undefined) {
         // decode
         var ir = this.ir.val & ones(BITS);
         var code = ir >> (BITS - OPCODE_BITS);
+        // TODO: re-implement this with an array, should be faster
         switch(code) {
         case 0:  // 0000: br
             this.br((ir >> 11) & 1, (ir >> 10) & 1, (ir >> 9) & 1,

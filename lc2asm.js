@@ -7,11 +7,15 @@
 var LC2 = (function(LC2, undefined) {
     LC2.log = function(o) { if(LC2.debug) console.log(o); };
 
+    var DEFAULT_ADDRESS = parseInt('3000', 16);
+    
     var number_types = {
         'BIN': 2,
         'HEX': 16,
         'DEC': 10
     };
+
+    function hex(n) { return (n >> 0).toString(16); }
 
     LC2.spec = {
         states: {
@@ -97,7 +101,7 @@ var LC2 = (function(LC2, undefined) {
             if(op.symbol)
                 ob.symbols[op.symbol] = ob.next_address;
             try {
-                ob.bytecode[(ob.next_address)++] = op.operands[0].val;
+                ob.bytecode[hex((ob.next_address)++)] = op.operands[0].val;
             } catch(err) {
                 throw new Error('Invalid number on line ' +    op.line);
             }
@@ -110,9 +114,9 @@ var LC2 = (function(LC2, undefined) {
                 ob.symbols[op.symbol] = ob.next_address;
             var str = op.operands[0].val;
             for(var i = 0; i < str.length; ++i) {
-                ob.bytecode[(ob.next_address)++] = str.charCodeAt(i);
+                ob.bytecode[hex((ob.next_address)++)] = str.charCodeAt(i);
             }
-            ob.bytecode[(ob.next_address)++] = 0; // 0 terminated
+            ob.bytecode[hex((ob.next_address)++)] = 0; // 0 terminated
         },
         'BLKW' : function(op, ob) { // fill several locations in memory
             if(!(op.operands[0].type === 'NUM'))
@@ -126,7 +130,7 @@ var LC2 = (function(LC2, undefined) {
             var size = op.operands[0].val;
             var init = op.operands[1].val;
             for(var i = 0; i < size; ++i)  {
-                ob.bytecode[(ob.next_address)++] = init;
+                ob.bytecode[hex((ob.next_address)++)] = init;
             }
         },
         'END' : function() {} // mark end of program
@@ -534,14 +538,14 @@ var LC2 = (function(LC2, undefined) {
     };
 
     LC2.run_directives = function LC2_run_directives(ob) {
-        ob.next_address = parseInt('3000', 16);
+        ob.next_address = DEFAULT_ADDRESS;
         ob.bytecode = {};
         ob.symbols = {};
 
         var lines = [];
         ob.lines.forEach(function(op) {
             if(op.operator.type !== 'DIR') {
-                op.address = (ob.next_address)++;
+                op.address = hex((ob.next_address)++);
                 lines.push(op);
                 return;
             }
@@ -556,7 +560,7 @@ var LC2 = (function(LC2, undefined) {
     LC2.build_symbol_table = function LC2_build_symbol_table(ob) {
         ob.lines.forEach(function(op) {
             if(op.symbol)
-                ob.symbols[op.symbol] = op.address;
+                ob.symbols[op.symbol] = parseInt(op.address, 16);
             delete op.symbol;
         });
 

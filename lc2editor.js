@@ -72,12 +72,16 @@ var LC2 = (function(LC2, undefined) {
                 output = LC2.assemble(ed.CM.getDoc().getValue());
                 if(ed.bytesCM) {
                     var str = '';
-                    for(let key in output) {
-                        str += bytesToString(output[key]) + '\n';
-                    }
+                    var addresses = Object.keys(output);
+                    addresses.sort(function(a,b) {
+                        return parseInt(a, 16) - parseInt(b, 16);
+                    });
+                    addresses.forEach(function(addr) {
+                        str += bytesToString(output[addr]) + '\n';
+                    });
                     ed.bytesCM.getDoc().setValue(str.substring(0,str.length-1));
                     ed.bytesCM.setOption('firstLineNumber',
-                                         parseInt(Object.keys(output)[0], 10));
+                                         parseInt(addresses[0], 16));
                 }
             } catch(err) {
                 errorLine = err.line - 1;

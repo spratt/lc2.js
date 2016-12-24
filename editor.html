@@ -39,6 +39,7 @@
       <span id="errors" style="float: right"></span>
       <br />
       <textarea id="bytecode" readonly></textarea>
+      <div id="lc2"></div>
     </p>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/mode/z80/z80.min.js"></script>
@@ -47,6 +48,7 @@
     <script src="lib.js"></script>
     <script src="lc2asm.js"></script>
     <script src="lc2editor.js"></script>
+    <script src="lc2display.js"></script>
     <script>
       var errors = document.getElementById('errors');
       var editor = LC2.editorFromTextArea(document.getElementById('editor'));
@@ -68,6 +70,9 @@
       document.getElementById('loader').addEventListener('change',
                                                          loaderChange);
       loaderChange();
+      var display = LC2.displayFromDiv(document.getElementById('lc2'));
+      var lc2inst = new LC2;
+      display.update(lc2inst);
     </script>
   </body>
 </html>
