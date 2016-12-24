@@ -67,7 +67,7 @@ var LC2 = (function(LC2, undefined) {
                     for(let key in output) {
                         str += bytesToString(output[key]) + '\n';
                     }
-                    ed.bytesCM.getDoc().setValue(str);
+                    ed.bytesCM.getDoc().setValue(str.substring(0,str.length-1));
                     ed.bytesCM.setOption('firstLineNumber',
                                          parseInt(Object.keys(output)[0], 10));
                 }
