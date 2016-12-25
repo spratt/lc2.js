@@ -37,6 +37,7 @@ var LC2 = (function(LC2, undefined) {
             var input = document.createElement('input');
             input.type = 'text';
             input.size = 6;
+            input.setAttribute('readonly', 'readonly');
             registerInputs.push(input);
             regDiv.appendChild(input);
             gpRegSpan.appendChild(regDiv);
@@ -55,6 +56,7 @@ var LC2 = (function(LC2, undefined) {
             var input = document.createElement('input');
             input.type = 'text';
             input.size = 6;
+            input.setAttribute('readonly', 'readonly');
             spRegs[reg] = input;
             regDiv.appendChild(input);
             spRegSpan.appendChild(regDiv);            
@@ -68,6 +70,7 @@ var LC2 = (function(LC2, undefined) {
             var input = document.createElement('input');
             input.type = 'text';
             input.size = 6;
+            input.setAttribute('readonly', 'readonly');
             memRegs[reg] = input;
             regDiv.appendChild(input);
             spRegSpan.appendChild(regDiv);            
