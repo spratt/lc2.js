@@ -71,10 +71,25 @@
       editor.onChange = function(change) {
           errors.innerHTML = '&nbsp;';
       };
-      var lc2inst = new LC2;
-      lc2inst.pc.val = parseInt('3000', 16);
-      var display = lc2inst.displayFromDiv(document.getElementById('lc2'));
-      display.update();
+      var displayDiv = document.getElementById('lc2');
+      //var lc2inst;
+      var display;
+      function reset() {
+          displayDiv.innerHTML = '';
+          lc2inst = new LC2;
+          lc2inst.pc.val = parseInt('3000', 16);
+          display = lc2inst.displayFromDiv(displayDiv);
+          display.update();
+      }
+      function loaderChange() {
+          var path = loader.options[loader.selectedIndex].value;
+          editor.setValue(lib.readFromURL(path));
+          reset();
+          editor.assemble(handleProgram);
+      }
+      loaderChange();
+      document.getElementById('loader').addEventListener('change',
+                                                         loaderChange);
       function handleProgram(prg) {
           lc2inst.load_program(prg);
           display.update();
@@ -82,14 +97,6 @@
       document.getElementById('assemble').addEventListener('click',function(){
           editor.assemble(handleProgram);
       });
-      function loaderChange() {
-          var path = loader.options[loader.selectedIndex].value;
-          editor.setValue(lib.readFromURL(path));
-          editor.assemble(handleProgram);
-      }
-      document.getElementById('loader').addEventListener('change',
-                                                         loaderChange);
-      loaderChange();
     </script>
   </body>
 </html>
