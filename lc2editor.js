@@ -18,7 +18,7 @@ var LC2 = (function(LC2, undefined) {
         var ed = {};
         ed.CM = CodeMirror.fromTextArea(ta,{
             lineNumbers: true,
-            mode: 'text/x-z80',
+            mode: 'text/x-lc2',
             gutters: ["CodeMirror-linenumbers", "error"]
         });
         ed.CM.on('change', function(cm, change) {
