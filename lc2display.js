@@ -8,38 +8,22 @@ var LC2 = (function(LC2, undefined) {
     const DEFAULT_PAGE = 24;
     
     function numToHex(n) { return (n >> 0).toString(16); }
-    function bytesToString(n) {
-        var bits = (n >> 0).toString(2);
-        while(bits.length < 16)
-            bits = '0' + bits;
-        var a = bits.substring(0,4);
-        var b = bits.substring(4,8);
-        var c = bits.substring(8,12);
-        var d = bits.substring(12,16);
-        var line = `${a} ${b} ${c} ${d}    `;
-        var av = parseInt(a, 2);
-        var bv = parseInt(b, 2);
-        var cv = parseInt(c, 2);
-        var dv = parseInt(d, 2);
-        var ah = av.toString(16);
-        var bh = bv.toString(16);
-        var ch = cv.toString(16);
-        var dh = dv.toString(16);
-        line += `${ah}${bh}${ch}${dh}    `;
-        var subs = {
-            '\n' : '\\n',
-            '\t' : '\\t'
-        };
-        var ab = String.fromCharCode((av << 4) + bv);
-        var cd = String.fromCharCode((cv << 4) + dv);
-        if(ab in subs) ab = subs[ab];
-        if(cd in subs) cd = subs[cd];
-        line += ab + cd;
-        return line;
+
+    function addrOnPage(addr, page) {
+        var addrPage = (addr >> LC2.PAGE_LOCS);
+        return addrPage === page;
+    }
+
+    function makeMarker() {
+        var marker = document.createElement("div");
+        marker.style.color = "#0a0";
+        marker.innerHTML = "▶";
+        return marker;
     }
     LC2.prototype.displayFromDiv = function(div) {
         var lc2inst = this;
         var display = {};
+        display.lastOffset = -1;
         // REGISTERS
         var registerInputs = [];
         for(let i = 0; i < LC2.REGISTERS; ++i) {
@@ -48,6 +32,8 @@ var LC2 = (function(LC2, undefined) {
             label.innerHTML = 'r' + i + ':';
             regDiv.appendChild(label);
             var input = document.createElement('input');
+            input.type = 'text';
+            input.size = 6;
             registerInputs.push(input);
             regDiv.appendChild(input);
             div.appendChild(regDiv);
@@ -56,10 +42,11 @@ var LC2 = (function(LC2, undefined) {
             for(let i = 0; i < LC2.REGISTERS; ++i) {
                 registerInputs[i].value = lc2inst.r[i].val;
             }
+            return lc2inst.pc.val;
         }
         // MEMORY
         var pageLabel = document.createElement('span');
-        pageLabel.innerHTML = 'Page: ';
+        pageLabel.innerHTML = 'Memory Page: ';
         div.appendChild(pageLabel);
         var pageSelect = document.createElement('select');
         for(let i = 0; i <= LC2.ones(LC2.PAGE_BITS); ++i) {
@@ -70,27 +57,63 @@ var LC2 = (function(LC2, undefined) {
             pageSelect.appendChild(opt);
         }
         div.appendChild(pageSelect);
+        var followLabel = document.createElement('span');
+        followLabel.style = 'margin-left: 5px';
+        followLabel.innerHTML = 'Follow PC: ';
+        div.appendChild(followLabel);
+        var followCheck = document.createElement('input');
+        followCheck.type = 'checkbox';
+        followCheck.checked = true;
+        div.appendChild(followCheck);
+        function followChange() {
+            if(followCheck.checked) {
+                pageSelect.disabled = true;
+            } else {
+                pageSelect.disabled = false;
+            }
+        }
+        followCheck.addEventListener('change', followChange);
+        followChange();
         var stepButton = document.createElement('button');
         stepButton.innerHTML = 'Step';
+        stepButton.style = 'float: right';
         div.appendChild(stepButton);
         var memoryTextArea = document.createElement('textarea');
         div.appendChild(memoryTextArea);
         display.memoryCM = CodeMirror.fromTextArea(memoryTextArea, {
             lineNumbers: true,
             readOnly: true,
-            lineNumberFormatter: numToHex
+            lineNumberFormatter: numToHex,
+            gutters: ["CodeMirror-linenumbers", "pc"]
         });
         function updateMemory() {
+            if(followCheck.checked) {
+                var pageNum = (lc2inst.pc.val >> LC2.PAGE_LOCS);
+                pageSelect.selectedIndex = pageNum;
+            }
             var page = pageSelect.options[pageSelect.selectedIndex].value;
             display.memoryCM.getDoc().setValue(lc2inst.mem.getPage(page));
             display.memoryCM.setOption('firstLineNumber',
                                        (page << LC2.PAGE_LOCS));
         }
-        pageSelect.addEventListener('change', updateMemory);
         display.update = function() {
             updateMemory();
-            updateRegisters();
+            if(display.lastOffset > 0)
+                display.memoryCM.getDoc().setGutterMarker(display.lastOffset,
+                                                          'pc', null);
+            let newPC = updateRegisters();
+            var pageStr = pageSelect.options[pageSelect.selectedIndex].value;
+            var page = parseInt(pageStr, 10);
+            if(addrOnPage(newPC, page)) {
+                let fln = display.memoryCM.getOption('firstLineNumber');
+                var offset = newPC - fln;
+                display.memoryCM.getDoc().setGutterMarker(offset,
+                                                          'pc', makeMarker());
+                display.memoryCM.setCursor(offset);
+                display.lastOffset = offset;
+            }
         };
+        pageSelect.addEventListener('change', display.update);
         stepButton.addEventListener('click',function() {
             lc2inst.run_cycle();
             display.update();

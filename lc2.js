@@ -51,7 +51,26 @@ var LC2 = (function(LC2, undefined) {
         var b = bits.substring(4,8);
         var c = bits.substring(8,12);
         var d = bits.substring(12,16);
-        return `${a} ${b} ${c} ${d}`;
+        var line = `${a} ${b} ${c} ${d}    `;
+        var av = parseInt(a, 2);
+        var bv = parseInt(b, 2);
+        var cv = parseInt(c, 2);
+        var dv = parseInt(d, 2);
+        var ah = av.toString(16);
+        var bh = bv.toString(16);
+        var ch = cv.toString(16);
+        var dh = dv.toString(16);
+        line += `${ah}${bh}${ch}${dh}    `;
+        var subs = {
+            '\n' : '\\n',
+            '\t' : '\\t'
+        };
+        var ab = String.fromCharCode((av << 4) + bv);
+        var cd = String.fromCharCode((cv << 4) + dv);
+        if(ab in subs) ab = subs[ab];
+        if(cd in subs) cd = subs[cd];
+        line += ab + cd;
+        return line;
     };
     LC2.toPrettyBinaryString = toPrettyBinaryString;
 

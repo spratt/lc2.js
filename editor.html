@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" 
           href="docs/style.css" />
     <style type="text/css">
-      .error {width: .8em;}
+      .error, .pc {width: .8em;}
     </style>
   </head>
   <body>
@@ -58,7 +58,6 @@
           errors.innerHTML = '&nbsp;';
       };
       var lc2inst = new LC2;
-      lc2inst.log = console.log;
       lc2inst.pc.val = parseInt('3000', 16);
       var display = lc2inst.displayFromDiv(document.getElementById('lc2'));
       display.update();
