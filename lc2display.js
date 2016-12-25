@@ -26,24 +26,78 @@ var LC2 = (function(LC2, undefined) {
         display.lastOffset = -1;
         // REGISTERS
         var registerInputs = [];
+
+        // General-Purpose
+        var gpRegSpan = document.createElement('span');
         for(let i = 0; i < LC2.REGISTERS; ++i) {
             var regDiv = document.createElement('div');
             var label = document.createElement('span');
-            label.innerHTML = 'r' + i + ':';
+            label.innerHTML = 'r' + i + ' ';
             regDiv.appendChild(label);
             var input = document.createElement('input');
             input.type = 'text';
             input.size = 6;
             registerInputs.push(input);
             regDiv.appendChild(input);
-            div.appendChild(regDiv);
+            gpRegSpan.appendChild(regDiv);
         }
+        gpRegSpan.style = 'float: left';
+        div.appendChild(gpRegSpan);
+
+        // Special-Purpose
+        var spRegs = { 'pc' : null, 'ir' : null };
+        var spRegSpan = document.createElement('span');
+        for(let reg in spRegs) {
+            var regDiv = document.createElement('div');
+            var label = document.createElement('span');
+            label.innerHTML = reg + ' ';
+            regDiv.appendChild(label);
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.size = 6;
+            spRegs[reg] = input;
+            regDiv.appendChild(input);
+            spRegSpan.appendChild(regDiv);            
+        }
+        var memRegs = { 'mar' : null, 'mdr' : null };
+        for(let reg in memRegs) {
+            var regDiv = document.createElement('div');
+            var label = document.createElement('span');
+            label.innerHTML = reg + ' ';
+            regDiv.appendChild(label);
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.size = 6;
+            memRegs[reg] = input;
+            regDiv.appendChild(input);
+            spRegSpan.appendChild(regDiv);            
+        }
+        spRegSpan.style = 'float: left; margin-left: 1em; text-align: right;';
+        div.appendChild(spRegSpan);
+        
         function updateRegisters() {
             for(let i = 0; i < LC2.REGISTERS; ++i) {
-                registerInputs[i].value = lc2inst.r[i].val;
+                registerInputs[i].value = lc2inst.r[i].val.toString(16);
+            }
+            for(let reg in spRegs) {
+                spRegs[reg].value = lc2inst[reg].val.toString(16);
+            }
+            for(let reg in memRegs) {
+                memRegs[reg].value = lc2inst.mem[reg].val.toString(16);
             }
             return lc2inst.pc.val;
         }
+
+        // CONSOLE
+        var lc2console = document.createElement('textarea');
+        lc2console.style = 'margin-left: 1em; width: 45em; height: 200px;' +
+            'resize: none;';
+        div.appendChild(lc2console);
+        
+        var br = document.createElement('br');
+        br.clear = 'all';
+        div.appendChild(br);
+        
         // MEMORY
         var pageLabel = document.createElement('span');
         pageLabel.innerHTML = 'Memory Page: ';
