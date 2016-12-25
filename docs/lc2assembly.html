@@ -77,14 +77,26 @@ STR2     .STRINGZ "The label on this line is NOT valid."
     
     <h2>Trap Vectors</h2>
     <dl>
+      <dt><code><b>0x20</b></code></dt>
+      <dd>
+        Read a single character from the keyboard.  This character is not echoed
+        to the console.  This character's ASCII code is copied to R0.  The high
+        8 bits of R0 are cleared.
+      </dd>
       <dt><code><b>0x21</b></code></dt>
       <dd>
         Print the ASCII character whose value is in R0 to console
         output.
       </dd>
+      <dt><code><b>0x22</b></code></dt>
+      <dd>
+        Write the string whose address is in R0 to the console.
+      </dd>
       <dt><code><b>0x23</b></code></dt>
       <dd>
-        Read the value from the keyboard and put it in R0.
+        Print a prompt to the console, then read a single character from the
+        keyboard.  This character is echoed to the console.  This character's
+        ASCII code is copied to R0.  The high 8 bits of R0 are cleared.
       </dd>
       <dt><code><b>0x25</b></code></dt>
       <dd>
