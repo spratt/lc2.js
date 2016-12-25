@@ -1,4 +1,4 @@
-;;; Welcome to the Assembly Editor.  This is the editor, in which you can write
+;;; Welcome to the Assembly Editor.  In this text area, you can write
 ;;; LC-2 assembly code and it (should be) nicely highlighted.
 
 ;;; If you click the button below that is labeled "Assemble", this code will be
@@ -18,4 +18,6 @@
         ;; halt the computer
         halt
 
+;;; store the zero-terminated string "Hello, world!" in memory
+;;; and use the myStr label to refer to its address
 myStr:  .stringz "Hello, world!"
