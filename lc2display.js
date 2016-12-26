@@ -83,10 +83,10 @@ var LC2 = (function(LC2, undefined) {
                 registerInputs[i].value = lc2inst.r[i].val.toString(16);
             }
             for(let reg in spRegs) {
-                spRegs[reg].value = lc2inst[reg].val.toString(16);
+                spRegs[reg].value = lc2inst[reg].uval.toString(16);
             }
             for(let reg in memRegs) {
-                memRegs[reg].value = lc2inst.mem[reg].val.toString(16);
+                memRegs[reg].value = lc2inst.mem[reg].uval.toString(16);
             }
             return lc2inst.pc.val;
         }
@@ -95,6 +95,11 @@ var LC2 = (function(LC2, undefined) {
         var lc2console = document.createElement('textarea');
         lc2console.style = 'margin-left: 1em; width: 45em; height: 200px;' +
             'resize: none;';
+        lc2console.setAttribute('readonly', 'readonly');
+        lc2console.addEventListener('keypress', function(evt) {
+            lc2inst.set_kbdr(evt.charCode);
+            display.update();
+        });
         lc2inst.set_console(function(v) {
             lc2console.append(String.fromCharCode(v));
         });

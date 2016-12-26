@@ -466,18 +466,18 @@ var LC2 = (function(LC2, undefined) {
     var kbsr_addr = parseInt('f400', 16);
     ProtoLC2.set_kbsr = function() {
         this.map_memory(kbsr_addr, function() {
-            return (0 >> 0); // no characters
+            return (1 << 15); // new characters
         });
     };
     ProtoLC2.unset_kbsr = function() {
         this.map_memory(kbsr_addr, function() {
-            return (0 >> 0); // no characters
+            return (0 >> 0);  // no characters
         });
     };
-    ProtoLC2.set_kbdr = function(c) {
+    ProtoLC2.set_kbdr = function(v) {
         this.set_kbsr();
         this.mem.mar.val = parseInt('f401', 16);
-        this.mem.mdr.val = c.charCodeAt(0);
+        this.mem.mdr.val = (v >> 0);
         this.mem.interrogate(1);
     };
 
