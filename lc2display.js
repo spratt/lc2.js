@@ -95,6 +95,9 @@ var LC2 = (function(LC2, undefined) {
         var lc2console = document.createElement('textarea');
         lc2console.style = 'margin-left: 1em; width: 45em; height: 200px;' +
             'resize: none;';
+        lc2inst.set_console(function(v) {
+            lc2console.append(String.fromCharCode(v));
+        });
         div.appendChild(lc2console);
         
         var br = document.createElement('br');

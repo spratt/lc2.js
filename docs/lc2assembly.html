@@ -140,32 +140,22 @@ STR2     .STRINGZ "The label on this line is NOT valid."
     <dl>
       <dt><code><b>GETC</b></code></dt>
       <dd>
-        Read a single character from the keyboard.  This character is not echoed
-        to the console.  This character's ASCII code is copied to R0.  The high
-        8 bits of R0 are cleared.
         Equivalent to <code>TRAP $20</code>.
       </dd>
       <dt><code><b>OUT</b></code></dt>
       <dd>
-        Print the ASCII character whose value is in R0 to console
-        output.
         Equivalent to <code>TRAP $21</code>.
       </dd>
       <dt><code><b>PUTS</b></code></dt>
       <dd>
-        Write the string whose address is in R0 to the console.
         Equivalent to <code>TRAP $22</code>.
       </dd>
       <dt><code><b>IN</b></code></dt>
       <dd>
-        Print a prompt to the console, then read a single character from the
-        keyboard.  This character is echoed to the console.  This character's
-        ASCII code is copied to R0.  The high 8 bits of R0 are cleared.
         Equivalent to <code>TRAP $23</code>.
       </dd>
       <dt><code><b>HALT</b></code></dt>
       <dd>
-        Stop the computer.
         Equivalent to <code>TRAP $25</code>.
       </dd>
     </dl>

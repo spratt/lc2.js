@@ -37,6 +37,9 @@
       <button id="assemble">Assemble</button>
       <select id="loader">
         <option value="asm/helloworld.asm">helloworld.asm</option>
+        <option value="asm/test_console.asm">test_console.asm</option>
+        <option value="asm/traps.asm">traps.asm</option>
+        <option value="asm/in.asm">in.asm</option>
         <option value="tests/reverse.asm">reverse.asm</option>
         <option value="tests/dumbadd.asm">dumbadd.asm</option>
         <option value="tests/justtest.asm">justtest.asm</option>
@@ -78,6 +81,14 @@
       function reset() {
           displayDiv.innerHTML = '';
           lc2inst = new LC2;
+          try {
+              var traps = LC2.assemble(lib.readFromURL('asm/traps.asm'));
+              lc2inst.load_program(traps);
+              var in_prg = LC2.assemble(lib.readFromURL('asm/in.asm'));
+              lc2inst.load_program(in_prg);
+          } catch(err) {
+              console.error('Error while loading service routines', err);
+          }
           lc2inst.pc.val = parseInt('3000', 16);
           display = lc2inst.displayFromDiv(displayDiv);
           display.update();
@@ -96,6 +107,7 @@
           display.update();
       }
       document.getElementById('assemble').addEventListener('click',function(){
+          reset();
           editor.assemble(handleProgram);
       });
     </script>

@@ -95,6 +95,10 @@ var LC2 = (function(LC2, undefined) {
             return _val[0];
         });
 
+        this.__defineGetter__("uval", function() {
+            return (new Uint16Array(_val))[0];
+        });
+
         this.__defineSetter__("val", function(val) {
             _val[0] = val;
         });
@@ -109,10 +113,7 @@ var LC2 = (function(LC2, undefined) {
         var mdr = new Register("mdr");
         var pages = [];
 
-        this.log = function() {};
-        if(lc2_inst && typeof(lc2_inst.log) === 'function') {
-            this.log = lc2_inst.log;
-        }
+        this.mmio = {};
 
         // fake initialize memory
         for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
@@ -131,7 +132,7 @@ var LC2 = (function(LC2, undefined) {
         function getPage(pageNum) {
             // just in time memory initialization
             if(pages[pageNum] === null) {
-                lc2_inst.log('first time addressing the given page, allocating');
+                lc2_inst.log('first time addressing page, allocating');
                 pages[pageNum] = new Int16Array(Math.pow(BASE,PAGE_LOCS));
             }
             return pages[pageNum];
@@ -142,25 +143,36 @@ var LC2 = (function(LC2, undefined) {
             var pageNum = (mar.val >> PAGE_LOCS) & ones(PAGE_BITS);
             var addr = mar.val & ones(PAGE_LOCS);
 
-            this.log('interrogate(' + write_bit + ')');
-            this.log('mar:          ' + mar.val +
-                     ' = ' + toBinaryString(mar.val));
-            this.log('mdr:          ' + mdr.val +
+            lc2_inst.log('interrogate(' + write_bit + ')');
+            lc2_inst.log('mar:          ' + mar.uval +
+                     ' = ' + toBinaryString(mar.uval));
+            lc2_inst.log('mdr:          ' + mdr.val +
                      ' = ' + toBinaryString(mdr.val));
-            this.log('pageNum:         ' + pageNum +
+            lc2_inst.log('pageNum:         ' + pageNum +
                      ' = ' + toBinaryString(pageNum));
-            this.log('addr:         ' + addr +
+            lc2_inst.log('addr:         ' + addr +
                      ' = ' + toBinaryString(addr));
-            this.log('pages.length: ' + pages.length);
+            lc2_inst.log('pages.length: ' + pages.length);
 
             var page = getPage(pageNum);
 
-            this.log('page.length:  ' + page.length);
+            lc2_inst.log('page.length:  ' + page.length);
 
             if(write_bit && (write_bit & 1)) { // write
                 page[addr] = mdr.val;
+                lc2_inst.log('mmio: ', this.mmio);
+
+                // Memory-mapped output
+                if(mar.uval in this.mmio) {
+                    this.mmio[mar.uval](mdr.val);
+                }
             } else {                           // read
-                mdr.val = page[addr];
+                // Memory-mapped input
+                if(mar.uval in this.mmio) {
+                    mdr.val = this.mmio[mar.uval]();
+                } else {
+                    mdr.val = page[addr];
+                }
             }
         };
 
@@ -403,7 +415,9 @@ var LC2 = (function(LC2, undefined) {
 
         this.log("trap(" + vector + ")");
         this.r[7].val = this.pc.val;
-        this.pc.val = vector;
+        this.mem.mar.val = vector;
+        this.mem.interrogate();
+        this.pc.val = this.mem.mdr.val;
     };
 
     ProtoLC2.ret = function() {
@@ -443,6 +457,32 @@ var LC2 = (function(LC2, undefined) {
         this.mem.mar.val = this.r[7].val;
         this.mem.interrogate();
         this.pc.val = this.mem.mdr.val;
+    };
+
+    ProtoLC2.map_memory = function(addr, fn) {
+        this.mem.mmio[addr] = fn;
+    };
+
+    var kbsr_addr = parseInt('f400', 16);
+    ProtoLC2.set_kbsr = function() {
+        this.map_memory(kbsr_addr, function() {
+            return (0 >> 0); // no characters
+        });
+    };
+    ProtoLC2.unset_kbsr = function() {
+        this.map_memory(kbsr_addr, function() {
+            return (0 >> 0); // no characters
+        });
+    };
+    ProtoLC2.set_kbdr = function(c) {
+        this.set_kbsr();
+        this.mem.mar.val = parseInt('f401', 16);
+        this.mem.mdr.val = c.charCodeAt(0);
+        this.mem.interrogate(1);
+    };
+
+    ProtoLC2.set_console = function(fn) {
+        this.map_memory(parseInt('f3ff', 16), fn);
     };
 
     ProtoLC2.load_program = function(prg) {
@@ -577,6 +617,14 @@ var LC2 = (function(LC2, undefined) {
         });
         this.__defineGetter__("debug", function() {
             return LC2.debug;
+        });
+
+        // add standard memory mappings
+        this.map_memory(parseInt('f3fc', 16), function() {
+            return 1 << 15; // ready
+        });
+        this.set_console(function(v) {
+            console.log('lc2 output:', String.fromCharCode(v));
         });
     };
 
