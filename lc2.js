@@ -603,9 +603,7 @@ var LC2 = (function(LC2, undefined) {
         var reg = [];
 
         this.__defineGetter__("halted", function() {
-            this.mem.mar.val = MCR;
-            this.mem.interrogate(0);
-            return (this.mem.mdr.val & (1 << 15)) === 0;
+            return (this.mem.hw_get(MCR) & (1 << 15)) === 0;
         });
         this.__defineGetter__("conds", function() {
             return conds;
