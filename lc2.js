@@ -12,7 +12,10 @@ var LC2 = (function(LC2, undefined) {
     const PAGE_BITS = 7;
     const PAGE_LOCS = BITS - PAGE_BITS;
     const REGISTERS = 8;
-
+    const CRTSR = parseInt('f3fc', 16);
+    const KBDR = parseInt('f401', 16);
+    const MCR = parseInt('ffff', 16);
+    
     var COND_NEG  = 1 << 0; // 2^0 = 1
     var COND_POS  = 1 << 1; // 2^1 = 2
     var COND_ZERO = 1 << 2; // 2^2 = 4
@@ -174,6 +177,20 @@ var LC2 = (function(LC2, undefined) {
                     mdr.val = page[addr];
                 }
             }
+        };
+
+        // for mmio
+        this.hw_set = function(addr, val) {
+            var pageNum = (addr >> PAGE_LOCS) & ones(PAGE_BITS);
+            var offset = addr & ones(PAGE_LOCS);
+            var page = getPage(pageNum);
+            page[offset] = val;
+        };
+        this.hw_get = function(addr) {
+            var pageNum = (addr >> PAGE_LOCS) & ones(PAGE_BITS);
+            var offset = addr & ones(PAGE_LOCS);
+            var page = getPage(pageNum);
+            return page[offset];
         };
 
         this.getPage = function(pageNum) {
@@ -476,9 +493,7 @@ var LC2 = (function(LC2, undefined) {
     };
     ProtoLC2.set_kbdr = function(v) {
         this.set_kbsr();
-        this.mem.mar.val = parseInt('f401', 16);
-        this.mem.mdr.val = (v >> 0);
-        this.mem.interrogate(1);
+        this.mem.hw_set(parseInt('f401', 16), v >> 0);
     };
 
     ProtoLC2.set_console = function(fn) {
@@ -506,6 +521,10 @@ var LC2 = (function(LC2, undefined) {
     ProtoLC2.run_cycle = function() {
         this.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         this.log("run_cycle()");
+        if(this.halted) {
+            this.log('Machine halted, not running cycle.');
+            return;
+        }
         this.log("pc: " + this.pc.val);
 
         // fetch
@@ -583,6 +602,11 @@ var LC2 = (function(LC2, undefined) {
         var mem = new MemoryUnit(this);
         var reg = [];
 
+        this.__defineGetter__("halted", function() {
+            this.mem.mar.val = MCR;
+            this.mem.interrogate(0);
+            return (this.mem.mdr.val & (1 << 15)) === 0;
+        });
         this.__defineGetter__("conds", function() {
             return conds;
         });
@@ -620,9 +644,23 @@ var LC2 = (function(LC2, undefined) {
             return LC2.debug;
         });
 
+        // Set the machine clock register (MCR)
+        mem.mar.val = MCR;
+        mem.mdr.val = 1 << 15;
+        mem.interrogate(1);
+
         // add standard memory mappings
-        this.map_memory(parseInt('f3fc', 16), function() {
+        this.map_memory(CRTSR, function() {
             return 1 << 15; // ready
+        });
+        var that = this;
+        this.map_memory(KBDR, function(val) {
+            if(val) {
+                mem.hw_set(KBDR, val);
+            } else {
+                that.unset_kbsr();
+                return mem.hw_get(KBDR);
+            }
         });
         this.set_console(function(v) {
             console.log('lc2 output:', String.fromCharCode(v));

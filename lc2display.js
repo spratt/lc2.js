@@ -6,6 +6,7 @@
 
 var LC2 = (function(LC2, undefined) {
     const DEFAULT_PAGE = 24;
+    const RUN_MS = 10;
     
     function numToHex(n) { return (n >> 0).toString(16); }
 
@@ -135,8 +136,19 @@ var LC2 = (function(LC2, undefined) {
         lc2console.style = 'margin-left: 1em; width: 45em; height: 200px;' +
             'resize: none;';
         lc2console.setAttribute('readonly', 'readonly');
+        var translations = {
+            13 : 10
+        };
         lc2console.addEventListener('keypress', function(evt) {
-            lc2inst.set_kbdr(evt.charCode);
+            if(evt.charCode > 0) {
+                lc2inst.set_kbdr(evt.charCode);
+            } else {
+                var key = evt.keyCode
+                if(key in translations) {
+                    key = translations[key];
+                }
+                lc2inst.set_kbdr(key);
+            }
             display.update();
         });
         lc2inst.set_console(function(v) {
@@ -182,6 +194,15 @@ var LC2 = (function(LC2, undefined) {
         stepButton.innerHTML = 'Step';
         stepButton.style = 'float: right';
         div.appendChild(stepButton);
+        var runCheck = document.createElement('input');
+        runCheck.type = 'checkbox';
+        runCheck.style = 'float: right';
+        runCheck.checked = true;
+        div.appendChild(runCheck);
+        var runLabel = document.createElement('span');
+        runLabel.style = 'margin-left: 5px; float: right';
+        runLabel.innerHTML = 'Run: ';
+        div.appendChild(runLabel);
         var memoryTextArea = document.createElement('textarea');
         div.appendChild(memoryTextArea);
         display.memoryCM = CodeMirror.fromTextArea(memoryTextArea, {
@@ -218,10 +239,18 @@ var LC2 = (function(LC2, undefined) {
             }
         };
         pageSelect.addEventListener('change', display.update);
-        stepButton.addEventListener('click',function() {
+        function step() {
+            if(lc2inst.halted) {
+                console.log('Machine halted');
+                return;
+            }
             lc2inst.run_cycle();
             display.update();
-        });
+            if(runCheck.checked) {
+                window.setTimeout(step, RUN_MS);
+            }
+        }
+        stepButton.addEventListener('click',step);
         return display;
     };
     return LC2;
