@@ -21,6 +21,37 @@ var LC2 = (function(LC2, undefined) {
         marker.innerHTML = "▶";
         return marker;
     }
+
+    function toPrettyBinaryString(num) {
+        if(typeof(num) !== "number") return;
+        var bits = LC2.toBinaryString(num);
+        while(bits.length < 16) bits = '0' + bits;
+        var a = bits.substring(0,4);
+        var b = bits.substring(4,8);
+        var c = bits.substring(8,12);
+        var d = bits.substring(12,16);
+        var line = `${a} ${b} ${c} ${d}    `;
+        var av = parseInt(a, 2);
+        var bv = parseInt(b, 2);
+        var cv = parseInt(c, 2);
+        var dv = parseInt(d, 2);
+        var ah = av.toString(16);
+        var bh = bv.toString(16);
+        var ch = cv.toString(16);
+        var dh = dv.toString(16);
+        line += `${ah}${bh}${ch}${dh}    `;
+        var subs = {
+            '\n' : '\\n',
+            '\t' : '\\t'
+        };
+        var ab = String.fromCharCode((av << 4) + bv);
+        var cd = String.fromCharCode((cv << 4) + dv);
+        if(ab in subs) ab = subs[ab];
+        if(cd in subs) cd = subs[cd];
+        line += ab + cd;
+        return line;
+    };
+
     LC2.prototype.displayFromDiv = function(div) {
         var lc2inst = this;
         var display = {};
@@ -218,7 +249,12 @@ var LC2 = (function(LC2, undefined) {
                 pageSelect.selectedIndex = pageNum;
             }
             var page = pageSelect.options[pageSelect.selectedIndex].value;
-            display.memoryCM.getDoc().setValue(lc2inst.mem.getPage(page));
+            var strArr = [];
+            var uArr = lc2inst.mem.getPage(page);
+            uArr.forEach(function(n) {
+                strArr.push(toPrettyBinaryString(n));
+            });
+            display.memoryCM.getDoc().setValue(strArr.join('\n'));
             display.memoryCM.setOption('firstLineNumber',
                                        (page << LC2.PAGE_LOCS));
         }

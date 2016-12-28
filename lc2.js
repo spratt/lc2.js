@@ -6,13 +6,15 @@
 
 var LC2 = (function(LC2, undefined) {
     // constants
-    const BASE = 2;
-    const BITS = 16;
-    const OPCODE_BITS = 4;
-    const PAGE_BITS = 7;
+    const BASE = 2|0;
+    const BITS = 16|0;
+    const OPCODE_BITS = 4|0;
+    const PAGE_BITS = 7|0;
     const PAGE_LOCS = BITS - PAGE_BITS;
-    const REGISTERS = 8;
+    const REGISTERS = 8|0;
     const CRTSR = parseInt('f3fc', 16);
+    const CRTDR = parseInt('f3ff', 16);
+    const KBSR = parseInt('f400', 16);
     const KBDR = parseInt('f401', 16);
     const MCR = parseInt('ffff', 16);
     
@@ -45,37 +47,6 @@ var LC2 = (function(LC2, undefined) {
         return (num >> 0).toString(2);
     };
     LC2.toBinaryString = toBinaryString;
-
-    function toPrettyBinaryString(num) {
-        if(typeof(num) !== "number") return;
-        var bits = toBinaryString(num);
-        while(bits.length < 16) bits = '0' + bits;
-        var a = bits.substring(0,4);
-        var b = bits.substring(4,8);
-        var c = bits.substring(8,12);
-        var d = bits.substring(12,16);
-        var line = `${a} ${b} ${c} ${d}    `;
-        var av = parseInt(a, 2);
-        var bv = parseInt(b, 2);
-        var cv = parseInt(c, 2);
-        var dv = parseInt(d, 2);
-        var ah = av.toString(16);
-        var bh = bv.toString(16);
-        var ch = cv.toString(16);
-        var dh = dv.toString(16);
-        line += `${ah}${bh}${ch}${dh}    `;
-        var subs = {
-            '\n' : '\\n',
-            '\t' : '\\t'
-        };
-        var ab = String.fromCharCode((av << 4) + bv);
-        var cd = String.fromCharCode((cv << 4) + dv);
-        if(ab in subs) ab = subs[ab];
-        if(cd in subs) cd = subs[cd];
-        line += ab + cd;
-        return line;
-    };
-    LC2.toPrettyBinaryString = toPrettyBinaryString;
 
     var set_conditions = function(lc2_inst, value) {
         // set the condition bits on the given lc2 whose last result was value
@@ -115,8 +86,7 @@ var LC2 = (function(LC2, undefined) {
         var mar = new Register("mar");
         var mdr = new Register("mdr");
         var pages = [];
-
-        this.mmio = {};
+        var mmio = {};
 
         // fake initialize memory
         for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
@@ -163,16 +133,16 @@ var LC2 = (function(LC2, undefined) {
 
             if(write_bit && (write_bit & 1)) { // write
                 page[addr] = mdr.val;
-                lc2_inst.log('mmio: ', this.mmio);
+                lc2_inst.log('mmio: ', mmio);
 
                 // Memory-mapped output
-                if(mar.uval in this.mmio) {
-                    this.mmio[mar.uval](mdr.val);
+                if(mar.uval in mmio) {
+                    mmio[mar.uval](mdr.val);
                 }
             } else {                           // read
                 // Memory-mapped input
-                if(mar.uval in this.mmio) {
-                    mdr.val = this.mmio[mar.uval]();
+                if(mar.uval in mmio) {
+                    mdr.val = mmio[mar.uval]();
                 } else {
                     mdr.val = page[addr];
                 }
@@ -180,6 +150,9 @@ var LC2 = (function(LC2, undefined) {
         };
 
         // for mmio
+        this.map_memory = function(addr, fn) {
+            mmio[addr] = fn;
+        };
         this.hw_set = function(addr, val) {
             var pageNum = (addr >> PAGE_LOCS) & ones(PAGE_BITS);
             var offset = addr & ones(PAGE_LOCS);
@@ -192,17 +165,16 @@ var LC2 = (function(LC2, undefined) {
             var page = getPage(pageNum);
             return page[offset];
         };
-
         this.getPage = function(pageNum) {
             var strArr = [];
             pageNum = pageNum & ones(PAGE_BITS);
-            var uArr = new Uint16Array(getPage(pageNum));
-            uArr.forEach(function(n) {
-                strArr.push(toPrettyBinaryString(n));
-            });
-            return strArr.join('\n');
+            var page = getPage(pageNum);
+            var uArr = new Uint16Array(page.length);
+            for(let i = 0; i < page.length; ++i) {
+                uArr[i] = page[i];
+            }
+            return uArr;
         };
-
     };
 
     // methods
@@ -476,28 +448,30 @@ var LC2 = (function(LC2, undefined) {
         this.pc.val = this.mem.mdr.val;
     };
 
-    ProtoLC2.map_memory = function(addr, fn) {
-        this.mem.mmio[addr] = fn;
-    };
 
-    var kbsr_addr = parseInt('f400', 16);
+    ProtoLC2.set_mcr = function() {
+        this.mem.hw_set(MCR, this.mem.hw_get(MCR) | 1 << 15);
+    };
+    ProtoLC2.unset_mcr = function() {
+        this.mem.hw_set(MCR, this.mem.hw_get(MCR) & ones(15));
+    };
     ProtoLC2.set_kbsr = function() {
-        this.map_memory(kbsr_addr, function() {
+        this.mem.map_memory(KBSR, function() {
             return (1 << 15); // new characters
         });
     };
     ProtoLC2.unset_kbsr = function() {
-        this.map_memory(kbsr_addr, function() {
+        this.mem.map_memory(KBSR, function() {
             return (0 >> 0);  // no characters
         });
     };
     ProtoLC2.set_kbdr = function(v) {
         this.set_kbsr();
-        this.mem.hw_set(parseInt('f401', 16), v >> 0);
+        this.mem.hw_set(KBDR, v|0);
     };
 
     ProtoLC2.set_console = function(fn) {
-        this.map_memory(parseInt('f3ff', 16), fn);
+        this.mem.map_memory(CRTDR, fn);
     };
 
     ProtoLC2.load_program = function(prg) {
@@ -643,18 +617,14 @@ var LC2 = (function(LC2, undefined) {
         });
 
         // Set the machine clock register (MCR)
-        mem.mar.val = MCR;
-        mem.mdr.val = 1 << 15;
-        mem.interrogate(1);
-        mem.mar.val = 0;
-        mem.mdr.val = 0;
+        this.set_mcr();
 
         // add standard memory mappings
-        this.map_memory(CRTSR, function() {
+        this.mem.map_memory(CRTSR, function() {
             return 1 << 15; // ready
         });
         var that = this;
-        this.map_memory(KBDR, function(val) {
+        this.mem.map_memory(KBDR, function(val) {
             if(val) {
                 mem.hw_set(KBDR, val);
             } else {
@@ -672,18 +642,9 @@ var LC2 = (function(LC2, undefined) {
         newLC2[property] = LC2[property];
     LC2 = newLC2;
 
-    Object.defineProperty(LC2, 'PAGE_BITS', {
-        value: PAGE_BITS,
-        writable: false,
-    });
-    Object.defineProperty(LC2, 'PAGE_LOCS', {
-        value: PAGE_LOCS,
-        writable: false,
-    });
-    Object.defineProperty(LC2, 'REGISTERS', {
-        value: REGISTERS,
-        writable: false,
-    });
+    LC2.__defineGetter__("PAGE_BITS",  function() { return PAGE_BITS; });
+    LC2.__defineGetter__("PAGE_LOCS",  function() { return PAGE_LOCS; });
+    LC2.__defineGetter__("REGISTERS",  function() { return REGISTERS; });
 
     LC2.__defineGetter__("COND_POS",  function() { return COND_POS; });
     LC2.__defineGetter__("COND_NEG",  function() { return COND_NEG; });
