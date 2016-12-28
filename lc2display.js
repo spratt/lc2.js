@@ -133,22 +133,22 @@ var LC2 = (function(LC2, undefined) {
 
         // CONSOLE
         var lc2console = document.createElement('textarea');
-        lc2console.style = 'margin-left: 1em; width: 45em; height: 200px;' +
-            'resize: none;';
+        lc2console.style = 'margin-left: 1em; width: 36.6rem; height: 200px;' +
+            'resize: none; float: right';
         lc2console.setAttribute('readonly', 'readonly');
         var translations = {
             13 : 10
         };
         lc2console.addEventListener('keypress', function(evt) {
             if(evt.charCode > 0) {
-                lc2inst.set_kbdr(evt.charCode);
+                var key = evt.charCode;
             } else {
-                var key = evt.keyCode
-                if(key in translations) {
-                    key = translations[key];
-                }
-                lc2inst.set_kbdr(key);
+                var key = evt.keyCode;
             }
+            if(key in translations) {
+                key = translations[key];
+            }
+            lc2inst.set_kbdr(key);
             display.update();
         });
         lc2inst.set_console(function(v) {
@@ -209,6 +209,7 @@ var LC2 = (function(LC2, undefined) {
             lineNumbers: true,
             readOnly: true,
             lineNumberFormatter: numToHex,
+            mode: 'plain/text',
             gutters: ["CodeMirror-linenumbers", "pc"]
         });
         function updateMemory() {
@@ -241,7 +242,6 @@ var LC2 = (function(LC2, undefined) {
         pageSelect.addEventListener('change', display.update);
         function step() {
             if(lc2inst.halted) {
-                console.log('Machine halted');
                 return;
             }
             lc2inst.run_cycle();

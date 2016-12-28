@@ -1,5 +1,5 @@
 body {
     margin: 0 auto;   /* centre horizontally  */
-    max-width: 50em;  /* readable line width  */
+    max-width: 50rem;  /* readable line width  */
     line-height: 1.5; /* compact line spacing */
 }
