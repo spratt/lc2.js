@@ -648,6 +648,8 @@ var LC2 = (function(LC2, undefined) {
         mem.mar.val = MCR;
         mem.mdr.val = 1 << 15;
         mem.interrogate(1);
+        mem.mar.val = 0;
+        mem.mdr.val = 0;
 
         // add standard memory mappings
         this.map_memory(CRTSR, function() {

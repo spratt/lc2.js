@@ -882,6 +882,11 @@ test("lex justtest.asm",function() {
             "val": "BR"
         },
         {
+            "line": 2,
+            "type": "REF",
+            "val": "START"
+        },
+        {
             "line": 3,
             "type": "OPR",
             "val": "BRN"

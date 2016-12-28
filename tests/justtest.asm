@@ -1,5 +1,5 @@
 START:  nop
-        br
+        br START
         brn START
         brp START
         brnz START
