@@ -6,7 +6,7 @@
 
 var LC2 = (function(LC2, undefined) {
     const DEFAULT_PAGE = 24;
-    const RUN_MS = 10;
+    const RUN_MS = 0;
     
     function numToHex(n) { return (n >> 0).toString(16); }
 
