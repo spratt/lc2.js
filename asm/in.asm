@@ -1,5 +1,6 @@
 ;;; in.asm
-;;; copied from Figure 9.4, Patt & Patel
+;;; IN service routine (system call)
+;;; adapted from Figure 9.4, Patt & Patel
 
         .orig   0x04a0
 start:  st      r7, SaveR7      ; Save the linkage back to the program.
@@ -37,6 +38,7 @@ l4:     ldi     r3, CRTSR
         ld      r7, SaveR7
         ret
 
+;;; constants
 SaveR7: .fill   0x0000
 SaveR1: .fill   0x0000
 SaveR2: .fill   0x0000
