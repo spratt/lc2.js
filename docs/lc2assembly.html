@@ -326,12 +326,13 @@ STR2     .STRINGZ "The label on this line is NOT valid."
       </dd>
       <dt><code><b>TRAP</b> vector8</code></dt>
       <dd>
-        Activate the operating system with trap <code>vector8</code>.
-        Effectively, this saves the value of the PC into R7 and jumps
-        to the zero-extended memory location <code>vector8</code>,
-        which is filled with operating system code to perform some
-        function, after which the operating system jumps back into the
-        user program by reseting the PC to the value in R7.
+        Activate the operating system with trap <code>vector8</code>.  This
+        saves the value of the PC into R7 and sets PC to the value stored at the
+        zero-extended memory location <code>vector8</code>.  For example, if the
+        memory address that stores the <code>GETC</code> subroutine
+        is <code>0x0400</code>, then memory address <code>0x20</code> should
+        store the value <code>0x400</code>.  Then, <code>TRAP 0x20</code> will
+        set the PC to <code>0x400</code>.
       </dd>
     </dl>
     
