@@ -213,7 +213,7 @@ var LC2 = (function(LC2, undefined) {
         }
 
         var result = val1 + val2;
-        this.log(result + " = " + val1 + " + " + val2);
+        this.log("Result: " + result + " = " + val1 + " + " + val2);
         this.r[dest_reg].val = result;
         set_conditions(this, result);
     };
@@ -240,7 +240,7 @@ var LC2 = (function(LC2, undefined) {
         }
 
         var result = val1 & val2;
-        this.log(result + " = " + val1 + " & " + val2);
+        this.log("Result: " + result + " = " + val1 + " & " + val2);
         this.r[dest_reg].val = result;
         set_conditions(this, result);
     };
@@ -254,7 +254,7 @@ var LC2 = (function(LC2, undefined) {
         var val1 = this.r[src_reg].val;
 
         var result = ~val1;
-        this.log(result + " = ~" + val1);
+        this.log("Result: " + result + " = ~" + val1);
         this.r[dest_reg].val = result;
         set_conditions(this, result);
     };
@@ -269,7 +269,7 @@ var LC2 = (function(LC2, undefined) {
         var page = this.pc.val & (ones(7) << 9);
 
         var result = page | imm;
-        this.log(result + " = " + page + " | " + imm);
+        this.log("Result: " + result + " = " + page + " | " + imm);
         this.r[dest_reg].val = result;
         set_conditions(this, result);
     };
@@ -284,7 +284,7 @@ var LC2 = (function(LC2, undefined) {
         var page = this.pc.val & (ones(7) << 9);
 
         var addr = page | dir;
-        this.log(addr + " = " + page + " | " + dir);
+        this.log("Addr: " + addr + " = " + page + " | " + dir);
         this.mem.mar.val = addr;
         this.mem.interrogate();
 
@@ -304,7 +304,7 @@ var LC2 = (function(LC2, undefined) {
         var result = this.r[src_reg].val;
 
         var addr = page | dir;
-        this.log(addr + " = " + page + " | " + dir);
+        this.log("Addr: " + addr + " = " + page + " | " + dir);
         this.mem.mar.val = addr;
         this.mem.mdr.val = result;
         this.mem.interrogate(1);
@@ -321,7 +321,7 @@ var LC2 = (function(LC2, undefined) {
         var page = this.pc.val & (ones(7) << 9);
 
         var addr = page | indir;
-        this.log(addr + " = " + page + " | " + indir);
+        this.log("Addr: " + addr + " = " + page + " | " + indir);
         this.mem.mar.val = addr;
         this.mem.interrogate();
         this.mem.mar.val = this.mem.mdr.val;
@@ -343,7 +343,7 @@ var LC2 = (function(LC2, undefined) {
         var result = this.r[src_reg].val;
 
         var addr = page | indir;
-        this.log(addr + " = " + page + " | " + indir);
+        this.log("Addr: " + addr + " = " + page + " | " + indir);
         this.mem.mar.val = addr;
         this.mem.interrogate();
         this.mem.mar.val = this.mem.mdr.val;
@@ -361,7 +361,7 @@ var LC2 = (function(LC2, undefined) {
 
         var base = this.r[base_reg].val;
         var addr = base + offset6;
-        this.log(addr + " = " + base + " + " + offset6);
+        this.log("Addr: " + addr + " = " + base + " + " + offset6);
         this.mem.mar.val = addr;
         this.mem.interrogate();
 
@@ -381,7 +381,7 @@ var LC2 = (function(LC2, undefined) {
         var result = this.r[src_reg].val;
 
         var addr = base + offset6;
-        this.log(addr + " = " + base + " + " + offset6);
+        this.log("Addr: " + addr + " = " + base + " + " + offset6);
         this.mem.mar.val = addr;
         this.mem.mdr.val = result;
         this.mem.interrogate(1);
@@ -406,7 +406,7 @@ var LC2 = (function(LC2, undefined) {
 
         var page = this.pc.val & (ones(7) << 9);
         var addr = page | offset;
-        this.log(addr + " = " + page + " | " + offset);
+        this.log("Addr: " + addr + " = " + page + " | " + offset);
         this.pc.val = addr;
     };
 
@@ -434,7 +434,7 @@ var LC2 = (function(LC2, undefined) {
 
         var page = this.pc.val & (ones(7) << 9);
         var addr = page | offset;
-        this.log(addr + " = " + page + " | " + offset);
+        this.log("Addr: " + addr + " = " + page + " | " + offset);
         this.pc.val = addr;
     };
 
@@ -448,7 +448,7 @@ var LC2 = (function(LC2, undefined) {
 
         var base = this.r[base_reg].val;
         var addr = base + offset;
-        this.log(addr + " = " + base + " + " + offset);
+        this.log("Addr: " + addr + " = " + base + " + " + offset);
         this.pc.val = addr;
     };
 
@@ -504,6 +504,7 @@ var LC2 = (function(LC2, undefined) {
     };
 
     ProtoLC2.run_cycle = function() {
+        this.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         this.log("run_cycle()");
         this.log("pc: " + this.pc.val);
 

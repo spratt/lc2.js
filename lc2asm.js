@@ -197,8 +197,11 @@ var LC2 = (function(LC2, undefined) {
             ob.bytecode[op.address] = 0;
         },
         'BR'    : function(op, ob) {
-            // this is really just a nop
+            if(!(op.operands[0].type === 'NUM'))
+                throw new Error('Arg 1 to BR on line ' + op.line +
+                                ' should be a number');
             ob.bytecode[op.address] = 0;
+            ob.bytecode[op.address] += op.operands[0].val & LC2.ones(9);
         },
         'BRN'   : function(op, ob) {
             if(!(op.operands[0].type === 'NUM'))

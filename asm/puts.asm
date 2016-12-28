@@ -17,7 +17,7 @@ l2:     ldi     r3, CRTSR
         brzp    l2
         sti     r1, CRTDR
         add     r0, r0, #1
-        br      loop
+        brnzp   loop
 
 ;;; restore registers and return
 return: ld      r0, SaveR0

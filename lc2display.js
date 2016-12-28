@@ -61,6 +61,42 @@ var LC2 = (function(LC2, undefined) {
             regDiv.appendChild(input);
             spRegSpan.appendChild(regDiv);            
         }
+
+        // Conditions
+        var nDiv = document.createElement('div');
+        var nLabel = document.createElement('span');
+        nLabel.innerHTML = 'N ';
+        nDiv.appendChild(nLabel);
+        var nInput = document.createElement('input');
+        nInput.type = 'text';
+        nInput.size = 6;
+        nInput.setAttribute('readonly', 'readonly');
+        nDiv.appendChild(nInput);
+        spRegSpan.appendChild(nDiv);
+
+        var zDiv = document.createElement('div');
+        var zLabel = document.createElement('span');
+        zLabel.innerHTML = 'Z ';
+        zDiv.appendChild(zLabel);
+        var zInput = document.createElement('input');
+        zInput.type = 'text';
+        zInput.size = 6;
+        zInput.setAttribute('readonly', 'readonly');
+        zDiv.appendChild(zInput);
+        spRegSpan.appendChild(zDiv);
+
+        var pDiv = document.createElement('div');
+        var pLabel = document.createElement('span');
+        pLabel.innerHTML = 'P ';
+        pDiv.appendChild(pLabel);
+        var pInput = document.createElement('input');
+        pInput.type = 'text';
+        pInput.size = 6;
+        pInput.setAttribute('readonly', 'readonly');
+        pDiv.appendChild(pInput);
+        spRegSpan.appendChild(pDiv);
+
+        // Memory registers
         var memRegs = { 'mar' : null, 'mdr' : null };
         for(let reg in memRegs) {
             var regDiv = document.createElement('div');
@@ -85,6 +121,9 @@ var LC2 = (function(LC2, undefined) {
             for(let reg in spRegs) {
                 spRegs[reg].value = lc2inst[reg].uval.toString(16);
             }
+            nInput.value = (lc2inst.conds & LC2.COND_NEG) > 0 ? 1 : 0;
+            zInput.value = (lc2inst.conds & LC2.COND_ZERO) > 0 ? 1 : 0;
+            pInput.value = (lc2inst.conds & LC2.COND_POS) > 0 ? 1 : 0;
             for(let reg in memRegs) {
                 memRegs[reg].value = lc2inst.mem[reg].uval.toString(16);
             }
@@ -153,7 +192,7 @@ var LC2 = (function(LC2, undefined) {
         });
         function updateMemory() {
             if(followCheck.checked) {
-                var pageNum = (lc2inst.pc.val >> LC2.PAGE_LOCS);
+                var pageNum = (lc2inst.pc.uval >> LC2.PAGE_LOCS);
                 pageSelect.selectedIndex = pageNum;
             }
             var page = pageSelect.options[pageSelect.selectedIndex].value;

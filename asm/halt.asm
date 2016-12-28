@@ -34,7 +34,7 @@
 nl:     .fill   0x000a          ; ASCII newline
 SaveR0: .fill   0x0000
 SaveR1: .fill   0x0000
-SaveR2: .fill   0x0000
+SaveR7: .fill   0x0000
 msg:    .stringz        "Halting the machine."
 MCR:    .fill   0xffff
 MASK:   .fill   0x7fff
