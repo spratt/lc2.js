@@ -21,8 +21,41 @@
       <a href="index.html">&lt;- Back to the documentation index</a>
     </p>
     
+    <h2>Constants</h2>
+    <dl>
+      <dt><code>lc2.PAGE_BITS</code></dt>
+      <dd>
+        Type: int.  Default: 7.  The number of bits in a page index.
+      </dd>
+      <dt><code>lc2.PAGE_LOCS</code></dt>
+      <dd>
+        Type: int.  Default: 9.  The number of bits in a page offset, which is
+        the index of a memory location within a page.
+      </dd>
+      <dt><code>lc2.REGISTERS</code></dt>
+      <dd>
+        Type: int.  Default: 8.  The number of registers.
+      </dd>
+      <dt><code>lc2.COND_POS</code></dt>
+      <dd>
+        Type: int.  Default: 2.  The bit mask to access the P bit.
+      </dd>
+      <dt><code>lc2.COND_ZERO</code></dt>
+      <dd>
+        Type: int.  Default: 1.  The bit mask to access the Z bit.
+      </dd>
+      <dt><code>lc2.COND_NEG</code></dt>
+      <dd>
+        Type: int.  Default: 4.  The bit mask to access the N bit.
+      </dd>
+    </dl>
+    
     <h2>Attributes</h2>
     <dl>
+      <dt><code>lc2.halted</code></dt>
+      <dd>
+        Type: boolean.  Default: false.  If true, the machine will not run.
+      </dd>
       <dt><code>lc2.debug</code></dt>
       <dd>
         Type: boolean.  Default: false.  If true, log debug
@@ -126,10 +159,122 @@
             console.log(lc2.mem.mdr.val); // 42
           </pre>
         </p>
+
+        <p>
+          To retrieve an entire page, use
+          the <code>lc2.mem.getPage(pageNum)</code> function.  This returns
+          Uint16Array copy of the page in memory.
+        </p>
+
+        <p>
+          To map memory access to an external function,
+          use <code>lc2.mem.map_memory(addr, fn)</code>.  When <code>addr</code>
+          is read from, the return value of <code>fn()</code> will be returned.
+          When <code>val</code> is written
+          to <code>addr</code>, <code>fn(val)</code> is called.
+        </p>
+
+        <p>
+          To bypass the memory unit and read directly from an address in memory,
+          use <code>lc2.mem.hw_get(addr)</code>.  To write directly to memory,
+          use <code>lc2.mem.hw_set(addr, val)</code>.
+        </p>
       </dd>
     </dl>
     
-    <h2>Methods</h2>
+    <h2>Helper Methods</h2>
+    <dl>
+      <dt><code>lc2.set_mcr()</code></dt>
+      <dd>
+        <p>
+          Sets bit 15 at the address of <code>MCR</code>, which
+          is <code>0xffff</code> by default.  This bit is set by default when
+          the computer is insantiated, and must be set for the computer to
+          process the next opcode.
+        </p>
+      </dd>
+      <dt><code>lc2.clear_mcr()</code></dt>
+      <dd>
+        <p>
+          Clears bit 15 at the address of <code>MCR</code>, which
+          is <code>0xffff</code> by default.  This has the effect of halting the
+          computer, since no opcodes will be processed after the bit is cleared.
+        </p>
+      </dd>
+      <dt><code>lc2.set_kbsr()</code></dt>
+      <dd>
+        <p>
+          Sets bit 15 at the address of <code>KBSR</code>, which
+          is <code>0xf400</code> by default.  This bit indicates that there is
+          unread keyboard input in KBDR.
+        </p>
+      </dd>
+      <dt><code>lc2.clear_kbsr()</code></dt>
+      <dd>
+        <p>
+          Clears bit 15 at the address of <code>KBSR</code>.
+        </p>
+      </dd>
+      <dt><code>lc2.set_kbdr(val)</code></dt>
+      <dd>
+        <p>
+          Sets the value of <code>KBDR</code>
+          to <code>val</code>.  <code>val</code> should be the ASCII code
+          corresponding to a keyboard button press.  This also has the
+          side-effect of setting <code>KBSR</code>, to indicate new keyboard
+          input (as with <code>lc2.set_kbsr()</code> above).
+        </p>
+      </dd>
+      <dt><code>lc2.set_console(fn)</code></dt>
+      <dd>
+        <p>
+          Maps memory accesses to <code>CRTDR</code> to <code>fn</code>.  By
+          default, these memory accesses are sent to <code>console.log</code>,
+          but this is quite clunky and should be replaced with something like a
+          textarea.
+        </p>
+      </dd>
+      <dt><code>lc2.load_program(prg)</code></dt>
+      <dd>
+        <p>
+          Load program <code>prg</code>, which is expected to be of the
+          form: <code>{ addr0: instr0, addr1: instr1, ... }</code> (the output
+          of <code>lc2.assemble(str)</code>
+          in <a href="lc2asm.html">lc2asm.js</a>).
+        </p>
+      </dd>
+      <dt><code>lc2.run_cycle()</code></dt>
+      <dd>
+        <p>
+          Fetches the memory at address pointed to
+          by <code>lc2.pc.val</code> which is loaded
+          into <code>lc2.ir.val</code> then <code>lc2.pc.val</code> is
+          incremented.  The instruction is then decoded and the
+          appropriate method is run on the given operands.
+        </p>
+        <p>
+          Example:
+          <pre>
+            var lc2 = new LC2;
+            
+            // load an instruction into memory
+            lc2.mem.mar.val = 3000;
+            lc2.mem.mdr.val = parseInt('0001001010100101',2); // add(1,2,1,5)
+            lc2.mem.interrogate(1);
+            
+            // point at the right instruction
+            lc2.pc.val = 3000;
+            lc2.run_cycle();
+            
+            console.log(lc2.r[1].val); // 5
+            console.log(lc2.conds);    // 2     (positive)
+            console.log(lc2.pc.val);   // 3001
+          </pre>
+        </p>
+      </dd>
+    </dl>
+    
+    <h2>Opcode Methods</h2>
     <dl>
       <dt><code>lc2.add(dest_reg,src_reg,imm5_bit,last)</code></dt>
       <dd>
@@ -422,19 +567,21 @@
       <dt><code>lc2.trap(vector)</code></dt>
       <dd>
         <p>
-          Runs operating system code identified
-          by <code>vector</code>.  Under the hood, this simply saves
-          the value of the <code>PC</code> register to register 7,
-          then sets the <code>PC</code> to the value
-          of <code>vector</code>.
+          Runs operating system code identified by <code>vector</code>.  Under
+          the hood, this simply saves the value of the <code>PC</code> register
+          to register 7, then sets the <code>PC</code> to the value stored
+          at <code>vector</code>.
         </p>
         <p>
           Example:
           <pre>
             var lc2 = new LC2;
+            lc2.mem.mar.val = parseInt('25',16);
+            lc2.mem.mdr.val = parseInt('4000',16);
+            lc2.mem.interrogate(1);
             
             lc2.trap(parseInt('25',16));
-            console.log(lc2.pc.val.toString(16)); // 25
+            console.log(lc2.pc.val.toString(16)); // 4000
           </pre>
         </p>
       </dd>
@@ -519,35 +666,6 @@
             lc2.mem.interrogate(1);
             lc2.rti();
             console.log(lc2.pc.val); // 42
-          </pre>
-        </p>
-      </dd>
-      <dt><code>lc2.run_cycle()</code></dt>
-      <dd>
-        <p>
-          Fetches the memory at address pointed to
-          by <code>lc2.pc.val</code> which is loaded
-          into <code>lc2.ir.val</code> then <code>lc2.pc.val</code> is
-          incremented.  The instruction is then decoded and the
-          appropriate method is run on the given operands.
-        </p>
-        <p>
-          Example:
-          <pre>
-            var lc2 = new LC2;
-            
-            // load an instruction into memory
-            lc2.mem.mar.val = 3000;
-            lc2.mem.mdr.val = parseInt('0001001010100101',2); // add(1,2,1,5)
-            lc2.mem.interrogate(1);
-            
-            // point at the right instruction
-            lc2.pc.val = 3000;
-            lc2.run_cycle();
-            
-            console.log(lc2.r[1].val); // 5
-            console.log(lc2.conds);    // 2     (positive)
-            console.log(lc2.pc.val);   // 3001
           </pre>
         </p>
       </dd>
