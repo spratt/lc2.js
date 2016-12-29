@@ -177,7 +177,7 @@ var LC2 = (function(LC2, undefined) {
         };
     };
 
-    // methods
+    // opcode methods
     var ProtoLC2 = function() {};
 
     ProtoLC2.add = function(dest_reg, src_reg, imm5_bit, last) {
@@ -448,22 +448,18 @@ var LC2 = (function(LC2, undefined) {
         this.pc.val = this.mem.mdr.val;
     };
 
-
+    // Helper methods
     ProtoLC2.set_mcr = function() {
         this.mem.hw_set(MCR, this.mem.hw_get(MCR) | 1 << 15);
     };
-    ProtoLC2.unset_mcr = function() {
+    ProtoLC2.clear_mcr = function() {
         this.mem.hw_set(MCR, this.mem.hw_get(MCR) & ones(15));
     };
     ProtoLC2.set_kbsr = function() {
-        this.mem.map_memory(KBSR, function() {
-            return (1 << 15); // new characters
-        });
+        this.mem.hw_set(KBSR, this.mem.hw_get(KBSR) | 1 << 15);
     };
-    ProtoLC2.unset_kbsr = function() {
-        this.mem.map_memory(KBSR, function() {
-            return (0 >> 0);  // no characters
-        });
+    ProtoLC2.clear_kbsr = function() {
+        this.mem.hw_set(KBSR, this.mem.hw_get(KBSR) & ones(15));
     };
     ProtoLC2.set_kbdr = function(v) {
         this.set_kbsr();
@@ -628,7 +624,7 @@ var LC2 = (function(LC2, undefined) {
             if(val) {
                 mem.hw_set(KBDR, val);
             } else {
-                that.unset_kbsr();
+                that.clear_kbsr();
                 return mem.hw_get(KBDR);
             }
         });
