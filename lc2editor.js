@@ -6,7 +6,7 @@
 
 var LC2 = (function(LC2, undefined) {
 
-    function makeMarker() {
+    function errorMarker() {
         var marker = document.createElement("div");
         marker.style.color = "#f00";
         marker.innerHTML = "X";
@@ -15,32 +15,45 @@ var LC2 = (function(LC2, undefined) {
     
     LC2.editorFromTextArea = function(ta) {
         var errorLine = -1;
+        var prevMark = -1;
         var ed = {};
         ed.CM = CodeMirror.fromTextArea(ta,{
             lineNumbers: true,
             mode: 'text/x-lc2',
-            gutters: ["CodeMirror-linenumbers", "error"]
+            gutters: ["CodeMirror-linenumbers", "mark"]
         });
         ed.CM.on('change', function(cm, change) {
             if(errorLine > -1) {
-                cm.getDoc().setGutterMarker(errorLine, 'error', null);
+                cm.getDoc().setGutterMarker(errorLine, 'mark', null);
             }
             if(ed.onChange) {
-                ed.onChange(change);
+                ed.onChange(change, ed.CM.getDoc().getValue());
             }
         });
-        ed.assemble = function(handleProgram) {
+        ed.assemble = function(meta, handleProgram) {
             try {
-                var output = LC2.assemble(ed.CM.getDoc().getValue());
+                var prg = LC2.assemble(ed.CM.getDoc().getValue(), meta);
                 if(handleProgram && (typeof handleProgram) === 'function')
-                    handleProgram(output);
+                    handleProgram(prg);
             } catch(err) {
                 console.error(err);
                 errorLine = err.line - 1;
-                ed.CM.getDoc().setGutterMarker(errorLine, 'error', makeMarker());
+                ed.CM.getDoc().setGutterMarker(errorLine, 'mark', errorMarker());
                 console.error(err.message + ' on line ' + err.line);
                 if(ed.onError) {ed.onError(err);}
             }
+        };
+        ed.setMarker = function(line, marker) {
+            if(prevMark > 0) ed.clearMarker();
+            ed.CM.getDoc().setGutterMarker(line, 'mark', marker);
+            prevMark = line;
+        };
+        ed.setCursor = function(line) {
+            ed.CM.setCursor(line);
+        };
+        ed.clearMarker = function(line) {
+            if(!line) line = prevMark;
+            ed.CM.getDoc().setGutterMarker(line, 'mark', null);
         };
         ed.setValue = function(str) {
             ed.CM.getDoc().setValue(str);

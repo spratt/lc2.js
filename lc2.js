@@ -83,15 +83,19 @@ var LC2 = (function(LC2, undefined) {
     };
 
     var MemoryUnit = function(lc2_inst) {
-        var mar = new Register("mar");
-        var mdr = new Register("mdr");
-        var pages = [];
-        var mmio = {};
+        var mem, mdr, pages;
+        this.reset = function() {
+            mar = new Register("mar");
+            mdr = new Register("mdr");
+            pages = [];
 
-        // fake initialize memory
-        for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
-            pages[page] = null;
+            // fake initialize memory
+            for(var page = 0; page < Math.pow(BASE, PAGE_BITS); ++page) {
+                pages[page] = null;
+            }
         }
+        this.reset();
+        var mmio = {};
 
 
         this.__defineGetter__("mar", function() {
@@ -117,9 +121,9 @@ var LC2 = (function(LC2, undefined) {
             var addr = mar.val & ones(PAGE_LOCS);
 
             lc2_inst.log('interrogate(' + write_bit + ')');
-            lc2_inst.log('mar:          ' + mar.uval +
+            lc2_inst.log('mar:          ' + mar.uval.toString(16) +
                      ' = ' + toBinaryString(mar.uval));
-            lc2_inst.log('mdr:          ' + mdr.val +
+            lc2_inst.log('mdr:          ' + mdr.val.toString(16) +
                      ' = ' + toBinaryString(mdr.val));
             lc2_inst.log('pageNum:         ' + pageNum +
                      ' = ' + toBinaryString(pageNum));
@@ -470,11 +474,7 @@ var LC2 = (function(LC2, undefined) {
         this.mem.map_memory(CRTDR, fn);
     };
 
-    ProtoLC2.load_program = function(prg) {
-        // expects an object of the form:
-        // { addr0: instr0, addr1: instr1, ... }
-        // where addr0, addr1, ... are memory addresses
-        // and instr0, instr1, ... are encoded machine instructions
+    ProtoLC2.load_program = function(prg, meta) {
         var addresses = Object.keys(prg);
         addresses.sort(function(a,b) {
             return parseInt(a, 16) - parseInt(b, 16);
@@ -486,6 +486,16 @@ var LC2 = (function(LC2, undefined) {
             that.mem.mdr.val = prg[addr];
             that.mem.interrogate(1);
         });
+        if(meta && meta.addrToLines) {
+            Object.keys(meta.addrToLines).forEach(function(key) {
+                var ob = { line: meta.addrToLines[key] };
+                if(meta && meta.filename) {
+                    ob.filename = meta.filename;
+                }
+                var addr = parseInt(key, 16);
+                that.map[addr] = ob;
+            });
+        }
     };
 
     ProtoLC2.run_cycle = function() {
@@ -566,11 +576,9 @@ var LC2 = (function(LC2, undefined) {
 
     // initialization
     var newLC2 = function() {
-        var conds = COND_ZERO;
-        var pc = new Register("pc");
-        var ir = new Register("ir");
         var mem = new MemoryUnit(this);
-        var reg = [];
+        var conds, pc, ir, reg, map = {};
+        var that = this;
 
         this.__defineGetter__("halted", function() {
             return (this.mem.hw_get(MCR) & (1 << 15)) === 0;
@@ -594,14 +602,12 @@ var LC2 = (function(LC2, undefined) {
             return mem;
         });
 
-        // initialize registers
-        for(var i = 0; i < REGISTERS; ++i) {
-            reg[i] = new Register("r" + i);
-        }
-
         this.__defineGetter__("r", function() {
             // copy to prevent access to original array
             return reg.slice(0); 
+        });
+        this.__defineGetter__("map", function() {
+            return map;
         });
 
         this.log = LC2.log;
@@ -612,14 +618,27 @@ var LC2 = (function(LC2, undefined) {
             return LC2.debug;
         });
 
-        // Set the machine clock register (MCR)
-        this.set_mcr();
+        this.reset = function() {
+            mem.reset();
+            conds = COND_ZERO;
+            pc = new Register("pc");
+            ir = new Register("ir");
+            reg = [];
+
+            // initialize registers
+            for(var i = 0; i < REGISTERS; ++i) {
+                reg[i] = new Register("r" + i);
+            }
+
+            // Set the machine clock register (MCR)
+            this.set_mcr();
+        }
+        this.reset();
 
         // add standard memory mappings
         this.mem.map_memory(CRTSR, function() {
             return 1 << 15; // ready
         });
-        var that = this;
         this.mem.map_memory(KBDR, function(val) {
             if(val) {
                 mem.hw_set(KBDR, val);

@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>lc2.js - a Little-Computer-2 Simulator in Javascript</title>
+    <title>lc2.js - a Little-Computer-2 Simulator in JavaScript</title>
     <link rel="stylesheet" type="text/css"
           href="http://fonts.googleapis.com/css?family=Open+Sans" >
     <link rel="stylesheet" type="text/css" 
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" 
           href="docs/style.css" />
     <style type="text/css">
-      .error, .pc {width: .8em;}
+      .mark, .pc {width: .8em;}
       h1, h3 { display: inline; }
       h1 a { text-decoration: none; }
       h1 a:hover { text-decoration: underline; }
@@ -28,13 +28,13 @@
     <p>
       A simulator of
       the <a href="http://www.cs.utexas.edu/users/fussell/courses/cs310h/simulator/lc2.pdf">LC-2</a>
-      in javascript.  See the 
+      in JavaScript.  See the 
       <a href="docs/index.html">documentation</a>,
       and <a href="tests/index.html">unit tests</a>.
     </p>
     <p>
       <textarea id="editor"></textarea>
-      <button id="assemble">Assemble</button>
+      <button id="assemble">Reset and Assemble</button>
       <select id="loader">
         <option value="asm/helloworld.asm">helloworld.asm</option>
         <option value="asm/test_console.asm">test_console.asm</option>
@@ -48,6 +48,8 @@
         <option value="tests/dumbadd.asm">dumbadd.asm</option>
         <option value="tests/justtest.asm">justtest.asm</option>
       </select>
+      <span>Follow PC:</span>
+      <input id="codeFollowPC" type="checkbox" checked="true"></input>
       <span id="errors" style="float: right"></span>
       <br />
       <div id="lc2"></div>
@@ -71,43 +73,6 @@
     <script src="lc2os.js"></script>
     <script src="lc2editor.js"></script>
     <script src="lc2display.js"></script>
-    <script>
-      var errors = document.getElementById('errors');
-      var editor = LC2.editorFromTextArea(document.getElementById('editor'));
-      editor.onError = function(err) {
-          errors.innerHTML = err.message + ' on line ' + err.line;
-      };
-      editor.onChange = function(change) {
-          errors.innerHTML = '&nbsp;';
-      };
-      var displayDiv = document.getElementById('lc2');
-      var lc2inst;
-      var display;
-      function reset() {
-          displayDiv.innerHTML = '';
-          lc2inst = new LC2;
-          LC2.loadOS(lc2inst);
-          lc2inst.pc.val = parseInt('3000', 16);
-          display = lc2inst.displayFromDiv(displayDiv);
-          display.update();
-      }
-      function loaderChange() {
-          var path = loader.options[loader.selectedIndex].value;
-          editor.setValue(lib.readFromURL(path));
-          reset();
-          editor.assemble(handleProgram);
-      }
-      loaderChange();
-      document.getElementById('loader').addEventListener('change',
-                                                         loaderChange);
-      function handleProgram(prg) {
-          lc2inst.load_program(prg);
-          display.update();
-      }
-      document.getElementById('assemble').addEventListener('click',function(){
-          reset();
-          editor.assemble(handleProgram);
-      });
-    </script>
+    <script src="index.js"></script>
   </body>
 </html>

@@ -465,16 +465,18 @@ var LC2 = (function(LC2, undefined) {
 
     LC2.lex = function LC2_lex(str) {
         var lexemes = lexer.lex(str, LC2.spec);
-        lexemes.forEach(function(lexeme, index) {
-            if(lexeme.type !== 'STR')
-                lexeme.val = lexeme.val.toUpperCase();
-            if(lexeme.type === 'KEY') {
-                if(lexeme.val in assembler_mnemonics)
-                    lexeme.type = 'OPR';
-                else
-                    lexeme.type = 'REF';
-            }
-        });
+        if(lexemes) {
+            lexemes.forEach(function(lexeme, index) {
+                if(lexeme.type !== 'STR')
+                    lexeme.val = lexeme.val.toUpperCase();
+                if(lexeme.type === 'KEY') {
+                    if(lexeme.val in assembler_mnemonics)
+                        lexeme.type = 'OPR';
+                    else
+                        lexeme.type = 'REF';
+                }
+            });
+        }
         return lexemes;
     }
 
@@ -485,35 +487,38 @@ var LC2 = (function(LC2, undefined) {
 
         var line = 0;
         var lines = [[]];
-        lexemes.forEach(function(lexeme, index) {
-            LC2.log('parsing lexeme of type ' + lexeme.type);
-            // clean up some lexemes
-            if(lexeme.type === 'REG') {
-                var val = parseInt(lexeme.val, 10) & LC2.ones(3);
-                lexeme.val = val;
-            } else if(lexeme.type in number_types) {
-                try {
-                    lexeme.val = parseInt(lexeme.val, number_types[lexeme.type]);
-                } catch(err) {
-                    throw new Error('Invalid number on line ' + lexeme.line);
+        if(lexemes) {
+            lexemes.forEach(function(lexeme, index) {
+                LC2.log('parsing lexeme of type ' + lexeme.type);
+                // clean up some lexemes
+                if(lexeme.type === 'REG') {
+                    var val = parseInt(lexeme.val, 10) & LC2.ones(3);
+                    lexeme.val = val;
+                } else if(lexeme.type in number_types) {
+                    try {
+                        lexeme.val = parseInt(lexeme.val, number_types[lexeme.type]);
+                    } catch(err) {
+                        throw new Error('Invalid number on line ' + lexeme.line);
+                    }
+                    lexeme.type = 'NUM';
                 }
-                lexeme.type = 'NUM';
-            }
-            lines[line].push(lexeme);
-            if(index + 1 === lexemes.length)
-                return;
-            var next_lex = lexemes[index + 1];
-            if(next_lex.line > lexeme.line) {
-                LC2.log('found new operator, incrementing line');
-                lines[++line] = [];
-                state = 'OP';
-            } else if(next_lex.type === 'DIR' || next_lex.type === 'OPR') {
-                state = 'OP';
-            } else {
-                state = 'ARG';
-            }
-        });
+                lines[line].push(lexeme);
+                if(index + 1 === lexemes.length)
+                    return;
+                var next_lex = lexemes[index + 1];
+                if(next_lex.line > lexeme.line) {
+                    LC2.log('found new operator, incrementing line');
+                    lines[++line] = [];
+                    state = 'OP';
+                } else if(next_lex.type === 'DIR' || next_lex.type === 'OPR') {
+                    state = 'OP';
+                } else {
+                    state = 'ARG';
+                }
+            });
+        }
         lines.forEach(function(line) {
+            if(!line[0]) return;
             var op = {
                 line: line[0].line,
                 operator: null,
@@ -600,10 +605,25 @@ var LC2 = (function(LC2, undefined) {
         return ob.bytecode;
     };
 
-    LC2.assemble = function LC2_assemble(str) {
-        var ob = LC2.parse(LC2.lex(str));
+    LC2.assemble = function LC2_assemble(str, meta) {
+        if(!str) return;
+        meta = meta || {};
+        meta.addrToLines = {};
+        try {
+            var lexemes = LC2.lex(str)
+        } catch(err) {
+            if(meta && meta.filename) {
+                console.error('error while lexing', meta.filename);
+                console.error(err);
+            }
+        }
+        var ob = LC2.parse(lexemes);
         ob = LC2.run_directives(ob);
         ob = LC2.build_symbol_table(ob);
+        for(let i = 0; i < ob.lines.length; ++i) {
+            var line = ob.lines[i];
+            meta.addrToLines[line.address] = line.line;
+        }
         ob = LC2.translate(ob);
         return ob;
     };

@@ -234,13 +234,20 @@
           textarea.
         </p>
       </dd>
-      <dt><code>lc2.load_program(prg)</code></dt>
+      <dt><code>lc2.load_program(prg, meta)</code></dt>
       <dd>
         <p>
           Load program <code>prg</code>, which is expected to be of the
           form: <code>{ addr0: instr0, addr1: instr1, ... }</code> (the output
           of <code>lc2.assemble(str)</code>
-          in <a href="lc2asm.html">lc2asm.js</a>).
+          in <a href="lc2asm.html">lc2asm.js</a>).  Meta is an optional object
+          with the following keys, all of which are optional:
+          <ul>
+            <li><code>filename</code></li> the filename of the program being loaded.
+            <li><code>addrToLines</code></li> an object whose keys are addresses
+            whose associated values are the line numbers corresponding to the
+            given address.
+          </ul>
         </p>
       </dd>
       <dt><code>lc2.run_cycle()</code></dt>

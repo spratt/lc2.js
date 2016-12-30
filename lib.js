@@ -11,8 +11,12 @@ var lib = (function(lib, undefined) {
         if(callback) {
             async = true;
             req.onreadystatechange = function(e) {
-                if(e) throw e;
-                callback(req.responseText);
+                if(e) {
+                    // ignore it
+                }
+                if(req.status === 200 && req.responseText !== '') {
+                    callback(req.responseText);
+                }
             };
         }
         req.open('GET', url, async);

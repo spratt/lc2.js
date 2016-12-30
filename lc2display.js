@@ -15,12 +15,13 @@ var LC2 = (function(LC2, undefined) {
         return addrPage === page;
     }
 
-    function makeMarker() {
+    function pcMarker() {
         var marker = document.createElement("div");
         marker.style.color = "#0a0";
         marker.innerHTML = "▶";
         return marker;
     }
+    LC2.pcMarker = pcMarker;
 
     function toPrettyBinaryString(num) {
         if(typeof(num) !== "number") return;
@@ -270,10 +271,12 @@ var LC2 = (function(LC2, undefined) {
                 let fln = display.memoryCM.getOption('firstLineNumber');
                 var offset = newPC - fln;
                 display.memoryCM.getDoc().setGutterMarker(offset,
-                                                          'pc', makeMarker());
+                                                          'pc', pcMarker());
                 display.memoryCM.setCursor(offset);
                 display.lastOffset = offset;
             }
+            if(display.onUpdate && typeof(display.onUpdate) === 'function')
+                display.onUpdate();
         };
         pageSelect.addEventListener('change', display.update);
         function step() {
